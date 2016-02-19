@@ -81,7 +81,7 @@ static int get_scores(const char *file_name, int scores[], const int size)
 	}
 	fclose(fp);
 
-	return 0;
+	return i;
 }
 
 static void print_scores(const int student_id, const int scores[],
@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
 	char *file_name = "input.txt";
 	const int size = 60;
 	int students = 4;
-	int student_id;
 	int scores[size];
+	int number_of_scores;
 	int scores_per_students;
 	int ret;
 	int i;
@@ -120,11 +120,11 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	ret = get_scores(file_name, scores, size);
+	number_of_scores = get_scores(file_name, scores, size);
 
 	for (i = 0; i < students; ++i) {
-		student_id = next_student_id();
-		scores_per_students = size / students;
+		int student_id = next_student_id();
+		scores_per_students = number_of_scores / students;
 		print_scores(student_id, &scores[scores_per_students * i],
 				scores_per_students);
 	}
