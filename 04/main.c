@@ -54,28 +54,78 @@
  *
  * Student number is > 0.
  */
-static int next_student_number(void)
+static int next_student_id(void)
 {
-	static int number = 0;
-	return ++number;
+	static int student_id = 0;
+	return ++student_id;
 }
 
-int main(int argc, char *argv[])
+static int get_scores(const char *file_name, int scores[], const int size)
 {
-	char *file_name = "input.txt";
 	FILE *fp;
+	int value;
+	int ret;
 	int i;
-
-	if (argc == 2)
-		file_name = argv[1];
-
-	for (i = 0; i < 10; ++i)
-		printf("Student number: %d\n", next_student_number());
 
 	fp = fopen(file_name, "r");
 	if (fp == NULL) {
 		fprintf(stderr, "Can't open %s\n", file_name);
-		exit(-1);
+		return -1;
+	}
+	for (i = 0; i < size; ++i) {
+		ret = fscanf(fp, "%d,", &value);
+		if (ret == EOF || ret != 1) {
+			break;
+		}
+		scores[i] = value;
 	}
 	fclose(fp);
+
+	return 0;
+}
+
+static void print_scores(const int student_id, const int scores[],
+		         const size_t number_of_scores)
+{
+	const int number_of_column = 16;
+	int i;
+
+	printf("Student ID: %d\n", student_id);
+	for (i = 0; i < number_of_scores; ++i) {
+		printf("%d ", scores[i]);
+		if ((i + 1) % number_of_column == 0)
+			printf("\n");
+	}
+	printf("\n");
+}
+
+
+int main(int argc, char *argv[])
+{
+	char *file_name = "input.txt";
+	const int size = 60;
+	int students = 4;
+	int student_id;
+	int scores[size];
+	int scores_per_students;
+	int ret;
+	int i;
+
+	if (argc >= 2)
+		file_name = argv[1];
+	if (argc >= 3)
+		students = atoi(argv[2]);
+	if (students < 4 || students > 6) {
+		fprintf(stderr, "We only support students 4, 5, or 6\n");
+		exit(-1);
+	}
+
+	ret = get_scores(file_name, scores, size);
+
+	for (i = 0; i < students; ++i) {
+		student_id = next_student_id();
+		scores_per_students = size / students;
+		print_scores(student_id, &scores[scores_per_students * i],
+				scores_per_students);
+	}
 }
