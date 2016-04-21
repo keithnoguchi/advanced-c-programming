@@ -1,0 +1,7 @@
+$ ./a.out                                                          
+Input degree in the format (<DEGREE> deg [C|F]): 100 deg C
+212 deg F
+$ ./a.out 
+Input degree in the format (<DEGREE> deg [C|F]): 104 deg F
+40 deg C
+$
