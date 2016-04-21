@@ -28,7 +28,7 @@
    91, 92, 85, 68, 87, 75, 89, 97, 79, 65, 88, 72, 81, 94, 90
    ^D
    Maximum: 97, minimum: 65, and the average: 83.53
-   $
+   $ ./a.out
 
  */
 #include <stdio.h>
