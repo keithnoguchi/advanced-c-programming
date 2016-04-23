@@ -1,7 +1,13 @@
-$ ./a.out                                                        
-91, 92, 85, 68, 87, 75, 89, 97, 79, 65, 88, 72, 81, 94, 90
-Maximum: 97, minimum: 65, and the average: 83.53
+$ ./a.out
+Input scores below, finish with the blank line.
+
+Scores: 91, 92, 85, 68, 87, 75, 89, 97, 79, 65, 88, 72,
+81, 94, 90
+
+Average, maximum, and minimum: 83.53, 97, 65
 $ ./a.out 
-1, 2, 3, 4
-Maximum: 4, minimum: 1, and the average: 2.50
-$
+Input scores below, finish with the blank line.
+
+Scores: 100, 90, 80, 50, 70
+
+Average, maximum, and minimum: 78.00, 100, 50

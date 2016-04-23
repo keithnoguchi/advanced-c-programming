@@ -25,11 +25,12 @@
 
    Example:
    $ ./a.out
-   91, 92, 85, 68, 87, 75, 89, 97, 79, 65, 88, 72, 81, 94, 90
-   ^D
-   Maximum: 97, minimum: 65, and the average: 83.53
-   $ ./a.out
+   Input scores below, finish with the blank line.
 
+   Scores: 91, 92, 85, 68, 87, 75, 89, 97, 79, 65, 88, 72,
+   81, 94, 90
+
+   Average, maximum, and minimum: 83.53, 97, 65
  */
 #include <stdio.h>
 #include <ctype.h>
@@ -41,11 +42,14 @@ int main()
 	int max, min, count;
 	float sum;
 	int val;
-	int c;
+	int prev, c;
 	int i;
 
 	max = min = sum = count = 0;
+	prev = 0;
 	i = 0;
+	printf("Input scores below, finish with the blank line.\n\n");
+	printf("Scores: ");
 	while ((c = getchar()) != EOF) {
 		if (isdigit(c)) {
 			/* Store the buffer for the later conversion. */
@@ -68,15 +72,19 @@ int main()
 					if (val < min)
 						min = val;
 				}
-				/* Let's take care of next score. */
+				/* Let's take care of the next score. */
 				i = 0;
 			}
+			/* Done with this student. */
+			if (prev == '\n' && c == '\n')
+				break;
 		}
+		prev = c;
 	}
 
 	if (count > 0)
-		printf("Maximum: %d, minimum: %d, and the average: %.2f\n",
-			max, min, sum / count);
+		printf("Average, maximum, and minimum: %.2f, %d, %d\n",
+			sum / count, max, min);
 	else
-		printf("Please provide at least one score, as 1, 2, 3\n");
+		printf("Please provide at least one score, as 100, 89, 72\n");
 }
