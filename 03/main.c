@@ -64,14 +64,16 @@ static int read_input(int a[], const size_t n)
 	i = 0;
 	while (i < n) {
 		ret = scanf("%d,", &value);
-		if (ret == EOF)
+		if (ret == EOF) {
 			break;
-		else if (ret != 1)
+		} else if (ret != 1) {
 			continue;
-		a[i++] = value;
-		if (is_blank_line())
-			/* Done with the array input. */
-			break;
+		} else {
+			a[i++] = value;
+			if (is_blank_line())
+				/* Done with the array input. */
+				break;
+		}
 	}
 	return i;
 }
