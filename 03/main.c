@@ -228,7 +228,7 @@ static size_t read_it(int a[], const int size)
 		fprintf(stderr, "Please input numbers");
 		exit(-1);
 	}
-	print("Original array", a, n);
+	print("\nOriginal array", a, n);
 
 	return n;
 }
