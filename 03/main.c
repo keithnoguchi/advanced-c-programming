@@ -33,6 +33,7 @@
 */
 
 #include <time.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -68,8 +69,8 @@ static int read_input(int a[], const size_t n)
 		else if (ret != 1)
 			continue;
 		a[i++] = value;
-		/* blank line is the end marker. */
 		if (is_blank_line())
+			/* Done with the array input. */
 			break;
 	}
 	return i;
@@ -177,7 +178,19 @@ static void sort(int a[], const size_t n, void (*fn)(int a[], const size_t n))
 
 static void prompt(void)
 {
-	printf("Which number are you interested? ");
+	printf("Which number are you interested in, or Q for quit? ");
+}
+
+static bool is_finished(void)
+{
+	int c;
+
+	c = getchar();
+	if (isalpha(c) && toupper(c) == 'Q')
+		return true;
+	ungetc(c, stdin);
+
+	return false;
 }
 
 static int get_number(void)
@@ -185,18 +198,23 @@ static int get_number(void)
 	int number;
 	int ret;
 
-	printf("get_number() in\n");
-	while ((ret = scanf("%d", &number)) != 1) {
-		if (ret == EOF)
+	while ((ret = scanf("%d,", &number)) != 1) {
+		if (ret == EOF || is_finished())
 			return EOF;
-		printf("Just input the number, please.");
+		fprintf(stderr, "Just input the number, please.");
+		exit(-1);
 	}
-	printf("get_number() out with ret = %d, number = %d\n", ret, number);
 	return number;
 }
 
-static int lookup(const int a[], const int number)
+static int lookup(const int a[], const size_t n, const int number)
 {
+	int i;
+
+	for (i = 0; i < n; ++i)
+		if (number == a[i])
+			return i;
+
 	return -1;
 }
 
@@ -204,12 +222,13 @@ static size_t read_it(int a[], const int size)
 {
 	int n;
 
+	printf("Numbers: ");
 	n = read_input(a, size);
 	if (n <= 0) {
 		fprintf(stderr, "Please input numbers");
 		exit(-1);
 	}
-	print("original", a, n);
+	print("Original array", a, n);
 
 	return n;
 }
@@ -220,7 +239,7 @@ static void reverse_it(const int a[], const int n)
 
 	copy(tmp, a, n);
 	reverse(tmp, n);
-	print("reversed", tmp, n);
+	print("Reversed array", tmp, n);
 	if (debug) {
 		reverse(tmp, n);
 		if (compare(a, tmp, n)) {
@@ -236,7 +255,7 @@ static void sort_it(const int a[], const size_t n)
 
 	copy(tmp, a, n);
 	sort(tmp, n, quick_sort);
-	print("sorted(quick_sort)", tmp, n);
+	print("Sorted array by quick sort", tmp, n);
 	if (debug) {
 		int debug_tmp[n];
 		copy(debug_tmp, a, n);
@@ -254,11 +273,11 @@ static void lookup_it(const int a[], const size_t n)
 	int index;
 
 	for (prompt(); (number = get_number()) != EOF; prompt()) {
-		index = lookup(a, number);
+		index = lookup(a, n, number);
 		if (index == -1)
-			printf("There is no such number\n");
+			printf("%d is not in array.\n", number);
 		else
-			printf("%d is at index %d\n", number, index);
+			printf("%d is at index %d.\n", number, index);
 	}
 	printf("\n");
 }
