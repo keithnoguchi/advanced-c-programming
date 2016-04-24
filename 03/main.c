@@ -29,6 +29,28 @@
 	      47, 71, 5, 58, 95, 22, 0, and 47
 
    Example:
+   $ ./a.out 
+   Numbers: 4, 3, 2, 1, 0
+
+
+   Original array: 4, 3, 2, 1, 0
+   Reversed array: 0, 1, 2, 3, 4
+   Sorted array by quick sort: 0, 1, 2, 3, 4
+   Which number are you interested in, or Q for quit? 1  
+   1 is at index 3.
+   Which number are you interested in, or Q for quit? 2
+   2 is at index 2.
+   Which number are you interested in, or Q for quit? 3
+   3 is at index 1.
+   Which number are you interested in, or Q for quit? 4
+   4 is at index 0.
+   Which number are you interested in, or Q for quit? 5
+   5 is not in array.
+   Which number are you interested in, or Q for quit? 6
+   6 is not in array.
+   Which number are you interested in, or Q for quit? 0
+   0 is at index 4.
+   Which number are you interested in, or Q for quit? q
 
 */
 
