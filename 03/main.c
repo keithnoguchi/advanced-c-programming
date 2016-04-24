@@ -41,6 +41,21 @@
 /* debug flag. */
 static const bool debug = true;
 
+static bool is_blank_line(void)
+{
+	int c;
+
+	c = getchar();
+	if (c == '\n') {
+		c = getchar();
+		if (c == '\n')
+			return true;
+		else
+			ungetc(c, stdin);
+	}
+	return false;
+}
+
 static int read_input(int a[], const size_t n)
 {
 	int i, value, ret;
@@ -53,6 +68,9 @@ static int read_input(int a[], const size_t n)
 		else if (ret != 1)
 			continue;
 		a[i++] = value;
+		/* blank line is the end marker. */
+		if (is_blank_line())
+			break;
 	}
 	return i;
 }
