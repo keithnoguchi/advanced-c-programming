@@ -48,6 +48,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Return the next student number available.
  *
@@ -59,10 +60,22 @@ static int next_student_number(void)
 	return ++number;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+	char *file_name = "input.txt";
+	FILE *fp;
 	int i;
+
+	if (argc == 2)
+		file_name = argv[1];
 
 	for (i = 0; i < 10; ++i)
 		printf("Student number: %d\n", next_student_number());
+
+	fp = fopen(file_name, "r");
+	if (fp == NULL) {
+		fprintf(stderr, "Can't open %s\n", file_name);
+		exit(-1);
+	}
+	fclose(fp);
 }
