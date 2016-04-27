@@ -60,7 +60,7 @@ static int next_student_id(void)
 	return ++student_id;
 }
 
-static int get_scores(const char *file_name, int scores[], const int size)
+static int get_scores(const char *const file_name, int scores[], const int size)
 {
 	FILE *fp;
 	int value;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 	 * grade of indivisual scores. */
 	scores_per_student = number_of_scores / number_of_students;
 	for (i = 0; i < number_of_students; ++i) {
-		int *scores = &input_scores[scores_per_student * i];
+		const int *scores = &input_scores[scores_per_student * i];
 		int student_id = next_student_id();
 		print_scores(student_id, scores, scores_per_student);
 	}
