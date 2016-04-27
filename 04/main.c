@@ -87,45 +87,64 @@ static int get_scores(const char *file_name, int scores[], const int size)
 static void print_scores(const int student_id, const int scores[],
 		         const size_t number_of_scores)
 {
-	const int number_of_column = 16;
+	static const int number_of_column = 16;
 	int i;
 
 	printf("Student ID: %d\n", student_id);
 	for (i = 0; i < number_of_scores; ++i) {
 		printf("%d ", scores[i]);
-		if ((i + 1) % number_of_column == 0)
+		if (((i + 1) % number_of_column) == 0)
 			printf("\n");
 	}
 	printf("\n");
 }
 
-
 int main(int argc, char *argv[])
 {
-	char *file_name = "input.txt";
-	const int size = 60;
-	int students = 4;
-	int scores[size];
+	const char *const default_input_filename = "input.txt";
+	const int default_number_of_students = 4;
+	const int max_input_size = 60;
+	int input_scores[max_input_size];
+	int scores_per_student;
+	int number_of_students;
 	int number_of_scores;
-	int scores_per_students;
-	int ret;
+	const char *filename;
 	int i;
 
-	if (argc >= 2)
-		file_name = argv[1];
-	if (argc >= 3)
-		students = atoi(argv[2]);
-	if (students < 4 || students > 6) {
-		fprintf(stderr, "We only support students 4, 5, or 6\n");
+	/* Get the input filename. */
+	filename = default_input_filename;
+	if (argc >= 2) {
+		filename = argv[1];
+	} else {
+		printf("No input file has been specified.");
+		printf("We'll use %s as the input file.", filename);
+	}
+	number_of_scores = get_scores(filename, input_scores, max_input_size);
+	if (number_of_scores < 0) {
+		/* Error happened.  Don't proceed. */
 		exit(-1);
 	}
 
-	number_of_scores = get_scores(file_name, scores, size);
+	/* Get the number of students. */
+	number_of_students = default_number_of_students;
+	if (argc >= 3) {
+		int students = atoi(argv[2]);
 
-	for (i = 0; i < students; ++i) {
+		if (students < 4 || students > 6) {
+			printf("4, 5, or 6 are allowed number of students.\n");
+			printf("Falls back to %d students\n",
+					default_number_of_students);
+		} else {
+			number_of_students = students;
+		}
+	}
+
+	/* Print out the student statistics alnog with the letter
+	 * grade of indivisual scores. */
+	scores_per_student = number_of_scores / number_of_students;
+	for (i = 0; i < number_of_students; ++i) {
+		int *scores = &input_scores[scores_per_student * i];
 		int student_id = next_student_id();
-		scores_per_students = number_of_scores / students;
-		print_scores(student_id, &scores[scores_per_students * i],
-				scores_per_students);
+		print_scores(student_id, scores, scores_per_student);
 	}
 }
