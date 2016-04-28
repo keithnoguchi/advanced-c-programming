@@ -97,7 +97,25 @@ static void print_student_id(const int student_id)
 static void print_average(const int scores[],
 				const size_t number_of_scores)
 {
-	;
+	int min, max;
+	float sum;
+	int i;
+
+	min = max = sum = 0;
+	for (i = 0; i < number_of_scores; ++i) {
+		sum += scores[i];
+		if (i == 0) {
+			min = max = scores[i];
+		} else {
+			if (scores[i] < min)
+				min = scores[i];
+			else if (scores[i] > max)
+				max = scores[i];
+		}
+	}
+	printf("Average score: %.2f, minimum score: %d"
+			", and maximum score: %d\n",
+			sum / number_of_scores, min, max);
 }
 
 static void print_letter_grade(const int scores[],
