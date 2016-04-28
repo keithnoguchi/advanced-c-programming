@@ -84,14 +84,9 @@ static int get_scores(const char *const file_name, int scores[], const int size)
 	return i;
 }
 
-static void print_header(void)
-{
-	printf("\n\n");
-}
-
 static void print_student_id(const int student_id)
 {
-	printf("Student ID: %d\n", student_id);
+	printf("Student ID: %d, ", student_id);
 }
 
 static void print_average(const int scores[],
@@ -118,18 +113,66 @@ static void print_average(const int scores[],
 			sum / number_of_scores, min, max);
 }
 
+/*
+   Grading Policy:
+
+   A+: >  95
+   A:  == 95
+   A-: >= 90
+   B+: >  85
+   B:  == 85
+   B-: >= 80
+   C+: >  75
+   C:  == 75
+   C-: >= 70
+   D:  >= 60
+   F:  <  60
+*/
+static char *score_to_letter_grade(const int score)
+{
+	if (score > 95)
+		return "A+";
+	else if (score == 95)
+		return "A";
+	else if (score >= 90)
+		return "A-";
+	else if (score > 85)
+		return "B+";
+	else if (score == 85)
+		return "B";
+	else if (score >= 80)
+		return "B-";
+	else if (score > 75)
+		return "C+";
+	else if (score == 75)
+		return "C";
+	else if (score >= 70)
+		return "C-";
+	else if (score >= 60)
+		return "D";
+	else
+		return "F";
+}
+
 static void print_letter_grade(const int scores[],
 				const size_t number_of_scores)
 {
-	static const int number_of_column = 16;
+	static const int number_of_column = 5;
 	int i;
 
+	printf("%-30s", "Letter grade for each score: ");
 	for (i = 0; i < number_of_scores; ++i) {
-		printf("%d ", scores[i]);
+		printf("%d(%-2s) ", scores[i],
+			score_to_letter_grade(scores[i]));
 		if (((i + 1) % number_of_column) == 0)
-			printf("\n");
+			printf("\n%30c", ' ');
 	}
-	printf("\n");
+}
+
+static void usage(const char *const progname, const int ret)
+{
+	printf("Usage: %s <input_filename> <number_of_students>\n", progname);
+	exit(ret);
 }
 
 int main(int argc, char *argv[])
@@ -164,18 +207,21 @@ int main(int argc, char *argv[])
 		int students = atoi(argv[2]);
 
 		if (students < 4 || students > 6) {
-			printf("4, 5, or 6 are allowed number of students.\n");
-			printf("Falls back to %d students\n",
-					default_number_of_students);
+			fprintf(stderr,
+				"Please use either 4, 5, or 6 students\n");
+			usage(argv[0], -1);
 		} else {
 			number_of_students = students;
 		}
 	}
 
+	/* Print usage output. */
+	if (argc >= 4)
+		usage(argv[0], 0);
+
 	/* Print out the student statistics alnog with the letter
 	 * grade of indivisual scores. */
 	scores_per_student = number_of_scores / number_of_students;
-	print_header();
 	for (i = 0; i < number_of_students; ++i) {
 		const int *scores = &input_scores[scores_per_student * i];
 		int student_id = next_student_id();
@@ -183,5 +229,6 @@ int main(int argc, char *argv[])
 		print_student_id(student_id);
 		print_average(scores, scores_per_student);
 		print_letter_grade(scores, scores_per_student);
+		printf("\n");
 	}
 }
