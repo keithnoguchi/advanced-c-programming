@@ -84,13 +84,28 @@ static int get_scores(const char *const file_name, int scores[], const int size)
 	return i;
 }
 
-static void print_scores(const int student_id, const int scores[],
-		         const size_t number_of_scores)
+static void print_header(void)
+{
+	printf("\n\n");
+}
+
+static void print_student_id(const int student_id)
+{
+	printf("Student ID: %d\n", student_id);
+}
+
+static void print_average(const int scores[],
+				const size_t number_of_scores)
+{
+	;
+}
+
+static void print_letter_grade(const int scores[],
+				const size_t number_of_scores)
 {
 	static const int number_of_column = 16;
 	int i;
 
-	printf("Student ID: %d\n", student_id);
 	for (i = 0; i < number_of_scores; ++i) {
 		printf("%d ", scores[i]);
 		if (((i + 1) % number_of_column) == 0)
@@ -116,8 +131,8 @@ int main(int argc, char *argv[])
 	if (argc >= 2) {
 		filename = argv[1];
 	} else {
-		printf("No input file has been specified.");
-		printf("We'll use %s as the input file.", filename);
+		printf("No input file has been specified.\n");
+		printf("We'll use %s as the input file.\n", filename);
 	}
 	number_of_scores = get_scores(filename, input_scores, max_input_size);
 	if (number_of_scores < 0) {
@@ -142,9 +157,13 @@ int main(int argc, char *argv[])
 	/* Print out the student statistics alnog with the letter
 	 * grade of indivisual scores. */
 	scores_per_student = number_of_scores / number_of_students;
+	print_header();
 	for (i = 0; i < number_of_students; ++i) {
 		const int *scores = &input_scores[scores_per_student * i];
 		int student_id = next_student_id();
-		print_scores(student_id, scores, scores_per_student);
+
+		print_student_id(student_id);
+		print_average(scores, scores_per_student);
+		print_letter_grade(scores, scores_per_student);
 	}
 }
