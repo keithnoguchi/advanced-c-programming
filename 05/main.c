@@ -48,8 +48,8 @@ int main()
 	char *cptr = &c;
 	int **iptrptr = &iptr;
 
-	printf("Actual value\n");
-	printf("------------\n");
+	printf("Actual values\n");
+	printf("-------------\n");
 	printf("%-55s %d\n", "Integer i:", i);
 	printf("%-55s %f\n", "Float f:", f);
 	printf("%-55s %F\n", "Double d:", d);
@@ -74,4 +74,13 @@ int main()
 	printf("%-55s %p\n", "Address of the character c pinter cptr:", &cptr);
 	printf("%-55s %p\n", "Address of the pointer to integer i iptrptr:",
 			&iptrptr);
+
+	printf("\nActual values by dereferencing the corresponding pointers\n");
+	printf("---------------------------------------------------------\n");
+	printf("%-55s %d\n", "Integer i, by *iptr:", *iptr);
+	printf("%-55s %f\n", "Float f, by *fptr:", *fptr);
+	printf("%-55s %F\n", "Double d, by *dptr:", *dptr);
+	printf("%-55s %s\n", "String s, by *sptr:", *sptr);
+	printf("%-55s %c\n", "Character c, by *cptr:", *cptr);
+	printf("%-55s %d\n", "Integer i, by **iptrptr:", **iptrptr);
 }
