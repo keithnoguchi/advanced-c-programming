@@ -1,0 +1,34 @@
+Actual values
+-------------
+Integer i:                                              25
+Float f:                                                3.142000
+Double d:                                               1.732170
+String s:                                               Hello, C Programmer
+Character c:                                            x
+
+Addresses of the value, using the corresponding pointers
+--------------------------------------------------------
+Address of integer i:                                   0x7ffea9a431bc
+Address of float f:                                     0x7ffea9a431b8
+Address of double d:                                    0x7ffea9a431b0
+Address of string s:                                    0x7ffea9a431a8
+Address of character c:                                 0x7ffea9a431a7
+Address of pointer to integer i:                        0x7ffea9a43198
+
+Address of the pionters
+-----------------------
+Address of the integer pionter iptr:                    0x7ffea9a43198
+Address of the float pointer fptr:                      0x7ffea9a43190
+Address of the double pinter dptr:                      0x7ffea9a43188
+Address of the string s pointer sptr:                   0x7ffea9a43180
+Address of the character c pinter cptr:                 0x7ffea9a43178
+Address of the pointer to integer i iptrptr:            0x7ffea9a43170
+
+Actual values by dereferencing the corresponding pointers
+---------------------------------------------------------
+Integer i, by *iptr:                                    25
+Float f, by *fptr:                                      3.142000
+Double d, by *dptr:                                     1.732170
+String s, by *sptr:                                     Hello, C Programmer
+Character c, by *cptr:                                  x
+Integer i, by **iptrptr:                                25
