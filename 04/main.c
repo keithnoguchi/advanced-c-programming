@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 	if (argc >= 2) {
 		filename = argv[1];
 	} else {
-		printf("No input file has been specified.\n");
+		printf("No input file has been specified. ");
 		printf("We'll use %s as the input file.\n", filename);
 	}
 	number_of_scores = get_scores(filename, input_scores, max_input_size);
