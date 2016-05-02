@@ -76,22 +76,27 @@ static int get_position(unsigned *x, unsigned *y)
 	if (ret != 2)
 		return 0;
 
-	if (*x <= 0 || *x > GRID_SIZE)
-		*x = 0;
-	if (*y <= 0 || *y > GRID_SIZE)
-		*y = 0;
+	/* Adjust the index to the internal representation. */
+	*x -= 1;
+	*y -= 1;
+
+	/* position -1 is the general invalid position. */
+	if (*x >= GRID_SIZE)
+		*x = -1;
+	if (*y >= GRID_SIZE)
+		*y = -1;
 
 	return 1;
 }
 
 static bool is_grid_available(const int x, const int y)
 {
-	return grid[y - 1][x - 1] == '-';
+	return grid[y][x] == '-';
 }
 
 static bool is_valid_position(const unsigned x, const unsigned y)
 {
-	if (x == 0 || y == 0 || !is_grid_available(x, y))
+	if (x < 0 || y < 0 || !is_grid_available(x, y))
 		return false;
 	else
 		return true;
@@ -99,7 +104,7 @@ static bool is_valid_position(const unsigned x, const unsigned y)
 
 static void fill_grid(const int x, const int y, const char player)
 {
-	grid[y - 1][x - 1] = player;
+	grid[y][x] = player;
 }
 
 static int check_column(const int x, const int y, const char player)
@@ -109,7 +114,7 @@ static int check_column(const int x, const int y, const char player)
 
 	count = prev_count = 0;
 	for (i = 0; i < GRID_SIZE; ++i) {
-		if (grid[i][x - 1] == player)
+		if (grid[i][x] == player)
 			++count;
 		else {
 			if (count > prev_count)
@@ -127,7 +132,7 @@ static int check_row(const int x, const int y, const char player)
 
 	count = prev_count = 0;
 	for (i = 0; i < GRID_SIZE; ++i) {
-		if (grid[y - 1][i] == player)
+		if (grid[y][i] == player)
 			++count;
 		else {
 			if (count > prev_count)
