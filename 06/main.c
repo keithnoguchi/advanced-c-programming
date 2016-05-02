@@ -13,7 +13,13 @@
 
    Date: May 1st, 2016
 
-   Objective: 
+   Objective: Implement the game tic-tac-toe as described below.
+              Show the input and output of the game and finally the result.
+              You may use a 4 X 4 array and you are free to use the
+              algorithm described in the sourse material.  Show the
+              initial board, the moves of each player, and the result
+              of the game including the final board.
+
 */
 
 #include <stdio.h>
@@ -41,18 +47,19 @@ static void print_grid(void)
 {
 	int i, j;
 
+	/* Print X axis. */
 	printf("\n\t  ");
 	for (i = 0; i < GRID_SIZE; ++i)
 		printf("%d ", i + 1);
 	printf("x\n");
 
+	/* Print grid as well as Y asix. */
 	for (i = 0; i < GRID_SIZE; ++i) {
 		printf("\t%d ", i + 1);
 		for (j = 0; j < GRID_SIZE; ++j)
 			printf("%c ", grid[i][j]);
 		printf("\n");
 	}
-
 	printf("\ty\n\n");
 }
 
@@ -112,11 +119,11 @@ static int check_column(const int x, const int y, const char player)
 	int count = 1;
 	int i;
 
-	/* Check the top rows. */
+	/* Check the top side. */
 	for (i = y - 1; i >= 0 && grid[i][x] == player; --i)
 		++count;
 
-	/* Check the bottom rows. */
+	/* Check the bottom side. */
 	for (i = y + 1; i < GRID_SIZE && grid[i][x] == player; ++i)
 		++count;
 
@@ -128,12 +135,30 @@ static int check_row(const int x, const int y, const char player)
 	int count = 1;
 	int i;
 
-	/* Check the left columns. */
+	/* Check the left side. */
 	for (i = x - 1; i >= 0 && grid[y][i] == player; --i)
 		++count;
 
-	/* Check thr right columns. */
+	/* Check thr right side. */
 	for (i = x + 1; i < GRID_SIZE && grid[y][i] == player; ++i)
+		++count;
+
+	return count;
+}
+
+static int check_diagonal_1(const int x, const int y, const char player)
+{
+	int count = 1;
+	int i, j;
+
+	/* Check the left-top side. */
+	for (i = x - 1, j = y - 1; i >= 0 && j >= 0 && grid[j][i] == player;
+			--i, --j)
+		++count;
+
+	/* Check the right-bottom side. */
+	for (i = x + 1, j = y + 1; i < GRID_SIZE && j < GRID_SIZE
+			&& grid[j][i] == player; ++i, ++j)
 		++count;
 
 	return count;
@@ -149,6 +174,10 @@ static bool is_won(const int x, const int y, const char player)
 		return true;
 
 	count = check_row(x, y, player);
+	if (count >= min_win_count)
+		return true;
+
+	count = check_diagonal_1(x, y, player);
 	if (count >= min_win_count)
 		return true;
 
