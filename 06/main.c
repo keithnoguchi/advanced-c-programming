@@ -37,20 +37,20 @@ static void init_grid(const size_t grid_size)
 			grid[i][j] = '-';
 }
 
-static void print_grid(void)
+static void print_grid(const size_t grid_size)
 {
 	int i, j;
 
 	/* Print X axis. */
 	printf("\n\t  ");
-	for (i = 0; i < GRID_SIZE; ++i)
+	for (i = 0; i < grid_size; ++i)
 		printf("%d ", i + 1);
 	printf("x\n");
 
 	/* Print grid as well as Y asix. */
-	for (i = 0; i < GRID_SIZE; ++i) {
+	for (i = 0; i < grid_size; ++i) {
 		printf("\t%d ", i + 1);
-		for (j = 0; j < GRID_SIZE; ++j)
+		for (j = 0; j < grid_size; ++j)
 			printf("%c ", grid[i][j]);
 		printf("\n");
 	}
@@ -59,7 +59,7 @@ static void print_grid(void)
 
 static void print_prompt(const char player)
 {
-	print_grid();
+	print_grid(GRID_SIZE);
 	printf("Player %c> ", player);
 }
 
@@ -230,5 +230,5 @@ int main()
 		} else
 			printf("Invalid position. Try again.\n");
 	}
-	print_grid();
+	print_grid(GRID_SIZE);
 }
