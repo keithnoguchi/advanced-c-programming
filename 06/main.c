@@ -22,7 +22,7 @@ static const size_t column = 4;
 static const size_t row = 4;
 static char grid[4][4];
 
-static void init_grid()
+static void init_grid(void)
 {
 	int i, j;
 
@@ -31,23 +31,29 @@ static void init_grid()
 			grid[i][j] = '-';
 }
 
-static void print_grid()
+static void print_title(void)
+{
+	printf("\nTic-tac-toe 4x4 version\n");
+}
+
+static void print_grid(void)
 {
 	int i, j;
 
-	printf("\n");
+	printf("\n\t  1 2 3 4 x\n");
 	for (i = 0; i < row; ++i) {
-		printf("\t");
+		printf("\t%d ", i + 1);
 		for (j = 0; j < column; ++j)
 			printf("%c ", grid[i][j]);
 		printf("\n");
 	}
-	printf("\n");
+	printf("\ty\n\n");
 }
 
-static int print_prompt()
+static int print_prompt(void)
 {
-	printf("Next position in x, y or ^C to quit: ");
+	print_grid();
+	printf("Next position in x, y or ^C to quit. > ");
 	return 1;
 }
 
@@ -77,8 +83,8 @@ int main()
 	unsigned x, y;
 
 	init_grid();
+	print_title();
 	for (print_prompt(); get_input(&x, &y) != EOF; print_prompt()) {
 		fill_grid(x, y);
-		print_grid();
 	}
 }
