@@ -28,19 +28,13 @@
 #define GRID_SIZE   4
 static char grid[GRID_SIZE][GRID_SIZE];
 
-static void init_grid(void)
+static void init_grid(const size_t grid_size)
 {
 	int i, j;
 
-	for (i = 0; i < GRID_SIZE; ++i)
-		for (j = 0; j < GRID_SIZE; ++j)
+	for (i = 0; i < grid_size; ++i)
+		for (j = 0; j < grid_size; ++j)
 			grid[i][j] = '-';
-}
-
-static void print_title(void)
-{
-	printf("\nTic-tac-toe %dx%d version\n", GRID_SIZE, GRID_SIZE);
-	printf("\nProvide the position in x, y format or ^C to quit.\n");
 }
 
 static void print_grid(void)
@@ -75,23 +69,17 @@ static const char get_next_player(const int count)
 	return player_sym[count % 2];
 }
 
-static int get_position(unsigned *x, unsigned *y)
+static int get_position(int *x, int *y)
 {
 	int ret;
 
-	ret = scanf("%u,%u", x, y);
+	ret = scanf("%d,%d", x, y);
 	if (ret != 2)
 		return 0;
 
 	/* Adjust the index to the internal representation. */
 	*x -= 1;
 	*y -= 1;
-
-	/* position -1 is the general invalid position. */
-	if (*x >= GRID_SIZE)
-		*x = -1;
-	if (*y >= GRID_SIZE)
-		*y = -1;
 
 	return 1;
 }
@@ -101,9 +89,10 @@ static bool is_grid_available(const int x, const int y)
 	return grid[y][x] == '-';
 }
 
-static bool is_valid_position(const unsigned x, const unsigned y)
+static bool is_valid_position(const int x, const int y, const size_t grid_size)
 {
-	if (x < 0 || y < 0 || !is_grid_available(x, y))
+	if (x < 0 || x >= grid_size || y < 0 || y >= grid_size
+			|| !is_grid_available(x, y))
 		return false;
 	else
 		return true;
@@ -114,7 +103,8 @@ static void fill_grid(const int x, const int y, const char player)
 	grid[y][x] = player;
 }
 
-static int check_column(const int x, const int y, const char player)
+static int check_column(const int x, const int y, const char player,
+		const size_t grid_size)
 {
 	int count = 1;
 	int i;
@@ -124,13 +114,14 @@ static int check_column(const int x, const int y, const char player)
 		++count;
 
 	/* Check the bottom side. */
-	for (i = y + 1; i < GRID_SIZE && grid[i][x] == player; ++i)
+	for (i = y + 1; i < grid_size && grid[i][x] == player; ++i)
 		++count;
 
 	return count;
 }
 
-static int check_row(const int x, const int y, const char player)
+static int check_row(const int x, const int y, const char player,
+		const size_t grid_size)
 {
 	int count = 1;
 	int i;
@@ -140,44 +131,48 @@ static int check_row(const int x, const int y, const char player)
 		++count;
 
 	/* Check thr right side. */
-	for (i = x + 1; i < GRID_SIZE && grid[y][i] == player; ++i)
+	for (i = x + 1; i < grid_size && grid[y][i] == player; ++i)
 		++count;
 
 	return count;
 }
 
-static int check_diagonal_1(const int x, const int y, const char player)
+static int check_diagonal_1(const int x, const int y, const char player,
+		const size_t grid_size)
 {
 	int count = 1;
 	int i, j;
 
 	/* Check the left-top side. */
-	for (i = x - 1, j = y - 1; i >= 0 && j >= 0 && grid[j][i] == player;
-			--i, --j)
+	for (i = x - 1, j = y - 1;
+		i >= 0 && j >= 0 && grid[j][i] == player;
+		--i, --j)
 		++count;
 
 	/* Check the right-bottom side. */
-	for (i = x + 1, j = y + 1; i < GRID_SIZE && j < GRID_SIZE
-			&& grid[j][i] == player; ++i, ++j)
+	for (i = x + 1, j = y + 1;
+		i < grid_size && j < grid_size && grid[j][i] == player;
+		++i, ++j)
 		++count;
 
 	return count;
 }
 
-static bool is_won(const int x, const int y, const char player)
+static bool is_won(const int x, const int y, const char player,
+		const size_t grid_size)
 {
-	const int min_win_count = GRID_SIZE - 1;
+	const int min_win_count = grid_size - 1;
 	int count;
 
-	count = check_column(x, y, player);
+	count = check_column(x, y, player, grid_size);
 	if (count >= min_win_count)
 		return true;
 
-	count = check_row(x, y, player);
+	count = check_row(x, y, player, grid_size);
 	if (count >= min_win_count)
 		return true;
 
-	count = check_diagonal_1(x, y, player);
+	count = check_diagonal_1(x, y, player, grid_size);
 	if (count >= min_win_count)
 		return true;
 
@@ -186,19 +181,20 @@ static bool is_won(const int x, const int y, const char player)
 
 int main()
 {
-	unsigned x, y;
+	int x, y;
 	char player;
 	int count;
 
-	init_grid();
-	print_title();
+	printf("\nTic-tac-toe %dx%d version\n", GRID_SIZE, GRID_SIZE);
+	printf("\nProvide the position in x, y format or ^C to quit.\n");
+	init_grid(GRID_SIZE);
 
 	count = 0;
 	player = get_next_player(count);
 	for (print_prompt(player); get_position(&x, &y); print_prompt(player)) {
-		if (is_valid_position(x, y)) {
+		if (is_valid_position(x, y, GRID_SIZE)) {
 			fill_grid(x, y, player);
-			if (is_won(x, y, player)) {
+			if (is_won(x, y, player, GRID_SIZE)) {
 				printf("\n\tYou rock, %c!\n", player);
 				break;
 			} else if (count == GRID_SIZE * GRID_SIZE) {
