@@ -66,11 +66,11 @@ static int get_input(unsigned *x, unsigned *y)
 		return EOF;
 
 	if (*x <= 0 || *x > column) {
-		printf("x should be 0 < x <= %d\n", column);
+		printf("x should be 1 <= x <= %d\n", column);
 		*x = 0;
 	}
 	if (*y <= 0 || *y > row) {
-		printf("y should be 0 < y <= %d\n", row);
+		printf("y should be 1 <= y <= %d\n", row);
 		*y = 0;
 	}
 
