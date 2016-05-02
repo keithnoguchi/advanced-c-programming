@@ -158,6 +158,27 @@ static int check_diagonal_1(const int x, const int y, const char player,
 	return count;
 }
 
+static int check_diagonal_2(const int x, const int y, const char player,
+		const size_t grid_size)
+{
+	int count = 1;
+	int i, j;
+
+	/* Check the left-bottom side. */
+	for (i = x - 1, j = y + 1;
+		i >= 0 && j < grid_size && grid[j][i] == player;
+		--i, ++j)
+		++count;
+
+	/* Check the right-top side. */
+	for (i = x + 1, j = y - 1;
+		i < grid_size && j >= 0 && grid[j][i] == player;
+		++i, --j)
+		++count;
+
+	return count;
+}
+
 static bool is_won(const int x, const int y, const char player,
 		const size_t grid_size)
 {
@@ -173,6 +194,10 @@ static bool is_won(const int x, const int y, const char player,
 		return true;
 
 	count = check_diagonal_1(x, y, player, grid_size);
+	if (count >= min_win_count)
+		return true;
+
+	count = check_diagonal_2(x, y, player, grid_size);
 	if (count >= min_win_count)
 		return true;
 
