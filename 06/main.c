@@ -62,6 +62,12 @@ static void print_prompt(const char player)
 		player);
 }
 
+static const char get_next_player(const int count)
+{
+	const char player_sym[] = {'X', 'O'};
+	return player_sym[count % 2];
+}
+
 static int get_position(unsigned *x, unsigned *y)
 {
 	int ret;
@@ -154,7 +160,6 @@ static bool is_won(const int x, const int y, const char player)
 
 int main()
 {
-	const char player_sym[] = {'X', 'O'};
 	unsigned x, y;
 	char player;
 	int count;
@@ -163,7 +168,7 @@ int main()
 	print_title();
 
 	count = 0;
-	player = player_sym[count % 2];
+	player = get_next_player(count);
 	for (print_prompt(player); get_position(&x, &y) != EOF;
 		print_prompt(player)) {
 		if (is_valid_position(x, y)) {
@@ -175,7 +180,7 @@ int main()
 				printf("Draw.\n");
 				break;
 			}
-			player = player_sym[++count % 2];
+			player = get_next_player(++count);
 		} else
 			printf("Invalid position. Try again.\n");
 	}
