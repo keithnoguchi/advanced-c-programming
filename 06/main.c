@@ -102,8 +102,7 @@ static bool is_grid_filled(const game_t *game)
 
 static bool is_valid_position(const game_t *game, const int x, const int y)
 {
-	if (x < 0 || x >= game->grid_size
-		|| y < 0 || y >= game->grid_size
+	if (x < 0 || x >= game->grid_size || y < 0 || y >= game->grid_size
 		|| !is_grid_available(game, x, y))
 		return false;
 	else
@@ -228,7 +227,7 @@ int main()
 
 	init_game(&game);
 	printf("\nTic-tac-toe %dx%d version\n", game.grid_size, game.grid_size);
-	printf("\nProvide the position in x, y format or ^C to quit.\n");
+	printf("\nProvide the position in x, y format or ^C to exit.\n");
 
 	game.current_player = get_next_player(&game);
 	for (print_prompt(&game); get_position(&x, &y); print_prompt(&game)) {
