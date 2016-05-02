@@ -109,20 +109,24 @@ static void fill_grid(const int x, const int y, const char player)
 
 static int check_column(const int x, const int y, const char player)
 {
-	int count, prev_count;
+	int count = 1;
 	int i;
 
-	count = prev_count = 0;
-	for (i = 0; i < GRID_SIZE; ++i) {
+	/* Check the previous rows. */
+	for (i = y - 1; i >= 0; --i) {
 		if (grid[i][x] == player)
 			++count;
-		else {
-			if (count > prev_count)
-				prev_count = count;
-			count = 0;
-		}
+		else
+			break;
 	}
-	return prev_count > count ? prev_count : count;
+	/* Check the next rows. */
+	for (i = y + 1; i < GRID_SIZE; ++i) {
+		if (grid[i][x] == player)
+			++count;
+		else
+			break;
+	}
+	return count;
 }
 
 static int check_row(const int x, const int y, const char player)
