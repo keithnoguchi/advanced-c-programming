@@ -55,11 +55,11 @@ static void print_grid(void)
 	printf("\ty\n\n");
 }
 
-static int print_prompt(void)
+static void print_prompt(const char player)
 {
 	print_grid();
-	printf("Next position in x, y or ^C to quit: ");
-	return 1;
+	printf("Your turn, %c. Position in x, y format or ^C to quit: ",
+		player);
 }
 
 static int get_position(unsigned *x, unsigned *y)
@@ -157,24 +157,26 @@ int main()
 {
 	const char player_sym[] = {'X', 'O'};
 	unsigned x, y;
+	char player;
 	int count;
 
 	init_grid();
 	print_title();
 
 	count = 0;
-	for (print_prompt(); get_position(&x, &y) != EOF; print_prompt())
+	player = player_sym[count % 2];
+	for (print_prompt(player); get_position(&x, &y) != EOF;
+		print_prompt(player))
 		if (is_valid_position(&x, &y)) {
-			char player = player_sym[count++ % 2];
 			fill_grid(x, y, player);
 			if (is_won(x, y, player)) {
 				printf("\n\tYou rock, %c!\n", player);
-				print_grid();
 				break;
 			} else if (count == GRID_SIZE * GRID_SIZE) {
 				printf("Draw.\n");
-				print_grid();
 				break;
 			}
+			player = player_sym[++count % 2];
 		}
+	print_grid();
 }
