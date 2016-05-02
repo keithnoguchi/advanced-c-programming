@@ -82,14 +82,14 @@ static int get_position(unsigned *x, unsigned *y)
 	return ret;
 }
 
-static bool is_grid_empty(const int x, const int y)
+static bool is_grid_available(const int x, const int y)
 {
 	return grid[y - 1][x - 1] == '-';
 }
 
-static bool is_valid_position(const int x, const int y)
+static bool is_valid_position(unsigned *x, unsigned *y)
 {
-	if (x == 0 || y == 0 || !is_grid_empty(x, y)) {
+	if (*x == 0 || *y == 0 || !is_grid_available(*x, *y)) {
 		printf("Invalid position. Try again.\n");
 		return false;
 	} else
@@ -164,11 +164,11 @@ int main()
 
 	count = 0;
 	for (print_prompt(); get_position(&x, &y) != EOF; print_prompt())
-		if (is_valid_position(x, y)) {
+		if (is_valid_position(&x, &y)) {
 			char player = player_sym[count++ % 2];
 			fill_grid(x, y, player);
 			if (is_won(x, y, player)) {
-				printf("%c won!\n", player);
+				printf("\n\tYou rock, %c!\n", player);
 				print_grid();
 				break;
 			} else if (count == GRID_SIZE * GRID_SIZE) {
