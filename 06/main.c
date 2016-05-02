@@ -32,8 +32,6 @@ typedef struct game {
 	char grid[GRID_SIZE][GRID_SIZE];
 } game_t;
 
-static char grid[GRID_SIZE][GRID_SIZE];
-
 static void init_game(game_t *game)
 {
 	int i, j;
