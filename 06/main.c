@@ -28,6 +28,7 @@
 #define GRID_SIZE   4
 typedef struct game {
 	const size_t grid_size;
+	size_t filled_grid;
 	char current_player;
 	char grid[GRID_SIZE][GRID_SIZE];
 } game_t;
@@ -36,6 +37,7 @@ static void init_game(game_t *game)
 {
 	int i, j;
 
+	game->filled_grid = 0;
 	for (i = 0; i < game->grid_size; ++i)
 		for (j = 0; j < game->grid_size; ++j)
 			game->grid[i][j] = '-';
@@ -67,10 +69,10 @@ static void print_prompt(const game_t *game)
 	printf("Player %c> ", game->current_player);
 }
 
-static const char get_next_player(const int count)
+static const char get_next_player(const game_t *game)
 {
 	const char player_sym[] = {'X', 'O'};
-	return player_sym[count % 2];
+	return player_sym[game->filled_grid % 2];
 }
 
 static int get_position(int *x, int *y)
@@ -93,6 +95,11 @@ static bool is_grid_available(const game_t *game, const int x, const int y)
 	return game->grid[y][x] == '-';
 }
 
+static bool is_grid_filled(const game_t *game)
+{
+	return game->filled_grid == game->grid_size * game->grid_size;
+}
+
 static bool is_valid_position(const game_t *game, const int x, const int y)
 {
 	if (x < 0 || x >= game->grid_size
@@ -106,6 +113,7 @@ static bool is_valid_position(const game_t *game, const int x, const int y)
 static void fill_grid(game_t *game, const int x, const int y)
 {
 	game->grid[y][x] = game->current_player;
+	game->filled_grid += 1;
 }
 
 static int check_column(const game_t *game, const int x, const int y)
@@ -217,14 +225,12 @@ int main()
 {
 	game_t game = { .grid_size = GRID_SIZE };
 	int x, y;
-	int count;
 
 	init_game(&game);
 	printf("\nTic-tac-toe %dx%d version\n", game.grid_size, game.grid_size);
 	printf("\nProvide the position in x, y format or ^C to quit.\n");
 
-	count = 0;
-	game.current_player = get_next_player(count);
+	game.current_player = get_next_player(&game);
 	for (print_prompt(&game); get_position(&x, &y); print_prompt(&game)) {
 		if (is_valid_position(&game, x, y)) {
 			fill_grid(&game, x, y);
@@ -233,11 +239,11 @@ int main()
 					game.current_player);
 				printf("\n\tYou won the game!\n");
 				break;
-			} else if (count == game.grid_size * game.grid_size) {
-				printf("Draw.\n");
+			} else if (is_grid_filled(&game)) {
+				printf("\n\tIt's draw.\n");
 				break;
 			}
-			game.current_player = get_next_player(++count);
+			game.current_player = get_next_player(&game);
 		} else
 			printf("Invalid position. Try again.\n");
 	}
