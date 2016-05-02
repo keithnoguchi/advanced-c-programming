@@ -65,26 +65,33 @@ static int get_input(unsigned *x, unsigned *y)
 	if (ret != 2)
 		return EOF;
 
-	if (*x == 0 || *x > column)
+	if (*x <= 0 || *x > column) {
 		printf("x should be 0 < x <= %d\n", column);
-	if (*y == 0 || *y > row)
+		*x = 0;
+	}
+	if (*y <= 0 || *y > row) {
 		printf("y should be 0 < y <= %d\n", row);
+		*y = 0;
+	}
 
 	return ret;
 }
 
-static void fill_grid(const int x, const int y)
+static void fill_grid(const int x, const int y, const char role)
 {
-	grid[y - 1][x - 1] = 'O';
+	grid[y - 1][x - 1] = role;
 }
 
 int main()
 {
+	const char role_char[] = {'O', 'X'};
 	unsigned x, y;
+	int i;
 
 	init_grid();
 	print_title();
-	for (print_prompt(); get_input(&x, &y) != EOF; print_prompt()) {
-		fill_grid(x, y);
-	}
+	i = 0;
+	for (print_prompt(); get_input(&x, &y) != EOF; print_prompt())
+		if (x != 0 && y != 0)
+			fill_grid(x, y, role_char[i++ % 2]);
 }
