@@ -206,26 +206,27 @@ static bool is_won(const int x, const int y, const char player,
 
 int main()
 {
+	const size_t grid_size = GRID_SIZE;
 	int x, y;
 	char player;
 	int count;
 
-	init_grid(GRID_SIZE);
-	printf("\nTic-tac-toe %dx%d version\n", GRID_SIZE, GRID_SIZE);
+	init_grid(grid_size);
+	printf("\nTic-tac-toe %dx%d version\n", grid_size, grid_size);
 	printf("\nProvide the position in x, y format or ^C to quit.\n");
 
 	count = 0;
 	player = get_next_player(count);
-	for (print_prompt(player, GRID_SIZE);
+	for (print_prompt(player, grid_size);
 		get_position(&x, &y);
-		print_prompt(player, GRID_SIZE)) {
-		if (is_valid_position(x, y, GRID_SIZE)) {
+		print_prompt(player, grid_size)) {
+		if (is_valid_position(x, y, grid_size)) {
 			fill_grid(x, y, player);
-			if (is_won(x, y, player, GRID_SIZE)) {
+			if (is_won(x, y, player, grid_size)) {
 				printf("\n\tYou rock, %c!\n", player);
 				printf("\n\tYou won the game!\n");
 				break;
-			} else if (count == GRID_SIZE * GRID_SIZE) {
+			} else if (count == grid_size * grid_size) {
 				printf("Draw.\n");
 				break;
 			}
@@ -233,5 +234,5 @@ int main()
 		} else
 			printf("Invalid position. Try again.\n");
 	}
-	print_grid(GRID_SIZE);
+	print_grid(grid_size);
 }
