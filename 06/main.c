@@ -223,6 +223,7 @@ int main()
 			fill_grid(x, y, player);
 			if (is_won(x, y, player, GRID_SIZE)) {
 				printf("\n\tYou rock, %c!\n", player);
+				printf("\n\tYou won the game!\n");
 				break;
 			} else if (count == GRID_SIZE * GRID_SIZE) {
 				printf("Draw.\n");
