@@ -57,9 +57,9 @@ static void print_grid(const size_t grid_size)
 	printf("\ty\n\n");
 }
 
-static void print_prompt(const char player)
+static void print_prompt(const char player, const size_t grid_size)
 {
-	print_grid(GRID_SIZE);
+	print_grid(grid_size);
 	printf("Player %c> ", player);
 }
 
@@ -210,13 +210,15 @@ int main()
 	char player;
 	int count;
 
+	init_grid(GRID_SIZE);
 	printf("\nTic-tac-toe %dx%d version\n", GRID_SIZE, GRID_SIZE);
 	printf("\nProvide the position in x, y format or ^C to quit.\n");
-	init_grid(GRID_SIZE);
 
 	count = 0;
 	player = get_next_player(count);
-	for (print_prompt(player); get_position(&x, &y); print_prompt(player)) {
+	for (print_prompt(player, GRID_SIZE);
+		get_position(&x, &y);
+		print_prompt(player, GRID_SIZE)) {
 		if (is_valid_position(x, y, GRID_SIZE)) {
 			fill_grid(x, y, player);
 			if (is_won(x, y, player, GRID_SIZE)) {
