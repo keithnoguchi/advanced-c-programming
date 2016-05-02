@@ -131,20 +131,18 @@ static int check_column(const int x, const int y, const char player)
 
 static int check_row(const int x, const int y, const char player)
 {
-	int count, prev_count;
+	int count = 1;
 	int i;
 
-	count = prev_count = 0;
-	for (i = 0; i < GRID_SIZE; ++i) {
-		if (grid[y][i] == player)
-			++count;
-		else {
-			if (count > prev_count)
-				prev_count = count;
-			count = 0;
-		}
-	}
-	return prev_count > count ? prev_count : count;
+	/* Check the left columns. */
+	for (i = x - 1; i >= 0 && grid[y][i] == player; --i)
+		++count;
+
+	/* Check thr right columns. */
+	for (i = x + 1; i < GRID_SIZE && grid[y][i] == player; ++i)
+		++count;
+
+	return count;
 }
 
 static bool is_won(const int x, const int y, const char player)
