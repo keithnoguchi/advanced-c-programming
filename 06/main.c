@@ -112,20 +112,14 @@ static int check_column(const int x, const int y, const char player)
 	int count = 1;
 	int i;
 
-	/* Check the previous rows. */
-	for (i = y - 1; i >= 0; --i) {
-		if (grid[i][x] == player)
-			++count;
-		else
-			break;
-	}
-	/* Check the next rows. */
-	for (i = y + 1; i < GRID_SIZE; ++i) {
-		if (grid[i][x] == player)
-			++count;
-		else
-			break;
-	}
+	/* Check the top rows. */
+	for (i = y - 1; i >= 0 && grid[i][x] == player; --i)
+		++count;
+
+	/* Check the bottom rows. */
+	for (i = y + 1; i < GRID_SIZE && grid[i][x] == player; ++i)
+		++count;
+
 	return count;
 }
 
