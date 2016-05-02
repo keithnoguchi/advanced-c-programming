@@ -34,6 +34,7 @@ static void init_grid(void)
 static void print_title(void)
 {
 	printf("\nTic-tac-toe %dx%d version\n", GRID_SIZE, GRID_SIZE);
+	printf("\nProvide the position in x, y format or ^C to quit.\n");
 }
 
 static void print_grid(void)
@@ -58,8 +59,7 @@ static void print_grid(void)
 static void print_prompt(const char player)
 {
 	print_grid();
-	printf("Your turn, %c. Position in x, y format or ^C to quit: ",
-		player);
+	printf("Player %c> ", player);
 }
 
 static const char get_next_player(const int count)
@@ -74,18 +74,14 @@ static int get_position(unsigned *x, unsigned *y)
 
 	ret = scanf("%u,%u", x, y);
 	if (ret != 2)
-		return EOF;
+		return 0;
 
-	if (*x <= 0 || *x > GRID_SIZE) {
-		printf("x should be 1 <= x <= %d\n", GRID_SIZE);
+	if (*x <= 0 || *x > GRID_SIZE)
 		*x = 0;
-	}
-	if (*y <= 0 || *y > GRID_SIZE) {
-		printf("y should be 1 <= y <= %d\n", GRID_SIZE);
+	if (*y <= 0 || *y > GRID_SIZE)
 		*y = 0;
-	}
 
-	return ret;
+	return 1;
 }
 
 static bool is_grid_available(const int x, const int y)
@@ -169,8 +165,7 @@ int main()
 
 	count = 0;
 	player = get_next_player(count);
-	for (print_prompt(player); get_position(&x, &y) != EOF;
-		print_prompt(player)) {
+	for (print_prompt(player); get_position(&x, &y); print_prompt(player)) {
 		if (is_valid_position(x, y)) {
 			fill_grid(x, y, player);
 			if (is_won(x, y, player)) {
