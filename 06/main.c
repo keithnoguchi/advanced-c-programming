@@ -23,6 +23,8 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
 #include <stdbool.h>
 
 #define GRID_SIZE   4
@@ -43,30 +45,42 @@ static void init_game(game_t *game)
 			game->grid[i][j] = '-';
 }
 
-static void print_grid(const game_t *game)
+static int xprintf(FILE *fp, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vprintf(fmt, ap);
+	va_end(ap);
+
+	return ret;
+}
+
+static void print_grid(FILE *fp, const game_t *game)
 {
 	int i, j;
 
 	/* Print X axis. */
-	printf("\n\t  ");
+	xprintf(fp, "\n\t  ");
 	for (i = 0; i < game->grid_size; ++i)
-		printf("%d ", i + 1);
-	printf("x\n");
+		xprintf(fp, "%d ", i + 1);
+	xprintf(fp, "x\n");
 
 	/* Print grid as well as Y asix. */
 	for (i = 0; i < game->grid_size; ++i) {
-		printf("\t%d ", i + 1);
+		xprintf(fp, "\t%d ", i + 1);
 		for (j = 0; j < game->grid_size; ++j)
-			printf("%c ", game->grid[i][j]);
-		printf("\n");
+			xprintf(fp, "%c ", game->grid[i][j]);
+		xprintf(fp, "\n");
 	}
-	printf("\ty\n\n");
+	xprintf(fp, "\ty\n\n");
 }
 
-static void print_prompt(const game_t *game)
+static void print_prompt(FILE *fp, const game_t *game)
 {
-	print_grid(game);
-	printf("Player %c> ", game->current_player);
+	print_grid(fp, game);
+	xprintf(fp, "Player %c> ", game->current_player);
 }
 
 static const char get_next_player(const game_t *game)
@@ -220,31 +234,45 @@ static bool is_won(const game_t *game, const int x, const int y)
 	return false;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	game_t game = { .grid_size = GRID_SIZE };
+	char *output_file = "output.txt";
+	FILE *fp;
 	int x, y;
 
+	if (argc >= 2)
+		output_file = argv[1];
+
+	fp = fopen(output_file, "w");
+	if (fp == NULL) {
+		fprintf(stderr, "Can't open %s\n", output_file);
+		exit(-1);
+	}
+
 	init_game(&game);
-	printf("\nTic-tac-toe %dx%d version\n", game.grid_size, game.grid_size);
-	printf("\nProvide the position in x, y format or ^C to exit.\n");
+	xprintf(fp, "\nTic-tac-toe %dx%d version\n",
+			game.grid_size, game.grid_size);
+	xprintf(fp, "\nProvide the position in x, y format or ^C to exit.\n");
 
 	game.current_player = get_next_player(&game);
-	for (print_prompt(&game); get_position(&x, &y); print_prompt(&game)) {
+	for (print_prompt(fp, &game); get_position(&x, &y);
+		print_prompt(fp, &game)) {
 		if (is_valid_position(&game, x, y)) {
 			fill_grid(&game, x, y);
 			if (is_won(&game, x, y)) {
-				printf("\n\tYou rock, %c!\n",
+				xprintf(fp, "\n\tYou rock, %c!\n",
 					game.current_player);
-				printf("\n\tYou won the game!\n");
+				xprintf(fp, "\n\tYou won the game!\n");
 				break;
 			} else if (is_grid_filled(&game)) {
-				printf("\n\tIt's draw.\n");
+				xprintf(fp, "\n\tIt's draw.\n");
 				break;
 			}
 			game.current_player = get_next_player(&game);
 		} else
-			printf("Invalid position. Try again.\n");
+			xprintf(fp, "Invalid position. Try again.\n");
 	}
-	print_grid(&game);
+	print_grid(fp, &game);
+	fclose(fp);
 }
