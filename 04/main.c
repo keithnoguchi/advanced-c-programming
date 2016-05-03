@@ -161,6 +161,10 @@ int main(int argc, char *argv[])
 	int ret;
 	int i;
 
+	printf("\n");
+	printf("\tStudent Score Procesor\n");
+	printf("\t======================\n\n");
+
 	/* Get the number of student. */
 	for (prompt_number_of_students();
 		(ret = get_number_of_students(&number_of_students)) != 1;
