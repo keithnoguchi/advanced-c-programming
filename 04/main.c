@@ -116,7 +116,8 @@ static float process_per_student(const int student_id,
 		if (ret == EOF || ret != 1) {
 			break;
 		}
-		printf("\n%d (Grade %s)", score, score_to_letter_grade(score));
+		printf("\n%2d) %d (Grade %s)", i + 1, score,
+				score_to_letter_grade(score));
 		sum += score;
 		if (i == 0) {
 			min = max = score;
