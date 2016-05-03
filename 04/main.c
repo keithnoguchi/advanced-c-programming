@@ -59,59 +59,6 @@ static int next_student_id(void)
 	return student_id++;
 }
 
-static int get_scores(const char *const file_name, int scores[], const int size)
-{
-	FILE *fp;
-	int value;
-	int ret;
-	int i;
-
-	fp = fopen(file_name, "r");
-	if (fp == NULL) {
-		fprintf(stderr, "Can't open %s\n", file_name);
-		return -1;
-	}
-	for (i = 0; i < size; ++i) {
-		ret = fscanf(fp, "%d,", &value);
-		if (ret == EOF || ret != 1) {
-			break;
-		}
-		scores[i] = value;
-	}
-	fclose(fp);
-
-	return i;
-}
-
-static void print_student_id(const int student_id)
-{
-	printf("Student ID: %d, ", student_id);
-}
-
-static void print_average(const int scores[],
-				const size_t number_of_scores)
-{
-	int min, max;
-	float sum;
-	int i;
-
-	min = max = sum = 0;
-	for (i = 0; i < number_of_scores; ++i) {
-		sum += scores[i];
-		if (i == 0) {
-			min = max = scores[i];
-		} else {
-			if (scores[i] < min)
-				min = scores[i];
-			else if (scores[i] > max)
-				max = scores[i];
-		}
-	}
-	printf("Average score: %.2f, minimum score: %d"
-			", and maximum score: %d\n",
-			sum / number_of_scores, min, max);
-}
-
 /*
    Grading Policy:
 
@@ -153,81 +100,67 @@ static char *score_to_letter_grade(const int score)
 		return "F";
 }
 
-static void print_letter_grade(const int scores[],
-				const size_t number_of_scores)
+static void process_scores(const int student_id, const int number_of_scores)
 {
-	static const int number_of_column = 5;
+	int min, max;
+	float sum;
+	int score;
+	int ret;
 	int i;
 
-	printf("%-30s", "Letter grade for each score: ");
+	min = max = sum = 0;
 	for (i = 0; i < number_of_scores; ++i) {
-		printf("%d(%-2s) ", scores[i],
-			score_to_letter_grade(scores[i]));
-		if (((i + 1) % number_of_column) == 0)
-			printf("\n%30c", ' ');
+		ret = scanf("%d,", &score);
+		if (ret == EOF || ret != 1) {
+			break;
+		}
+		printf("\n%d (Grade %s)", score, score_to_letter_grade(score));
+		sum += score;
+		if (i == 0) {
+			min = max = score;
+		} else {
+			if (score < min)
+				min = score;
+			else if (score > max)
+				max = score;
+		}
 	}
+	printf("\n\nStudent ID %d: Average score: %.2f, minimum score: %d"
+			", and maximum score: %d\n",
+			student_id, sum / number_of_scores, min, max);
 }
 
-static void usage(const char *const progname, const int ret)
+static void prompt_number_of_students(void)
 {
-	printf("Usage: %s <input_filename> <number_of_students>\n", progname);
-	exit(ret);
+	printf("With how many students do you want to devide the scores up? ");
+}
+
+static int get_number_of_students(int *number_of_student)
+{
+	return scanf("%d", number_of_student);
 }
 
 int main(int argc, char *argv[])
 {
-	const char *const default_input_filename = "input.txt";
 	const int default_number_of_students = 4;
-	const int max_input_size = 60;
-	int input_scores[max_input_size];
+	const int number_of_scores = 60;
 	int scores_per_student;
 	int number_of_students;
-	int number_of_scores;
 	const char *filename;
+	int ret;
 	int i;
 
-	/* Get the input filename. */
-	filename = default_input_filename;
-	if (argc >= 2) {
-		filename = argv[1];
-	} else {
-		printf("No input file has been specified. ");
-		printf("We'll use %s as the input file.\n", filename);
-	}
-	number_of_scores = get_scores(filename, input_scores, max_input_size);
-	if (number_of_scores < 0) {
-		/* Error happened.  Don't proceed. */
-		exit(-1);
+	/* */
+	for (prompt_number_of_students();
+		(ret = get_number_of_students(&number_of_students)) != 1;
+		prompt_number_of_students()) {
+		if (number_of_students >= 4 && number_of_students <= 6)
+			break;
+		printf("We only support 4, 5, or 6 students\n");
 	}
 
-	/* Get the number of students. */
-	number_of_students = default_number_of_students;
-	if (argc >= 3) {
-		int students = atoi(argv[2]);
-
-		if (students < 4 || students > 6) {
-			fprintf(stderr,
-				"Please use either 4, 5, or 6 students\n");
-			usage(argv[0], -1);
-		} else {
-			number_of_students = students;
-		}
-	}
-
-	/* Print usage output. */
-	if (argc >= 4)
-		usage(argv[0], 0);
-
-	/* Print out the student statistics alnog with the letter
-	 * grade of indivisual scores. */
+	printf("Input 60 scores to process: ");
 	scores_per_student = number_of_scores / number_of_students;
-	for (i = 0; i < number_of_students; ++i) {
-		const int *scores = &input_scores[scores_per_student * i];
-		int student_id = next_student_id();
-
-		print_student_id(student_id);
-		print_average(scores, scores_per_student);
-		print_letter_grade(scores, scores_per_student);
-		printf("\n");
-	}
+	for (i = 0; i < number_of_students; ++i)
+		process_scores(next_student_id(), scores_per_student);
 }
