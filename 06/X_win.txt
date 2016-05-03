@@ -1,62 +1,61 @@
-air$ ./a.out
 
 Tic-tac-toe 4x4 version
 
 Provide the position in x, y format or ^C to exit.
 
-          1 2 3 4 x
-        1 - - - -
-        2 - - - -
-        3 - - - -
-        4 - - - -
-        y
+	  1 2 3 4 x
+	1 - - - - 
+	2 - - - - 
+	3 - - - - 
+	4 - - - - 
+	y
 
 Player X> 2,2
 
-          1 2 3 4 x
-        1 - - - -
-        2 - X - -
-        3 - - - -
-        4 - - - -
-        y
+	  1 2 3 4 x
+	1 - - - - 
+	2 - X - - 
+	3 - - - - 
+	4 - - - - 
+	y
 
 Player O> 3,3
 
-          1 2 3 4 x
-        1 - - - -
-        2 - X - -
-        3 - - O -
-        4 - - - -
-        y
+	  1 2 3 4 x
+	1 - - - - 
+	2 - X - - 
+	3 - - O - 
+	4 - - - - 
+	y
 
 Player X> 2,3
 
-          1 2 3 4 x
-        1 - - - -
-        2 - X - -
-        3 - X O -
-        4 - - - -
-        y
+	  1 2 3 4 x
+	1 - - - - 
+	2 - X - - 
+	3 - X O - 
+	4 - - - - 
+	y
 
 Player O> 2,4
 
-          1 2 3 4 x
-        1 - - - -
-        2 - X - -
-        3 - X O -
-        4 - O - -
-        y
+	  1 2 3 4 x
+	1 - - - - 
+	2 - X - - 
+	3 - X O - 
+	4 - O - - 
+	y
 
 Player X> 2,1
 
-        You rock, X!
+	You rock, X!
 
-        You won the game!
+	You won the game!
 
-          1 2 3 4 x
-        1 - X - -
-        2 - X - -
-        3 - X O -
-        4 - O - -
-        y
+	  1 2 3 4 x
+	1 - X - - 
+	2 - X - - 
+	3 - X O - 
+	4 - O - - 
+	y
 
