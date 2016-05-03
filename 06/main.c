@@ -50,13 +50,14 @@ static int xprintf(FILE *fp, const char *fmt, ...)
 	va_list ap;
 	int ret;
 
+	va_start(ap, fmt);
 	if (fp != stdout) {
 		/* Print out to the file. */
-		va_start(ap, fmt);
-		vfprintf(fp, fmt, ap);
-		va_end(ap);
+		va_list aq;
+		va_copy(aq, ap);
+		vfprintf(fp, fmt, aq);
+		va_end(aq);
 	}
-	va_start(ap, fmt);
 	ret = vprintf(fmt, ap);
 	va_end(ap);
 
