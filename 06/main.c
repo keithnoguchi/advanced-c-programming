@@ -50,6 +50,12 @@ static int xprintf(FILE *fp, const char *fmt, ...)
 	va_list ap;
 	int ret;
 
+	if (fp != stdout) {
+		/* Print out to the file. */
+		va_start(ap, fmt);
+		vfprintf(fp, fmt, ap);
+		va_end(ap);
+	}
 	va_start(ap, fmt);
 	ret = vprintf(fmt, ap);
 	va_end(ap);
