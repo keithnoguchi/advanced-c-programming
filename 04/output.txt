@@ -1,100 +1,85 @@
-$ ./process_scores
-No input file has been specified. We'll use input.txt as the input file.
-Student ID: 1, Average score: 82.87, minimum score: 58, and maximum score: 97
-Letter grade for each score:  91(A-) 92(A-) 85(B ) 58(F ) 87(B+) 
-                              75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              88(B+) 72(C-) 81(B-) 94(A-) 90(A-) 
-                              
-Student ID: 2, Average score: 66.60, minimum score: 44, and maximum score: 87
-Letter grade for each score:  61(D ) 72(C-) 75(C ) 68(D ) 77(C+) 
-                              75(C ) 49(F ) 87(B+) 79(C+) 65(D ) 
-                              64(D ) 62(D ) 51(F ) 44(F ) 70(C-) 
-                              
-Student ID: 3, Average score: 75.53, minimum score: 55, and maximum score: 88
-Letter grade for each score:  81(B-) 72(C-) 85(B ) 78(C+) 77(C+) 
-                              75(C ) 79(C+) 87(B+) 69(D ) 55(F ) 
-                              88(B+) 62(D ) 71(C-) 74(C-) 80(B-) 
-                              
-Student ID: 4, Average score: 74.20, minimum score: 48, and maximum score: 97
-Letter grade for each score:  71(C-) 62(D ) 85(B ) 68(D ) 87(B+) 
-                              75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              48(F ) 72(C-) 61(D ) 64(D ) 90(A-) 
-                              
-$ ./process_scores input2.txt
-Can't open input2.txt
 
-$ ./process_scores input.txt 1
-Please use either 4, 5, or 6 students
-Usage: ./process_scores <input_filename> <number_of_students>
+        Student Score Procesor
+        ======================
 
-$ ./process_scores input.txt 4
-Student ID: 1, Average score: 82.87, minimum score: 58, and maximum score: 97
-Letter grade for each score:  91(A-) 92(A-) 85(B ) 58(F ) 87(B+) 
-                              75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              88(B+) 72(C-) 81(B-) 94(A-) 90(A-) 
-                              
-Student ID: 2, Average score: 66.60, minimum score: 44, and maximum score: 87
-Letter grade for each score:  61(D ) 72(C-) 75(C ) 68(D ) 77(C+) 
-                              75(C ) 49(F ) 87(B+) 79(C+) 65(D ) 
-                              64(D ) 62(D ) 51(F ) 44(F ) 70(C-) 
-                              
-Student ID: 3, Average score: 75.53, minimum score: 55, and maximum score: 88
-Letter grade for each score:  81(B-) 72(C-) 85(B ) 78(C+) 77(C+) 
-                              75(C ) 79(C+) 87(B+) 69(D ) 55(F ) 
-                              88(B+) 62(D ) 71(C-) 74(C-) 80(B-) 
-                              
-Student ID: 4, Average score: 74.20, minimum score: 48, and maximum score: 97
-Letter grade for each score:  71(C-) 62(D ) 85(B ) 68(D ) 87(B+) 
-                              75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              48(F ) 72(C-) 61(D ) 64(D ) 90(A-) 
-                              
-$ ./process_scores input.txt 5
-Student ID: 1, Average score: 81.50, minimum score: 58, and maximum score: 97
-Letter grade for each score:  91(A-) 92(A-) 85(B ) 58(F ) 87(B+) 
-                              75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              88(B+) 72(C-) 
-Student ID: 2, Average score: 75.67, minimum score: 49, and maximum score: 94
-Letter grade for each score:  81(B-) 94(A-) 90(A-) 61(D ) 72(C-) 
-                              75(C ) 68(D ) 77(C+) 75(C ) 49(F ) 
-                              87(B+) 79(C+) 
-Student ID: 3, Average score: 68.67, minimum score: 44, and maximum score: 85
-Letter grade for each score:  65(D ) 64(D ) 62(D ) 51(F ) 44(F ) 
-                              70(C-) 81(B-) 72(C-) 85(B ) 78(C+) 
-                              77(C+) 75(C ) 
-Student ID: 4, Average score: 73.58, minimum score: 55, and maximum score: 88
-Letter grade for each score:  79(C+) 87(B+) 69(D ) 55(F ) 88(B+) 
-                              62(D ) 71(C-) 74(C-) 80(B-) 71(C-) 
-                              62(D ) 85(B ) 
-Student ID: 5, Average score: 74.58, minimum score: 48, and maximum score: 97
-Letter grade for each score:  68(D ) 87(B+) 75(C ) 89(B+) 97(A+) 
-                              79(C+) 65(D ) 48(F ) 72(C-) 61(D ) 
-                              64(D ) 90(A-) 
+With how many students, 4, 5, or 6? 4
+Input 60 scores to process: 91, 92, 85, 58, 87, 75, 89, 97, 79, 65, 88, 72, 81,
+94, 90, 61,
+72, 75, 68, 77, 75, 49, 87, 79, 65, 64, 62, 51, 44, 70, 81, 72,
+85, 78, 77, 75, 79, 87, 69, 55, 88, 62, 71, 74, 80, 71, 62, 85,
+68, 87, 75, 89, 97, 79, 65, 48, 72, 61, 64, 90
 
-$ ./process_scores input.txt 6
-Student ID: 1, Average score: 81.80, minimum score: 58, and maximum score: 97
-Letter grade for each score:  91(A-) 92(A-) 85(B ) 58(F ) 87(B+) 
-                              75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              
-Student ID: 2, Average score: 77.80, minimum score: 61, and maximum score: 94
-Letter grade for each score:  88(B+) 72(C-) 81(B-) 94(A-) 90(A-) 
-                              61(D ) 72(C-) 75(C ) 68(D ) 77(C+) 
-                              
-Student ID: 3, Average score: 64.60, minimum score: 44, and maximum score: 87
-Letter grade for each score:  75(C ) 49(F ) 87(B+) 79(C+) 65(D ) 
-                              64(D ) 62(D ) 51(F ) 44(F ) 70(C-) 
-                              
-Student ID: 4, Average score: 75.80, minimum score: 55, and maximum score: 87
-Letter grade for each score:  81(B-) 72(C-) 85(B ) 78(C+) 77(C+) 
-                              75(C ) 79(C+) 87(B+) 69(D ) 55(F ) 
-                              
-Student ID: 5, Average score: 74.80, minimum score: 62, and maximum score: 88
-Letter grade for each score:  88(B+) 62(D ) 71(C-) 74(C-) 80(B-) 
-                              71(C-) 62(D ) 85(B ) 68(D ) 87(B+) 
-                              
-Student ID: 6, Average score: 74.00, minimum score: 48, and maximum score: 97
-Letter grade for each score:  75(C ) 89(B+) 97(A+) 79(C+) 65(D ) 
-                              48(F ) 72(C-) 61(D ) 64(D ) 90(A-) 
-                              
-$ ./process_scores input.txt 7
-Usage: ./process_scores <input_filename> <number_of_students>
-Please use either 4, 5, or 6 students
+
+ 1) 91 (Grade A-)
+ 2) 92 (Grade A-)
+ 3) 85 (Grade B)
+ 4) 58 (Grade F)
+ 5) 87 (Grade B+)
+ 6) 75 (Grade C)
+ 7) 89 (Grade B+)
+ 8) 97 (Grade A+)
+ 9) 79 (Grade C+)
+10) 65 (Grade D)
+11) 88 (Grade B+)
+12) 72 (Grade C-)
+13) 81 (Grade B-)
+14) 94 (Grade A-)
+15) 90 (Grade A-)
+
+Student ID 1000: The average: 82.87, the minimum: 58, and the maximum score: 97
+
+ 1) 61 (Grade D)
+ 2) 72 (Grade C-)
+ 3) 75 (Grade C)
+ 4) 68 (Grade D)
+ 5) 77 (Grade C+)
+ 6) 75 (Grade C)
+ 7) 49 (Grade F)
+ 8) 87 (Grade B+)
+ 9) 79 (Grade C+)
+10) 65 (Grade D)
+11) 64 (Grade D)
+12) 62 (Grade D)
+13) 51 (Grade F)
+14) 44 (Grade F)
+15) 70 (Grade C-)
+
+Student ID 1001: The average: 66.60, the minimum: 44, and the maximum score: 87
+
+ 1) 81 (Grade B-)
+ 2) 72 (Grade C-)
+ 3) 85 (Grade B)
+ 4) 78 (Grade C+)
+ 5) 77 (Grade C+)
+ 6) 75 (Grade C)
+ 7) 79 (Grade C+)
+ 8) 87 (Grade B+)
+ 9) 69 (Grade D)
+10) 55 (Grade F)
+11) 88 (Grade B+)
+12) 62 (Grade D)
+13) 71 (Grade C-)
+14) 74 (Grade C-)
+15) 80 (Grade B-)
+
+Student ID 1002: The average: 75.53, the minimum: 55, and the maximum score: 88
+
+ 1) 71 (Grade C-)
+ 2) 62 (Grade D)
+ 3) 85 (Grade B)
+ 4) 68 (Grade D)
+ 5) 87 (Grade B+)
+ 6) 75 (Grade C)
+ 7) 89 (Grade B+)
+ 8) 97 (Grade A+)
+ 9) 79 (Grade C+)
+10) 65 (Grade D)
+11) 48 (Grade F)
+12) 72 (Grade C-)
+13) 61 (Grade D)
+14) 64 (Grade D)
+15) 90 (Grade A-)
+
+Student ID 1003: The average: 74.20, the minimum: 48, and the maximum score: 97
+
+The total average: 74.80, the minimum: 44, and the maximum score: 97
