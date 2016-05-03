@@ -100,7 +100,9 @@ static char *score_to_letter_grade(const int score)
 		return "F";
 }
 
-static void process_scores(const int student_id, const int number_of_scores)
+static float process_per_student(const int student_id,
+				const int number_of_scores,
+				int *entire_min, int *entire_max)
 {
 	int min, max;
 	float sum;
@@ -125,14 +127,21 @@ static void process_scores(const int student_id, const int number_of_scores)
 				max = score;
 		}
 	}
-	printf("\n\nStudent ID %d: Average score: %.2f, minimum score: %d"
-			", and maximum score: %d\n",
+	printf("\n\nStudent ID %d: The average: %.2f, the minimum: %d"
+			", and the maximum score: %d\n",
 			student_id, sum / number_of_scores, min, max);
+
+	if (min < *entire_min)
+		*entire_min = min;
+	if (max > *entire_max)
+		*entire_max = max;
+
+	return sum;
 }
 
 static void prompt_number_of_students(void)
 {
-	printf("With how many students do you want to devide the scores up? ");
+	printf("With how many students, 4, 5, or 6? ");
 }
 
 static int get_number_of_students(int *number_of_student)
@@ -142,15 +151,16 @@ static int get_number_of_students(int *number_of_student)
 
 int main(int argc, char *argv[])
 {
-	const int default_number_of_students = 4;
 	const int number_of_scores = 60;
+	const int max_score = 100;
 	int scores_per_student;
 	int number_of_students;
-	const char *filename;
+	int min, max;
+	float sum;
 	int ret;
 	int i;
 
-	/* */
+	/* Get the number of student. */
 	for (prompt_number_of_students();
 		(ret = get_number_of_students(&number_of_students)) != 1;
 		prompt_number_of_students()) {
@@ -159,8 +169,18 @@ int main(int argc, char *argv[])
 		printf("We only support 4, 5, or 6 students\n");
 	}
 
+	/* Get and process the scores. */
 	printf("Input 60 scores to process: ");
 	scores_per_student = number_of_scores / number_of_students;
+	min = max_score + 1;
+	max = sum = 0;
 	for (i = 0; i < number_of_students; ++i)
-		process_scores(next_student_id(), scores_per_student);
+		sum += process_per_student(next_student_id(),
+						scores_per_student, &min, &max);
+
+	printf("\nThe total average: %.2f, the minimum: %d"
+			", and the maximum score: %d\n",
+			sum / number_of_scores, min, max);
+
+
 }
