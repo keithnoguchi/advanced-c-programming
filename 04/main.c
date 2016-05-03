@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 	printf("\tStudent Score Procesor\n");
 	printf("\t======================\n\n");
 
-	/* Get the number of student. */
+	/* Get the total number of students. */
 	for (prompt_number_of_students();
 		(ret = get_number_of_students(&number_of_students)) != 1;
 		prompt_number_of_students()) {
@@ -186,6 +186,4 @@ int main(int argc, char *argv[])
 	printf("\nThe total average: %.2f, the minimum: %d"
 			", and the maximum score: %d\n",
 			sum / number_of_scores, min, max);
-
-
 }
