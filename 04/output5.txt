@@ -1,0 +1,88 @@
+
+        Student Score Procesor
+        ======================
+
+With how many students, 4, 5, or 6? 5
+Input 60 scores to process: 91, 92, 85, 58, 87, 75, 89, 97, 79, 65, 88, 72, 81,
+94, 90, 61,
+72, 75, 68, 77, 75, 49, 87, 79, 65, 64, 62, 51, 44, 70, 81, 72,
+85, 78, 77, 75, 79, 87, 69, 55, 88, 62, 71, 74, 80, 71, 62, 85,
+68, 87, 75, 89, 97, 79, 65, 48, 72, 61, 64, 90
+
+
+ 1) 91 (Grade A-)
+ 2) 92 (Grade A-)
+ 3) 85 (Grade B)
+ 4) 58 (Grade F)
+ 5) 87 (Grade B+)
+ 6) 75 (Grade C)
+ 7) 89 (Grade B+)
+ 8) 97 (Grade A+)
+ 9) 79 (Grade C+)
+10) 65 (Grade D)
+11) 88 (Grade B+)
+12) 72 (Grade C-)
+
+Student ID 1000: The average: 81.50, the minimum: 58, and the maximum score: 97
+
+ 1) 81 (Grade B-)
+ 2) 94 (Grade A-)
+ 3) 90 (Grade A-)
+ 4) 61 (Grade D)
+ 5) 72 (Grade C-)
+ 6) 75 (Grade C)
+ 7) 68 (Grade D)
+ 8) 77 (Grade C+)
+ 9) 75 (Grade C)
+10) 49 (Grade F)
+11) 87 (Grade B+)
+12) 79 (Grade C+)
+
+Student ID 1001: The average: 75.67, the minimum: 49, and the maximum score: 94
+
+ 1) 65 (Grade D)
+ 2) 64 (Grade D)
+ 3) 62 (Grade D)
+ 4) 51 (Grade F)
+ 5) 44 (Grade F)
+ 6) 70 (Grade C-)
+ 7) 81 (Grade B-)
+ 8) 72 (Grade C-)
+ 9) 85 (Grade B)
+10) 78 (Grade C+)
+11) 77 (Grade C+)
+12) 75 (Grade C)
+
+Student ID 1002: The average: 68.67, the minimum: 44, and the maximum score: 85
+
+ 1) 79 (Grade C+)
+ 2) 87 (Grade B+)
+ 3) 69 (Grade D)
+ 4) 55 (Grade F)
+ 5) 88 (Grade B+)
+ 6) 62 (Grade D)
+ 7) 71 (Grade C-)
+ 8) 74 (Grade C-)
+ 9) 80 (Grade B-)
+10) 71 (Grade C-)
+11) 62 (Grade D)
+12) 85 (Grade B)
+
+Student ID 1003: The average: 73.58, the minimum: 55, and the maximum score: 88
+
+ 1) 68 (Grade D)
+ 2) 87 (Grade B+)
+ 3) 75 (Grade C)
+ 4) 89 (Grade B+)
+ 5) 97 (Grade A+)
+ 6) 79 (Grade C+)
+ 7) 65 (Grade D)
+ 8) 48 (Grade F)
+ 9) 72 (Grade C-)
+10) 61 (Grade D)
+11) 64 (Grade D)
+12) 90 (Grade A-)
+
+Student ID 1004: The average: 74.58, the minimum: 48, and the maximum score: 97
+
+The total average: 74.80, the minimum: 44, and the maximum score: 97
