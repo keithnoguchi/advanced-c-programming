@@ -95,13 +95,16 @@ static const char get_next_player(const game_t *game)
 	return player_sym[game->filled_grid % 2];
 }
 
-static int get_position(int *x, int *y)
+static int get_position(FILE *fp, int *x, int *y)
 {
 	int ret;
 
 	ret = scanf("%d,%d", x, y);
 	if (ret != 2)
 		return 0;
+
+	/* Echo back to the output file. */
+	fprintf(fp, "%d,%d\n", *x, *y);
 
 	/* Adjust the index to the internal representation. */
 	*x -= 1;
@@ -262,7 +265,7 @@ int main(int argc, char *argv[])
 	xprintf(fp, "\nProvide the position in x, y format or ^C to exit.\n");
 
 	game.current_player = get_next_player(&game);
-	for (print_prompt(fp, &game); get_position(&x, &y);
+	for (print_prompt(fp, &game); get_position(fp, &x, &y);
 		print_prompt(fp, &game)) {
 		if (is_valid_position(&game, x, y)) {
 			fill_grid(&game, x, y);
