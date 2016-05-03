@@ -22,14 +22,13 @@
               68, 87, 75, 89, 97, 79, 65, 48, 72, 61, 64, 90
 
               Call functions to find the average, minimum, and maximum score
-              for each student.  Call a function to assign the student number
-              using a static variable for the student number which will
-              automatically increment whenever the function is called.
-              Show the student number along with the statistics for the
-              scores.  Find the average, minimum, and maximum for all
-              students.  Print all scores for each student.  Write all the
-              output to a file.  Assign a letter grade for each score
-              and print.
+              for each student.  Assign the student number by calling a
+              function and using a static variable initialized to 1000 and
+              student number incremented to next value.  Show the student
+              number along with the statistics for the scores.  Find the
+              average, minimum, and maximum for all students.  Print all
+              scores for each student.  Write all the output to a file.
+              Assign a letter grade for each score and print.
 
               Grading Policy:
 
@@ -52,12 +51,12 @@
 
 /* Return the next student number available.
  *
- * Student number is > 0.
+ * Student number is >= 1000.
  */
 static int next_student_id(void)
 {
-	static int student_id = 0;
-	return ++student_id;
+	static int student_id = 1000;
+	return student_id++;
 }
 
 static int get_scores(const char *const file_name, int scores[], const int size)
