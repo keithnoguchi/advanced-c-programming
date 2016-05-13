@@ -19,19 +19,22 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 int main()
 {
 	char c, nl;
 	int ret;
 
-	printf("Eight queen problem\n");
+	printf("Eight queen problem\n\n");
+
 	while (true) {
-		printf("Input something: ");
+		printf("First queen location in digit (0-7) or Q for quit: ");
 		ret = scanf("%c%c", &c, &nl);
-		if (ret == EOF)
+		if (ret == EOF || (isalpha(c) && toupper(c) == 'Q'))
 			break;
 		printf("%c%c", c, nl);
 	}
+
 	printf("\nThank you!\n");
 }
