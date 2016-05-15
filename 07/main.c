@@ -151,7 +151,7 @@ static int input(FILE *is)
 	return column;
 }
 
-static int set_queens(const int current_row)
+static int find_queens(const int current_row)
 {
 	int row = current_row;
 	int column;
@@ -160,7 +160,7 @@ static int set_queens(const int current_row)
 		for (column = 0; column < max_column; ++column) {
 			if (is_free(column, current_row)) {
 				set_queen(column, current_row);
-				row = set_queens(current_row + 1);
+				row = find_queens(current_row + 1);
 				if (row != max_row) {
 					reset_queen(column, current_row);
 					continue;
@@ -170,36 +170,51 @@ static int set_queens(const int current_row)
 	return row;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	const char *ofilename = "output.txt";
-	FILE *is = stdin;
-	FILE *os = NULL;
-	int row;
+	FILE *is = stdin; /* use stdin by default. */
+	FILE *fp = NULL;
+	FILE *os;
 	int ret;
 
-	printf("Eight queen problem\n\n");
+	printf("Eight queens problem\n\n");
 
+	/* Find the input file. */
+	if (argc >= 2) {
+		fp = fopen(argv[1], "r");
+		if (fp == NULL)
+			fprintf(stderr, "Can't open %s, use stdin\n",
+				argv[1]);
+		else
+			is = fp;
+	}
+
+	/* Output file. */
 	os = fopen(ofilename, "w");
 	if (os == NULL) {
 		printf("Can't open %s file\n", ofilename);
 		exit(-1);
 	}
 
+	/* Let's get input.  */
 	for (prompt(os); (ret = input(is)) != EOF; prompt(os)) {
+		int row = 0;
+
 		if (ret >= max_column) {
 			xprintf(os,
 				"\nColumn number should be between 0 to 7\n");
 			continue;
 		}
 		xprintf(os, "%d\n", ret);
-		row = 0;
 		reset_board();
 		set_queen(ret, row);
-		set_queens(++row);
+		find_queens(++row);
 		print_board(os);
 	}
 
 	xprintf(os, "\n\nThank you!\n");
 	fclose(os);
+	if (fp)
+		fclose(fp);
 }

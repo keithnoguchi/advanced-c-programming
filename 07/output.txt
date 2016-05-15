@@ -1,0 +1,93 @@
+Which column(0-7) do you want to put your first queen or Q for quit: 4
+
+	* * * * U * * * 
+	Q * * * * * * * 
+	* * * Q * * * * 
+	* * * * * Q * * 
+	* * * * * * * Q 
+	* Q * * * * * * 
+	* * * * * * Q * 
+	* * Q * * * * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 2
+
+	* * U * * * * * 
+	Q * * * * * * * 
+	* * * * * * Q * 
+	* * * * Q * * * 
+	* * * * * * * Q 
+	* Q * * * * * * 
+	* * * Q * * * * 
+	* * * * * Q * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 
+Column number should be between 0 to 7
+Which column(0-7) do you want to put your first queen or Q for quit: 6
+
+	* * * * * * U * 
+	Q * * * * * * * 
+	* * Q * * * * * 
+	* * * * * * * Q 
+	* * * * * Q * * 
+	* * * Q * * * * 
+	* Q * * * * * * 
+	* * * * Q * * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 3
+
+	* * * U * * * * 
+	Q * * * * * * * 
+	* * * * Q * * * 
+	* * * * * * * Q 
+	* Q * * * * * * 
+	* * * * * * Q * 
+	* * Q * * * * * 
+	* * * * * Q * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 0
+
+	U * * * * * * * 
+	* * * * Q * * * 
+	* * * * * * * Q 
+	* * * * * Q * * 
+	* * Q * * * * * 
+	* * * * * * Q * 
+	* Q * * * * * * 
+	* * * Q * * * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 5
+
+	* * * * * U * * 
+	Q * * * * * * * 
+	* * * * Q * * * 
+	* Q * * * * * * 
+	* * * * * * * Q 
+	* * Q * * * * * 
+	* * * * * * Q * 
+	* * * Q * * * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 1
+
+	* U * * * * * * 
+	* * * Q * * * * 
+	* * * * * Q * * 
+	* * * * * * * Q 
+	* * Q * * * * * 
+	Q * * * * * * * 
+	* * * * * * Q * 
+	* * * * Q * * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 7
+
+	* * * * * * * U 
+	* Q * * * * * * 
+	* * * Q * * * * 
+	Q * * * * * * * 
+	* * * * * * Q * 
+	* * * * Q * * * 
+	* * Q * * * * * 
+	* * * * * Q * * 
+
+Which column(0-7) do you want to put your first queen or Q for quit: 
+
+Thank you!
