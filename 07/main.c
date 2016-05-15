@@ -49,12 +49,27 @@ static void xprintf(FILE *os, const char *fmt, ...)
 	}
 }
 
-static void set_queen(const int column, const int row)
+static bool is_free(const int column, const int row)
+{
+	if (!free_column[column])
+		return false;
+	else if (!free_up[column + row])
+		return false;
+	else if (!free_down[max_column - 1 - column + row])
+		return false;
+	else
+		return true;
+}
+
+static bool set_queen(const int column, const int row)
 {
 	/* Sanity check. */
 	if (row < 0 || row >= max_row
 		|| column < 0 || column >= max_column)
-		return;
+		return false;
+
+	if (!is_free(column, row))
+		return false;
 
 	/* Queen character, 'U' for first row and 'Q' for the rest. */
 	board[row][column] = row == 0 ? 'U' : 'Q';
@@ -63,6 +78,8 @@ static void set_queen(const int column, const int row)
 	free_column[column] = false;
 	free_up[column + row] = false;
 	free_down[max_column - 1 - column + row] = false;
+
+	return true;
 }
 
 static void reset_queen(const int column, const int row)
