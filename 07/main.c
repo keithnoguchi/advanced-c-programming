@@ -71,9 +71,10 @@ static int input(FILE *is)
 	char c, nl;
 	int ret;
 
-	ret = scanf("%c%c", &c, &nl);
+	ret = fscanf(is, "%c%c", &c, &nl);
 	if (ret == EOF || (isalpha(c) && toupper(c) == 'Q'))
 		return EOF;
+
 	else if (isdigit(c)) {
 		char str[BUFSIZ];
 
@@ -88,7 +89,7 @@ static int input(FILE *is)
 
 int main()
 {
-	FILE *is = NULL;
+	FILE *is = stdin;
 	FILE *os = NULL;
 	int ret;
 
