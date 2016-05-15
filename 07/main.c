@@ -89,8 +89,8 @@ static int input(FILE *is)
 
 int main()
 {
+	FILE *os = stdout;
 	FILE *is = stdin;
-	FILE *os = NULL;
 	int ret;
 
 	printf("Eight queen problem\n\n");
@@ -104,5 +104,5 @@ int main()
 		print_board(NULL);
 	}
 
-	xprintf(os, "\nThank you!\n");
+	xprintf(os, "\n\nThank you!\n");
 }
