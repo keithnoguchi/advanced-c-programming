@@ -23,19 +23,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-static const int max_row = 8;
-static const int max_column = 8;
-
-static char board[8][8] = {
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'},
-	{'*', '*', '*', '*', '*', '*', '*', '*'}
-};
+#define max_row 8
+#define max_column 8
+static char board[max_row][max_column];
 
 static void xprintf(FILE *os, const char *fmt, ...)
 {
@@ -50,6 +40,22 @@ static void xprintf(FILE *os, const char *fmt, ...)
 		vfprintf(os, fmt, ap);
 		va_end(ap);
 	}
+}
+
+static void set_board(const char c, const int column, const int row)
+{
+	if (row >= 0 && row < max_row)
+		if (column >= 0 && column < max_column)
+			board[row][column] = c;
+}
+
+static void reset_board()
+{
+	int i, j;
+
+	for (i = 0; i < max_row; ++i)
+		for (j = 0; j < max_column; ++j)
+			board[i][j] = '*';
 }
 
 static void print_board(FILE *os)
@@ -99,6 +105,7 @@ int main()
 	const char *ofilename = "output.txt";
 	FILE *is = stdin;
 	FILE *os = NULL;
+	int row;
 	int ret;
 
 	printf("Eight queen problem\n\n");
@@ -110,16 +117,18 @@ int main()
 	}
 
 	for (prompt(os); (ret = input(is)) != EOF; prompt(os)) {
+		reset_board();
 		if (ret >= max_column) {
 			xprintf(os,
 				"\nColumn number should be between 0 to 7\n");
 			continue;
 		}
 		xprintf(os, "%d\n", ret);
+		row = 0;
+		set_board('U', ret, row);
 		print_board(os);
 	}
 
 	xprintf(os, "\n\nThank you!\n");
-
 	fclose(os);
 }
