@@ -13,8 +13,8 @@
 
    Date: May 14th, 2016
 
-   Objective:
-
+   Objective: Place 8 queens on an 8 x 8 chess board so that none of them
+              the queens attack each other.
 */
 
 #include <stdio.h>
@@ -30,9 +30,9 @@
 static char board[max_row][max_column];
 
 /* Keep track of the free positions. */
-static char free_column[max_column];
-static char free_up[max_row + max_column - 1];
-static char free_down[max_row + max_column - 1];
+static bool free_column[max_column];
+static bool free_up[max_row + max_column - 1];
+static bool free_down[max_row + max_column - 1];
 
 static void xprintf(FILE *os, const char *fmt, ...)
 {
@@ -51,12 +51,18 @@ static void xprintf(FILE *os, const char *fmt, ...)
 
 static void set_queen(const int column, const int row)
 {
-	/* Queen character, 'U' for first row and 'Q' for the rest. */
-	const char queen = row == 0 ? 'U' : 'Q';
+	/* Sanity check. */
+	if (row < 0 || row >= max_row
+		|| column < 0 || column >= max_column)
+		return;
 
-	if (row >= 0 && row < max_row)
-		if (column >= 0 && column < max_column)
-			board[row][column] = queen;
+	/* Queen character, 'U' for first row and 'Q' for the rest. */
+	board[row][column] = row == 0 ? 'U' : 'Q';
+
+	/* Unset the free slots. */
+	free_column[column] = false;
+	free_up[column + row] = false;
+	free_down[max_column - 1 - column + row] = false;
 }
 
 static void reset_queen(const int column, const int row)
@@ -64,15 +70,31 @@ static void reset_queen(const int column, const int row)
 	if (row >= 0 && row < max_row)
 		if (column >= 0 && column < max_column)
 			board[row][column] = '*';
+
+	/* Set the free slots. */
+	free_column[column] = true;
+	free_up[column + row] = true;
+	free_down[max_column - 1 - column + row] = true;
 }
 
 static void reset_board()
 {
 	int i, j;
 
+	/* Reset the boards. */
 	for (i = 0; i < max_row; ++i)
 		for (j = 0; j < max_column; ++j)
 			reset_queen(j, i);
+
+	/* Reset the free slots. */
+	for (i = 0; i < max_column; ++i)
+		free_column[i] = true;
+
+	/* Reset the up and down diagonal slots. */
+	for (i = 0; i < max_column + max_row - 1; ++i) {
+		free_up[i] = true;
+		free_down[i] = true;
+	}
 }
 
 static void print_board(FILE *os)
