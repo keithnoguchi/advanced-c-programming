@@ -61,6 +61,14 @@ static bool is_free(const int column, const int row)
 		return true;
 }
 
+static void update_free_slots(const int column, const int row,
+		              const bool state)
+{
+	free_column[column] = state;
+	free_up[column + row] = state;
+	free_down[max_column - 1 - column + row] = state;
+}
+
 static void set_queen(const int column, const int row)
 {
 	/* Sanity check. */
@@ -71,10 +79,8 @@ static void set_queen(const int column, const int row)
 	/* Queen character, 'U' for first row and 'Q' for the rest. */
 	board[row][column] = row == 0 ? 'U' : 'Q';
 
-	/* Unset the free slots. */
-	free_column[column] = false;
-	free_up[column + row] = false;
-	free_down[max_column - 1 - column + row] = false;
+	/* Update free slots. */
+	update_free_slots(column, row, false);
 }
 
 static void reset_queen(const int column, const int row)
@@ -83,10 +89,8 @@ static void reset_queen(const int column, const int row)
 		if (column >= 0 && column < max_column)
 			board[row][column] = '*';
 
-	/* Set the free slots. */
-	free_column[column] = true;
-	free_up[column + row] = true;
-	free_down[max_column - 1 - column + row] = true;
+	/* Update free slots. */
+	update_free_slots(column, row, true);
 }
 
 static void reset_board()
