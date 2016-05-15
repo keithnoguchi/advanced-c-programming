@@ -13,8 +13,8 @@
 
    Date: May 14th, 2016
 
-   Objective: Place 8 queens on an 8 x 8 chess board so that none of them
-              the queens attack each other.
+   Objective: Place 8 queens on an 8 x 8 chess board so that none of the
+              queens attack each other.
 */
 
 #include <stdio.h>
