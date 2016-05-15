@@ -129,10 +129,12 @@ static int input(FILE *is, FILE *os)
 	int ret;
 
 	ret = fscanf(is, "%c%c", &c, &nl);
-	if (ret == EOF || (isalpha(c) && toupper(c) == 'Q'))
+	if (ret == EOF)
 		return EOF;
-
-	else if (isdigit(c)) {
+	else if (isalpha(c) && toupper(c) == 'Q') {
+		xprintf(os, "%c\n", c);
+		return EOF;
+	} else if (isdigit(c)) {
 		char str[BUFSIZ];
 
 		str[0] = c;
@@ -177,9 +179,6 @@ int main(int argc, char *argv[])
 	FILE *os;
 	int ret;
 
-	printf("Eight queens problem\n");
-	printf("====================\n\n");
-
 	/* Use the custom input stream. */
 	if (argc >= 2) {
 		fp = fopen(argv[1], "r");
@@ -197,6 +196,9 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
+	xprintf(os, "Eight queens problem (Assignment 7)\n");
+	xprintf(os, "===================================\n\n");
+
 	/* Let's find the eight queens' positions. */
 	for (prompt(os); (ret = input(is, os)) != EOF; prompt(os)) {
 		int row = 0;
@@ -208,7 +210,11 @@ int main(int argc, char *argv[])
 		}
 		reset_board();
 		set_queen(ret, row);
-		place_queens(++row);
+		row = place_queens(++row);
+		if (row == max_row)
+			xprintf(os, "\nEight non-attacking queen positions\n");
+		else
+			xprintf(os, "\nWe can't find the solution\n");
 		print_board(os);
 	}
 

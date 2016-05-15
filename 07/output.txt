@@ -1,4 +1,9 @@
+Eight queens problem (Assignment 7)
+===================================
+
 Which column(0-7) do you want to put your first queen or Q for quit: 4
+
+Eight non-attacking queen positions
 
 	* * * * U * * * 
 	Q * * * * * * * 
@@ -10,6 +15,8 @@ Which column(0-7) do you want to put your first queen or Q for quit: 4
 	* * Q * * * * * 
 
 Which column(0-7) do you want to put your first queen or Q for quit: 2
+
+Eight non-attacking queen positions
 
 	* * U * * * * * 
 	Q * * * * * * * 
@@ -26,6 +33,8 @@ Column should be between 0 and 7
 
 Which column(0-7) do you want to put your first queen or Q for quit: 6
 
+Eight non-attacking queen positions
+
 	* * * * * * U * 
 	Q * * * * * * * 
 	* * Q * * * * * 
@@ -36,6 +45,8 @@ Which column(0-7) do you want to put your first queen or Q for quit: 6
 	* * * * Q * * * 
 
 Which column(0-7) do you want to put your first queen or Q for quit: 3
+
+Eight non-attacking queen positions
 
 	* * * U * * * * 
 	Q * * * * * * * 
@@ -48,6 +59,8 @@ Which column(0-7) do you want to put your first queen or Q for quit: 3
 
 Which column(0-7) do you want to put your first queen or Q for quit: 0
 
+Eight non-attacking queen positions
+
 	U * * * * * * * 
 	* * * * Q * * * 
 	* * * * * * * Q 
@@ -58,6 +71,8 @@ Which column(0-7) do you want to put your first queen or Q for quit: 0
 	* * * Q * * * * 
 
 Which column(0-7) do you want to put your first queen or Q for quit: 5
+
+Eight non-attacking queen positions
 
 	* * * * * U * * 
 	Q * * * * * * * 
@@ -70,6 +85,8 @@ Which column(0-7) do you want to put your first queen or Q for quit: 5
 
 Which column(0-7) do you want to put your first queen or Q for quit: 1
 
+Eight non-attacking queen positions
+
 	* U * * * * * * 
 	* * * Q * * * * 
 	* * * * * Q * * 
@@ -81,6 +98,8 @@ Which column(0-7) do you want to put your first queen or Q for quit: 1
 
 Which column(0-7) do you want to put your first queen or Q for quit: 7
 
+Eight non-attacking queen positions
+
 	* * * * * * * U 
 	* Q * * * * * * 
 	* * * Q * * * * 
@@ -90,5 +109,6 @@ Which column(0-7) do you want to put your first queen or Q for quit: 7
 	* * Q * * * * * 
 	* * * * * Q * * 
 
-Which column(0-7) do you want to put your first queen or Q for quit: 
+Which column(0-7) do you want to put your first queen or Q for quit: Q
+
 Thank you!
