@@ -42,11 +42,14 @@ static void xprintf(FILE *os, const char *fmt, ...)
 	}
 }
 
-static void set_board(const char c, const int column, const int row)
+static void set_queen(const int column, const int row)
 {
+	/* Queen character, 'U' for first row and 'Q' for the rest. */
+	const char queen = row == 0 ? 'U' : 'Q';
+
 	if (row >= 0 && row < max_row)
 		if (column >= 0 && column < max_column)
-			board[row][column] = c;
+			board[row][column] = queen;
 }
 
 static void reset_board()
@@ -125,7 +128,7 @@ int main()
 		}
 		xprintf(os, "%d\n", ret);
 		row = 0;
-		set_board('U', ret, row);
+		set_queen(ret, row);
 		print_board(os);
 	}
 
