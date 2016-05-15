@@ -172,7 +172,7 @@ static int place_queens(const int current_row)
 int main(int argc, char *argv[])
 {
 	const char *ofilename = "output.txt";
-	FILE *is = stdin; /* use stdin by default. */
+	FILE *is = stdin; /* use stdin as the input stream by default. */
 	FILE *fp = NULL;
 	FILE *os;
 	int ret;
@@ -180,20 +180,20 @@ int main(int argc, char *argv[])
 	printf("Eight queens problem\n");
 	printf("====================\n\n");
 
-	/* Find the input file. */
+	/* Use the custom input stream. */
 	if (argc >= 2) {
 		fp = fopen(argv[1], "r");
 		if (fp == NULL)
-			fprintf(stderr, "Can't open %s, use stdin\n",
+			fprintf(stderr, "Can't open %s, use stdin instead.\n",
 				argv[1]);
 		else
 			is = fp;
 	}
 
-	/* Output file. */
+	/* Output stream. */
 	os = fopen(ofilename, "w");
 	if (os == NULL) {
-		printf("Can't open %s file\n", ofilename);
+		fprintf(stderr, "Can't open %s file\n", ofilename);
 		exit(-1);
 	}
 
