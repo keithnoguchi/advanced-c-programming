@@ -156,16 +156,17 @@ static int set_queens(const int current_row)
 	int row = current_row;
 	int column;
 
-	for (column = 0; column < max_column; ++column) {
-		if (is_free(column, current_row)) {
-			set_queen(column, current_row);
-			row = set_queens(current_row + 1);
-			if (row != max_row) {
-				reset_queen(column, current_row);
-				continue;
+	if (current_row < max_row)
+		for (column = 0; column < max_column; ++column) {
+			if (is_free(column, current_row)) {
+				set_queen(column, current_row);
+				row = set_queens(current_row + 1);
+				if (row != max_row) {
+					reset_queen(column, current_row);
+					continue;
+				}
 			}
 		}
-	}
 	return row;
 }
 
