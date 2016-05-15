@@ -95,22 +95,11 @@ static void reset_queen(const int column, const int row)
 
 static void reset_board()
 {
-	int i, j;
+	int column, row;
 
-	/* Reset the boards. */
-	for (i = 0; i < max_row; ++i)
-		for (j = 0; j < max_column; ++j)
-			reset_queen(j, i);
-
-	/* Reset the free slots. */
-	for (i = 0; i < max_column; ++i)
-		free_column[i] = true;
-
-	/* Reset the up and down diagonal slots. */
-	for (i = 0; i < max_column + max_row - 1; ++i) {
-		free_up[i] = true;
-		free_down[i] = true;
-	}
+	for (row = 0; row < max_row; ++row)
+		for (column = 0; column < max_column; ++column)
+			reset_queen(column, row);
 }
 
 static void print_board(FILE *os)
@@ -156,7 +145,7 @@ static int input(FILE *is, FILE *os)
 	return column;
 }
 
-static int find_queens(const int current_row)
+static int place_queens(const int current_row)
 {
 	int row = current_row;
 	int column;
@@ -165,8 +154,13 @@ static int find_queens(const int current_row)
 		for (column = 0; column < max_column; ++column) {
 			if (is_free(column, current_row)) {
 				set_queen(column, current_row);
-				row = find_queens(current_row + 1);
+				/* Recursively find the possible
+				 * positions. */
+				row = place_queens(current_row + 1);
 				if (row != max_row) {
+					/* We can't place whole queens
+					 * with this position.  let's try
+					 * with the next available column. */
 					reset_queen(column, current_row);
 					continue;
 				}
@@ -203,7 +197,7 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	/* Let's get input.  */
+	/* Let's find the eight queens' positions. */
 	for (prompt(os); (ret = input(is, os)) != EOF; prompt(os)) {
 		int row = 0;
 
@@ -214,7 +208,7 @@ int main(int argc, char *argv[])
 		}
 		reset_board();
 		set_queen(ret, row);
-		find_queens(++row);
+		place_queens(++row);
 		print_board(os);
 	}
 
