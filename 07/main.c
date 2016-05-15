@@ -61,15 +61,12 @@ static bool is_free(const int column, const int row)
 		return true;
 }
 
-static bool set_queen(const int column, const int row)
+static void set_queen(const int column, const int row)
 {
 	/* Sanity check. */
 	if (row < 0 || row >= max_row
 		|| column < 0 || column >= max_column)
-		return false;
-
-	if (!is_free(column, row))
-		return false;
+		return;
 
 	/* Queen character, 'U' for first row and 'Q' for the rest. */
 	board[row][column] = row == 0 ? 'U' : 'Q';
@@ -78,8 +75,6 @@ static bool set_queen(const int column, const int row)
 	free_column[column] = false;
 	free_up[column + row] = false;
 	free_down[max_column - 1 - column + row] = false;
-
-	return true;
 }
 
 static void reset_queen(const int column, const int row)
@@ -156,9 +151,22 @@ static int input(FILE *is)
 	return column;
 }
 
-static int find_queens(const int current_row)
+static int set_queens(const int current_row)
 {
-	;
+	int row = current_row;
+	int column;
+
+	for (column = 0; column < max_column; ++column) {
+		if (is_free(column, current_row)) {
+			set_queen(column, current_row);
+			row = set_queens(current_row + 1);
+			if (row != max_row) {
+				reset_queen(column, current_row);
+				continue;
+			}
+		}
+	}
+	return row;
 }
 
 int main()
@@ -187,7 +195,7 @@ int main()
 		row = 0;
 		reset_board();
 		set_queen(ret, row);
-		find_queens(++row);
+		set_queens(++row);
 		print_board(os);
 	}
 
