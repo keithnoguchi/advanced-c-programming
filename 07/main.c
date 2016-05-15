@@ -11,16 +11,16 @@
 
    file name: main.c
 
-   Date: May 12nd, 2016
+   Date: May 14th, 2016
 
    Objective:
 
 */
 
 #include <stdio.h>
-#include <stdarg.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include <ctype.h>
 
 #define max_row 8
@@ -52,13 +52,20 @@ static void set_queen(const int column, const int row)
 			board[row][column] = queen;
 }
 
+static void reset_queen(const int column, const int row)
+{
+	if (row >= 0 && row < max_row)
+		if (column >= 0 && column < max_column)
+			board[row][column] = '*';
+}
+
 static void reset_board()
 {
 	int i, j;
 
 	for (i = 0; i < max_row; ++i)
 		for (j = 0; j < max_column; ++j)
-			board[i][j] = '*';
+			reset_queen(j, i);
 }
 
 static void print_board(FILE *os)
@@ -120,7 +127,6 @@ int main()
 	}
 
 	for (prompt(os); (ret = input(is)) != EOF; prompt(os)) {
-		reset_board();
 		if (ret >= max_column) {
 			xprintf(os,
 				"\nColumn number should be between 0 to 7\n");
@@ -128,6 +134,7 @@ int main()
 		}
 		xprintf(os, "%d\n", ret);
 		row = 0;
+		reset_board();
 		set_queen(ret, row);
 		print_board(os);
 	}
