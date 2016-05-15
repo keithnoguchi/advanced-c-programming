@@ -25,7 +25,14 @@
 
 #define max_row 8
 #define max_column 8
+
+/* Final board positions.  */
 static char board[max_row][max_column];
+
+/* Keep track of the free positions. */
+static char free_column[max_column];
+static char free_up[max_row + max_column - 1];
+static char free_down[max_row + max_column - 1];
 
 static void xprintf(FILE *os, const char *fmt, ...)
 {
@@ -110,6 +117,11 @@ static int input(FILE *is)
 	return column;
 }
 
+static int find_queens(const int current_row)
+{
+	;
+}
+
 int main()
 {
 	const char *ofilename = "output.txt";
@@ -136,6 +148,7 @@ int main()
 		row = 0;
 		reset_board();
 		set_queen(ret, row);
+		find_queens(++row);
 		print_board(os);
 	}
 
