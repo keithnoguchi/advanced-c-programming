@@ -133,7 +133,7 @@ static void prompt(FILE *os)
 		"first queen or Q for quit: ");
 }
 
-static int input(FILE *is)
+static int input(FILE *is, FILE *os)
 {
 	int column = max_column;
 	char c, nl;
@@ -149,6 +149,7 @@ static int input(FILE *is)
 		str[0] = c;
 		str[1] = '\0';
 		column = atoi(str);
+		xprintf(os, "%d\n", column);
 		if (column < 0 || column >= max_column)
 			column = max_column;
 	}
@@ -182,7 +183,8 @@ int main(int argc, char *argv[])
 	FILE *os;
 	int ret;
 
-	printf("Eight queens problem\n\n");
+	printf("Eight queens problem\n");
+	printf("====================\n\n");
 
 	/* Find the input file. */
 	if (argc >= 2) {
@@ -202,22 +204,21 @@ int main(int argc, char *argv[])
 	}
 
 	/* Let's get input.  */
-	for (prompt(os); (ret = input(is)) != EOF; prompt(os)) {
+	for (prompt(os); (ret = input(is, os)) != EOF; prompt(os)) {
 		int row = 0;
 
 		if (ret >= max_column) {
-			xprintf(os,
-				"\nColumn number should be between 0 to 7\n");
+			xprintf(os, "\nPlease provide between 0 to %d\n\n",
+				max_column - 1);
 			continue;
 		}
-		xprintf(os, "%d\n", ret);
 		reset_board();
 		set_queen(ret, row);
 		find_queens(++row);
 		print_board(os);
 	}
 
-	xprintf(os, "\n\nThank you!\n");
+	xprintf(os, "\nThank you!\n");
 	fclose(os);
 	if (fp)
 		fclose(fp);

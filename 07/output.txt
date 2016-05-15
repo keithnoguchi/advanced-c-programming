@@ -20,8 +20,10 @@ Which column(0-7) do you want to put your first queen or Q for quit: 2
 	* * * Q * * * * 
 	* * * * * Q * * 
 
-Which column(0-7) do you want to put your first queen or Q for quit: 
-Column number should be between 0 to 7
+Which column(0-7) do you want to put your first queen or Q for quit: 9
+
+Please provide between 0 to 7
+
 Which column(0-7) do you want to put your first queen or Q for quit: 6
 
 	* * * * * * U * 
@@ -89,5 +91,4 @@ Which column(0-7) do you want to put your first queen or Q for quit: 7
 	* * * * * Q * * 
 
 Which column(0-7) do you want to put your first queen or Q for quit: 
-
 Thank you!
