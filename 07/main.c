@@ -44,12 +44,19 @@ static void xprintf(FILE *os, const char *fmt, ...)
 	va_start(ap, fmt);
 	vprintf(fmt, ap);
 	va_end(ap);
+
+	if (os != stdout) {
+		va_start(ap, fmt);
+		vfprintf(os, fmt, ap);
+		va_end(ap);
+	}
 }
 
 static void print_board(FILE *os)
 {
 	int i, j;
 
+	xprintf(os, "\n");
 	for (i = 0; i < max_row; ++i) {
 		xprintf(os, "\t");
 		for (j = 0; j < max_column; ++j)
@@ -89,20 +96,30 @@ static int input(FILE *is)
 
 int main()
 {
-	FILE *os = stdout;
+	const char *ofilename = "output.txt";
 	FILE *is = stdin;
+	FILE *os = NULL;
 	int ret;
 
 	printf("Eight queen problem\n\n");
 
+	os = fopen(ofilename, "w");
+	if (os == NULL) {
+		printf("Can't open %s file\n", ofilename);
+		exit(-1);
+	}
+
 	for (prompt(os); (ret = input(is)) != EOF; prompt(os)) {
 		if (ret >= max_column) {
-			xprintf(os, "Column number should be between 0 to 7\n");
+			xprintf(os,
+				"\nColumn number should be between 0 to 7\n");
 			continue;
 		}
 		xprintf(os, "%d\n", ret);
-		print_board(NULL);
+		print_board(os);
 	}
 
 	xprintf(os, "\n\nThank you!\n");
+
+	fclose(os);
 }
