@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 		int row = 0;
 
 		if (ret >= max_column) {
-			xprintf(os, "\nPlease provide between 0 to %d\n\n",
+			xprintf(os, "\nColumn should be between 0 and %d\n\n",
 				max_column - 1);
 			continue;
 		}
