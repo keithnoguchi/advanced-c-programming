@@ -40,15 +40,36 @@ static int xprintf(FILE *os, const char *fmt, ...)
 int main()
 {
 	const char *out_filename = "output.txt";
-	FILE *os;
+	const char *in_filename = "input.txt";
+	FILE *os, *is;
+	int ret = EXIT_SUCCESS;
+	int c;
 
+	/* Output stream. */
 	os = fopen(out_filename, "w");
 	if (os == NULL) {
 		fprintf(stderr, "can't open %s\n", out_filename);
-		exit(-1);
+		ret = EXIT_FAILURE;
+		goto err;
 	}
-	xprintf(os, "Hello world\n");
 
+	/* Input stream. */
+	is = fopen(in_filename, "r");
+	if (is == NULL) {
+		fprintf(stderr, "can't open %s\n", in_filename);
+		ret = EXIT_FAILURE;
+		goto err;
+	}
+
+	/* Just copy the contents. */
+	while ((c = fgetc(is)) != EOF)
+		fputc(c, os);
+
+err:
 	if (os)
 		fclose(os);
+	if (is)
+		fclose(is);
+
+	exit(ret);
 }
