@@ -27,6 +27,8 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+static int xprintf(FILE *os, const char *fmt, ...);
+
 typedef enum scope_symbol_type {
 	OPEN_PARENTHESIS = 0,
 	OPEN_BRACE,
@@ -62,30 +64,27 @@ static const bool is_empty(const struct stack *s)
 	return s->top == -1;
 }
 
+static const bool is_full(const struct stack *s)
+{
+	return s->top == s->max - 1;
+}
+
 static void push(struct stack *s, const char c, FILE *os)
 {
+	if (is_full(s)) {
+		xprintf(os, "Stack is full, exiting...\n");
+		exit(-1);
+	}
 	s->array[++s->top] = c;
 }
 
 static char pop(struct stack *s, FILE *os)
 {
-	return s->array[s->top--];
-}
-
-static int xprintf(FILE *os, const char *fmt, ...)
-{
-	va_list ap;
-	int ret;
-
-	va_start(ap, fmt);
-	ret = vfprintf(stdout, fmt, ap);
-	va_end(ap);
-	if (os != stdout && os != stderr) {
-		va_start(ap, fmt);
-		ret = vfprintf(os, fmt, ap);
-		va_end(ap);
+	if (is_empty(s)) {
+		xprintf(os, "Stack is empty, returning null string\n");
+		return '\0';
 	}
-	return ret;
+	return s->array[s->top--];
 }
 
 static const scope_symbol_t scope_symbol_type(const char c)
@@ -113,6 +112,22 @@ static bool does_symbol_match(const scope_symbol_t open_type,
 				const scope_symbol_t close_type)
 {
 	return open_type == close_type - OPEN_SYMBOL_MAX;
+}
+
+static int xprintf(FILE *os, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vfprintf(stdout, fmt, ap);
+	va_end(ap);
+	if (os != stdout && os != stderr) {
+		va_start(ap, fmt);
+		ret = vfprintf(os, fmt, ap);
+		va_end(ap);
+	}
+	return ret;
 }
 
 static void validate_scoping(FILE *is, FILE *os)
