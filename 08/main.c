@@ -112,7 +112,7 @@ static bool does_symbol_match(const scope_symbol_t open_type,
 
 static void validate_scoping(FILE *is, FILE *os)
 {
-	bool matches = true;
+	bool valid = true;
 	int c;
 
 	xprintf(os, "\nValidate expression scoping\n");
@@ -141,7 +141,7 @@ static void validate_scoping(FILE *is, FILE *os)
 				push(os, open_symbol);
 
 				/* and flag as unmatched. */
-				matches = false;
+				valid = false;
 			}
 			xprintf(os, "'%c'\n", open_symbol);
 		}
@@ -149,13 +149,13 @@ static void validate_scoping(FILE *is, FILE *os)
 
 	/* Make sure all the open symbol has been closed correctly. */
 	if (!is_stack_empty())
-		matches = false;
+		valid = false;
 
 	/* Print out the result. */
 	xprintf(os, "\nExpression does ");
-	if (!matches)
+	if (!valid)
 		xprintf(os, "NOT ");
-	xprintf(os, "have a matching scope.\n\n");
+	xprintf(os, "have a valid scoping.\n\n");
 }
 
 int main()

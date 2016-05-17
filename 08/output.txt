@@ -29,5 +29,5 @@ Find close symbol ')', matches '('
 Find close symbol ']', matches '['
 Find close symbol '}', matches '{'
 
-Expression does have a matching scope.
+Expression does have a valid scoping.
 
