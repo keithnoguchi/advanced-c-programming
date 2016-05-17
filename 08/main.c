@@ -47,17 +47,17 @@ static const char scope_symbols[SYMBOL_MAX] = {
 struct stack {
 	int position;
 #define STACK_SIZE 10
-	char symbols[STACK_SIZE];
+	char array[STACK_SIZE];
 };
 
-static void push(struct stack *s, FILE *os, const char symbol)
+static void push(struct stack *s, const char c, FILE *os)
 {
-	s->symbols[++s->position] = symbol;
+	s->array[++s->position] = c;
 }
 
 static char pop(struct stack *s, FILE *os)
 {
-	return s->symbols[s->position--];
+	return s->array[s->position--];
 }
 
 static const bool is_empty(const struct stack *s)
@@ -125,7 +125,7 @@ static void validate_scoping(FILE *is, FILE *os)
 			continue;
 		else if (is_open_symbol(symbol_type)) {
 			xprintf(os, "Find open symbol '%c'\n", c);
-			push(&symbol_stack, os, c);
+			push(&symbol_stack, c, os);
 		} else {
 			char open_symbol = pop(&symbol_stack, os);
 			scope_symbol_t open_type
@@ -139,7 +139,7 @@ static void validate_scoping(FILE *is, FILE *os)
 				xprintf(os, ", doesn't match ");
 
 				/* Push back the open symbol, */
-				push(&symbol_stack, os, open_symbol);
+				push(&symbol_stack, open_symbol, os);
 
 				/* and flag as unmatched. */
 				valid = false;
