@@ -18,6 +18,48 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdbool.h>
+
+static int xprintf(FILE *os, const char *fmt, ...);
+
+/* Array based queue. */
+struct aqueue {
+	char head;
+	char tail;
+	char size;
+#define MAX_SIZE 10
+	char array[MAX_SIZE];
+};
+
+static void init(struct aqueue *q)
+{
+	q->head = q->tail = 0; /* This is the start. */
+	q->size = sizeof(q->array) / sizeof(char);
+}
+
+static bool is_empty(const struct aqueue *q)
+{
+	return q->head == q->tail;
+}
+
+static int print_queue(const struct aqueue *q, FILE *os)
+{
+	int counter = 0;
+
+	if (!is_empty(q)) {
+		char end = q->head < q->tail ? q->size : q->tail + 1;
+		int i;
+
+		for (i = q->head; i < end; ++i, ++counter)
+			xprintf(os, "%c", q->array[i]);
+
+		if (end == q->size)
+			/* Queue is wrapped around. */
+			for (i = 0; i < q->tail + 1; ++i, ++counter)
+				xprintf(os, "%c ", q->array[i]);
+	}
+	return counter;
+}
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -38,13 +80,19 @@ static int xprintf(FILE *os, const char *fmt, ...)
 
 static void process(FILE *is, FILE *os)
 {
+	struct aqueue queue;
 	int ret;
 
 	xprintf(os, "\nEnque and Deque test with simple array queue\n");
 	xprintf(os, "============================================\n\n");
 
+	init(&queue);
 	while ((ret = fgetc(is)) != EOF)
 		xprintf(os, "%c", ret);
+
+	xprintf(os, "\nFinal queue contents: ");
+	if (print_queue(&queue, os) == 0)
+		xprintf(os, "Queue is empty\n");
 
 	xprintf(os, "\nThank you!\n");
 }
@@ -79,4 +127,3 @@ err:
 	if (is)
 		fclose(is);
 }
-

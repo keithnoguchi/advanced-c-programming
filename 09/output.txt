@@ -4,4 +4,6 @@ Enque and Deque test with simple array queue
 
 E25 E37 E45 E52 E98 D D D E36 E12 D D E69
 
+Final queue contents: Queue is empty
+
 Thank you!
