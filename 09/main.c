@@ -19,47 +19,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
-
-static int xprintf(FILE *os, const char *fmt, ...);
-
-/* Array based queue. */
-struct aqueue {
-	char head;
-	char tail;
-	char size;
-#define MAX_SIZE 10
-	char array[MAX_SIZE];
-};
-
-static void init(struct aqueue *q)
-{
-	q->head = q->tail = 0; /* This is the start. */
-	q->size = sizeof(q->array) / sizeof(char);
-}
-
-static bool is_empty(const struct aqueue *q)
-{
-	return q->head == q->tail;
-}
-
-static int print_queue(const struct aqueue *q, FILE *os)
-{
-	int counter = 0;
-
-	if (!is_empty(q)) {
-		char end = q->head < q->tail ? q->size : q->tail + 1;
-		int i;
-
-		for (i = q->head; i < end; ++i, ++counter)
-			xprintf(os, "%c", q->array[i]);
-
-		if (end == q->size)
-			/* Queue is wrapped around. */
-			for (i = 0; i < q->tail + 1; ++i, ++counter)
-				xprintf(os, "%c ", q->array[i]);
-	}
-	return counter;
-}
+#include <ctype.h>
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -78,7 +38,52 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
-static void process(FILE *is, FILE *os)
+/* Array based queue. */
+struct aqueue {
+	char begin;
+	char end;
+	char size;
+	char capacity;
+#define MAX_SIZE 3
+	int array[MAX_SIZE];
+};
+
+static void init(struct aqueue *q)
+{
+	q->begin = q->end = q->size = 0;
+	q->capacity = sizeof(q->array) / sizeof(int);
+}
+
+static bool is_empty(const struct aqueue *q)
+{
+	return q->size == 0;
+}
+
+static bool is_full(const struct aqueue *q)
+{
+	return q->size == q->capacity;
+}
+
+static int print_queue(const struct aqueue *q, FILE *os)
+{
+	int counter = 0;
+
+	if (!is_empty(q)) {
+		char end = q->begin < q->end ? q->end : q->capacity;
+		int i;
+
+		for (i = q->begin; i < end; ++i, ++counter)
+			xprintf(os, "%c", q->array[i]);
+
+		/* Queue is wrapped around. */
+		if (q->end < q->begin)
+			for (i = 0; i < q->end; ++i, ++counter)
+				xprintf(os, "%c ", q->array[i]);
+	}
+	return counter;
+}
+
+static void process_input(FILE *is, FILE *os)
 {
 	struct aqueue queue;
 	int ret;
@@ -88,7 +93,10 @@ static void process(FILE *is, FILE *os)
 
 	init(&queue);
 	while ((ret = fgetc(is)) != EOF)
-		xprintf(os, "%c", ret);
+		/* Ignore white space. */
+		if (isalnum(ret))
+			xprintf(os, "%c", ret);
+	xprintf(os, "\n");
 
 	xprintf(os, "\nFinal queue contents: ");
 	if (print_queue(&queue, os) == 0)
@@ -119,7 +127,7 @@ int main()
 	}
 
 	/* Light the fire! */
-	process(is, os);
+	process_input(is, os);
 
 err:
 	if (os)
