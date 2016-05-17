@@ -17,13 +17,36 @@
 */
 
 #include <stdio.h>
+#include <stdarg.h>
+
+static int xprintf(FILE *os, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vprintf(fmt, ap);
+	if (os != stdout) {
+		va_end(ap);
+		va_start(ap, fmt);
+		vfprintf(os, fmt, ap);
+	}
+	va_end(ap);
+
+	return ret;
+}
 
 static void process(FILE *is, FILE *os)
 {
 	int ret;
 
+	xprintf(os, "\nEnque and Deque test with simple array queue\n");
+	xprintf(os, "============================================\n\n");
+
 	while ((ret = fgetc(is)) != EOF)
-		fputc(ret, os);
+		xprintf(os, "%c", ret);
+
+	xprintf(os, "\nThank you!\n");
 }
 
 int main()
