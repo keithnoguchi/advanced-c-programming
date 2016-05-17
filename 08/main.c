@@ -44,27 +44,25 @@ static const char scope_symbols[SYMBOL_MAX] = {
 	'(', '{', '[', ')', '}', ']'
 };
 
-#define STACK_SIZE 10
-static struct stack {
+struct stack {
 	int position;
+#define STACK_SIZE 10
 	char symbols[STACK_SIZE];
-} symbol_stack = {
-	.position = -1
 };
 
-static void push(FILE *os, const char symbol)
+static void push(struct stack *s, FILE *os, const char symbol)
 {
-	symbol_stack.symbols[++symbol_stack.position] = symbol;
+	s->symbols[++s->position] = symbol;
 }
 
-static char pop(FILE *os)
+static char pop(struct stack *s, FILE *os)
 {
-	return symbol_stack.symbols[symbol_stack.position--];
+	return s->symbols[s->position--];
 }
 
-static bool is_stack_empty(void)
+static const bool is_empty(const struct stack *s)
 {
-	return symbol_stack.position == -1;
+	return s->position == -1;
 }
 
 static int xprintf(FILE *os, const char *fmt, ...)
@@ -112,6 +110,9 @@ static bool does_symbol_match(const scope_symbol_t open_type,
 
 static void validate_scoping(FILE *is, FILE *os)
 {
+	struct stack symbol_stack = {
+		.position = -1
+	};
 	bool valid = true;
 	int c;
 
@@ -124,9 +125,9 @@ static void validate_scoping(FILE *is, FILE *os)
 			continue;
 		else if (is_open_symbol(symbol_type)) {
 			xprintf(os, "Find open symbol '%c'\n", c);
-			push(os, c);
+			push(&symbol_stack, os, c);
 		} else {
-			char open_symbol = pop(os);
+			char open_symbol = pop(&symbol_stack, os);
 			scope_symbol_t open_type
 				= scope_symbol_type(open_symbol);
 			bool match = does_symbol_match(open_type, symbol_type);
@@ -138,7 +139,7 @@ static void validate_scoping(FILE *is, FILE *os)
 				xprintf(os, ", doesn't match ");
 
 				/* Push back the open symbol, */
-				push(os, open_symbol);
+				push(&symbol_stack, os, open_symbol);
 
 				/* and flag as unmatched. */
 				valid = false;
@@ -148,7 +149,7 @@ static void validate_scoping(FILE *is, FILE *os)
 	}
 
 	/* Make sure all the open symbol has been closed correctly. */
-	if (!is_stack_empty())
+	if (!is_empty(&symbol_stack))
 		valid = false;
 
 	/* Print out the result. */
