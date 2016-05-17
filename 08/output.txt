@@ -1,26 +1,33 @@
-PUSH {
-PUSH (
-PUSH [
-POP ]
-POP )
-PUSH (
-PUSH [
-PUSH (
-POP )
-POP ]
-POP )
-POP }
-PUSH (
-PUSH (
-PUSH (
-PUSH [
-POP ]
-POP )
-POP )
-POP )
-PUSH {
-PUSH [
-PUSH (
-POP )
-POP ]
-POP }
+
+Validate expression scoping
+===========================
+
+Find open symbol '{'
+Find open symbol '('
+Find open symbol '['
+Find close symbol ']', matches '['
+Find close symbol ')', matches '('
+Find open symbol '('
+Find open symbol '['
+Find open symbol '('
+Find close symbol ')', matches '('
+Find close symbol ']', matches '['
+Find close symbol ')', matches '('
+Find close symbol '}', matches '{'
+Find open symbol '('
+Find open symbol '('
+Find open symbol '('
+Find open symbol '['
+Find close symbol ']', matches '['
+Find close symbol ')', matches '('
+Find close symbol ')', matches '('
+Find close symbol ')', matches '('
+Find open symbol '{'
+Find open symbol '['
+Find open symbol '('
+Find close symbol ')', matches '('
+Find close symbol ']', matches '['
+Find close symbol '}', matches '{'
+
+Expression does have a matching scope.
+

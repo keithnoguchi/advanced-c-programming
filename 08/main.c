@@ -38,6 +38,29 @@ static const char scope_symbols[SYMBOL_MAX] = {
 	'(', '{', '[', ')', '}', ']'
 };
 
+#define STACK_SIZE 100
+static struct stack {
+	int position;
+	char symbols[STACK_SIZE];
+} symbol_stack = {
+	.position = -1
+};
+
+static void push(FILE *os, const char symbol)
+{
+	symbol_stack.symbols[++symbol_stack.position] = symbol;
+}
+
+static char pop(FILE *os)
+{
+	return symbol_stack.symbols[symbol_stack.position--];
+}
+
+static bool is_stack_empty(void)
+{
+	return symbol_stack.position == -1;
+}
+
 static int xprintf(FILE *os, const char *fmt, ...)
 {
 	va_list ap;
@@ -65,41 +88,68 @@ static const scope_symbol_t scope_symbol_type(const char c)
 	return NOT_A_SYMBOL;
 }
 
-static bool is_scope_symbol(const char c)
+static bool is_scope_symbol(const scope_symbol_t symbol_type)
 {
-	return scope_symbol_type(c) != NOT_A_SYMBOL;
+	return symbol_type != NOT_A_SYMBOL;
 }
 
-static bool is_open_symbol(const char c)
+static bool is_open_symbol(const scope_symbol_t symbol_type)
 {
-	return scope_symbol_type(c) < OPEN_SYMBOL_MAX;
+	return symbol_type < OPEN_SYMBOL_MAX;
 }
 
-static bool is_close_symbol(const char c)
+static bool does_symbol_match(const scope_symbol_t open_type,
+				const scope_symbol_t close_type)
 {
-	return is_scope_symbol(c) && !is_open_symbol(c);
+	return open_type == close_type - OPEN_SYMBOL_MAX;
 }
 
-static void push(FILE *os, const char c)
+static void validate_scoping(FILE *is, FILE *os)
 {
-	xprintf(os, "PUSH %c\n", c);
-}
-
-static char pop(FILE *os, const char c)
-{
-	xprintf(os, "POP %c\n", c);
-}
-
-static void validate_scopes(FILE *is, FILE *os)
-{
+	bool matches = true;
 	int c;
 
+	xprintf(os, "\nValidate expression scoping\n");
+	xprintf(os, "===========================\n\n");
+
 	while ((c = fgetc(is)) != EOF) {
-		if (is_open_symbol(c))
+		scope_symbol_t symbol_type = scope_symbol_type(c);
+		if (!is_scope_symbol(symbol_type))
+			continue;
+		else if (is_open_symbol(symbol_type)) {
+			xprintf(os, "Find open symbol '%c'\n", c);
 			push(os, c);
-		else if (is_close_symbol(c))
-			pop(os, c);
+		} else {
+			char open_symbol = pop(os);
+			scope_symbol_t open_type
+				= scope_symbol_type(open_symbol);
+			bool match = does_symbol_match(open_type, symbol_type);
+
+			xprintf(os, "Find close symbol '%c'", c);
+			if (match)
+				xprintf(os, ", matches ");
+			else {
+				xprintf(os, ", doesn't match ");
+
+				/* Push back the open symbol, */
+				push(os, open_symbol);
+
+				/* and flag as unmatched. */
+				matches = false;
+			}
+			xprintf(os, "'%c'\n", open_symbol);
+		}
 	}
+
+	/* Make sure all the open symbol has been closed correctly. */
+	if (!is_stack_empty())
+		matches = false;
+
+	/* Print out the result. */
+	xprintf(os, "\nExpression does ");
+	if (!matches)
+		xprintf(os, "NOT ");
+	xprintf(os, "have a matching scope.\n\n");
 }
 
 int main()
@@ -126,7 +176,7 @@ int main()
 	}
 
 	/* Validate the scoping of the equation. */
-	validate_scopes(is, os);
+	validate_scoping(is, os);
 
 err:
 	if (os)
