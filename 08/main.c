@@ -13,7 +13,13 @@
 
    Date: May 15th, 2016
 
-   Objective: 
+   Objective: Evaluate the validity of the scopes in the following
+              expression implementing stacks.  Ignore the operators
+              and operand in the expression while checking the validity
+              of the expression.
+
+   Expression: {x + (y - [a + b]) * (c - [(d + e)] + k)}
+                / (h - (j - (k - [l -n]))) + { u + [m * (p - q)]/r}
 */
 
 #include <stdio.h>
@@ -38,7 +44,7 @@ static const char scope_symbols[SYMBOL_MAX] = {
 	'(', '{', '[', ')', '}', ']'
 };
 
-#define STACK_SIZE 100
+#define STACK_SIZE 10
 static struct stack {
 	int position;
 	char symbols[STACK_SIZE];
