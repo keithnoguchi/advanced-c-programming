@@ -1,2 +1,26 @@
-{x + (y - [a + b]) * (c - [(d + e)] + k)} / (h - (j - (k - [l - n]))) + { u +
-[m * (p - )] / r}
+OPEN {
+OPEN (
+OPEN [
+CLOSE ]
+CLOSE )
+OPEN (
+OPEN [
+OPEN (
+CLOSE )
+CLOSE ]
+CLOSE )
+CLOSE }
+OPEN (
+OPEN (
+OPEN (
+OPEN [
+CLOSE ]
+CLOSE )
+CLOSE )
+CLOSE )
+OPEN {
+OPEN [
+OPEN (
+CLOSE )
+CLOSE ]
+CLOSE }

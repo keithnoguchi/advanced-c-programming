@@ -19,6 +19,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
+
+typedef enum scope_symbol_type {
+	OPEN_PARENTHESIS = 0,
+	OPEN_BRACE,
+	OPEN_BRACKET,
+	OPEN_SYMBOL_MAX,
+	CLOSE_PARENTHESIS = OPEN_SYMBOL_MAX,
+	CLOSE_BRACE,
+	CLOSE_BRACKET,
+	CLOSE_SYMBOL_MAX,
+	SYMBOL_MAX = CLOSE_SYMBOL_MAX,
+	NOT_A_SYMBOL = SYMBOL_MAX
+} scope_symbol_t;
+
+static const char scope_symbols[SYMBOL_MAX] = {
+	'(', '{', '[', ')', '}', ']'
+};
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -33,8 +51,45 @@ static int xprintf(FILE *os, const char *fmt, ...)
 		ret = vfprintf(os, fmt, ap);
 		va_end(ap);
 	}
-
 	return ret;
+}
+
+static const scope_symbol_t scope_symbol_type(const char c)
+{
+	scope_symbol_t type;
+
+	for (type = OPEN_PARENTHESIS; type < SYMBOL_MAX; ++type)
+		if (c == scope_symbols[type])
+			return type;
+
+	return NOT_A_SYMBOL;
+}
+
+static bool is_scope_symbol(const char c)
+{
+	return scope_symbol_type(c) != NOT_A_SYMBOL;
+}
+
+static bool is_open_symbol(const char c)
+{
+	return scope_symbol_type(c) < OPEN_SYMBOL_MAX;
+}
+
+static bool is_close_symbol(const char c)
+{
+	return is_scope_symbol(c) && !is_open_symbol(c);
+}
+
+static void validate_scopes(FILE *is, FILE *os)
+{
+	int c;
+
+	while ((c = fgetc(is)) != EOF) {
+		if (is_open_symbol(c))
+			xprintf(os, "OPEN %c\n", c);
+		else if (is_close_symbol(c))
+			xprintf(os, "CLOSE %c\n", c);
+	}
 }
 
 int main()
@@ -43,7 +98,6 @@ int main()
 	const char *in_filename = "input.txt";
 	FILE *os, *is;
 	int ret = EXIT_SUCCESS;
-	int c;
 
 	/* Output stream. */
 	os = fopen(out_filename, "w");
@@ -61,9 +115,8 @@ int main()
 		goto err;
 	}
 
-	/* Just copy the contents. */
-	while ((c = fgetc(is)) != EOF)
-		xprintf(os, "%c", c);
+	/* Validate the scoping of the equation. */
+	validate_scopes(is, os);
 
 err:
 	if (os)
