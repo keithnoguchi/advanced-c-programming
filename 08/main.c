@@ -49,14 +49,14 @@ static const char scope_symbols[SYMBOL_MAX] = {
 struct stack {
 	int top;
 	int max;
-#define STACK_SIZE 10
+#define STACK_SIZE 8
 	char array[STACK_SIZE];
 };
 
 static void init(struct stack *s)
 {
 	s->top = -1; /* -1 means empty stack. */
-	s->max = sizeof(s->array) / sizeof(char);
+	s->max = sizeof(s->array) / sizeof(char) - 1;
 }
 
 static const bool is_empty(const struct stack *s)
@@ -66,13 +66,13 @@ static const bool is_empty(const struct stack *s)
 
 static const bool is_full(const struct stack *s)
 {
-	return s->top == s->max - 1;
+	return s->top == s->max;
 }
 
 static void push(struct stack *s, const char c, FILE *os)
 {
 	if (is_full(s)) {
-		xprintf(os, "Stack is full, exiting...\n");
+		xprintf(os, "Stack is full, can't put '%c', exiting...\n", c);
 		exit(-1);
 	}
 	s->array[++s->top] = c;
