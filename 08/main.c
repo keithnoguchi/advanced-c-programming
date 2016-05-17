@@ -80,15 +80,25 @@ static bool is_close_symbol(const char c)
 	return is_scope_symbol(c) && !is_open_symbol(c);
 }
 
+static void push(FILE *os, const char c)
+{
+	xprintf(os, "PUSH %c\n", c);
+}
+
+static char pop(FILE *os, const char c)
+{
+	xprintf(os, "POP %c\n", c);
+}
+
 static void validate_scopes(FILE *is, FILE *os)
 {
 	int c;
 
 	while ((c = fgetc(is)) != EOF) {
 		if (is_open_symbol(c))
-			xprintf(os, "OPEN %c\n", c);
+			push(os, c);
 		else if (is_close_symbol(c))
-			xprintf(os, "CLOSE %c\n", c);
+			pop(os, c);
 	}
 }
 
