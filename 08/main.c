@@ -45,24 +45,31 @@ static const char scope_symbols[SYMBOL_MAX] = {
 };
 
 struct stack {
-	int position;
+	int top;
+	int max;
 #define STACK_SIZE 10
 	char array[STACK_SIZE];
 };
 
-static void push(struct stack *s, const char c, FILE *os)
+static void init(struct stack *s)
 {
-	s->array[++s->position] = c;
-}
-
-static char pop(struct stack *s, FILE *os)
-{
-	return s->array[s->position--];
+	s->top = -1; /* -1 means empty stack. */
+	s->max = sizeof(s->array) / sizeof(char);
 }
 
 static const bool is_empty(const struct stack *s)
 {
-	return s->position == -1;
+	return s->top == -1;
+}
+
+static void push(struct stack *s, const char c, FILE *os)
+{
+	s->array[++s->top] = c;
+}
+
+static char pop(struct stack *s, FILE *os)
+{
+	return s->array[s->top--];
 }
 
 static int xprintf(FILE *os, const char *fmt, ...)
@@ -110,15 +117,15 @@ static bool does_symbol_match(const scope_symbol_t open_type,
 
 static void validate_scoping(FILE *is, FILE *os)
 {
-	struct stack symbol_stack = {
-		.position = -1
-	};
+	struct stack symbol_stack;
 	bool valid = true;
 	int c;
 
 	xprintf(os, "\nValidate expression scoping\n");
 	xprintf(os, "===========================\n\n");
 
+	/* Initialize the stack. */
+	init(&symbol_stack);
 	while ((c = fgetc(is)) != EOF) {
 		scope_symbol_t symbol_type = scope_symbol_type(c);
 		if (!is_scope_symbol(symbol_type))
