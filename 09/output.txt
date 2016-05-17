@@ -1,6 +1,6 @@
 
-Enque and Deque test with simple array queue
-============================================
+Enque and Deque test with the simple array queue
+================================================
 
 E25E37E45E52E98DDDE36E12DDE69
 

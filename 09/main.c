@@ -83,13 +83,13 @@ static int print_queue(const struct aqueue *q, FILE *os)
 	return counter;
 }
 
-static void process_input(FILE *is, FILE *os)
+static void process(FILE *is, FILE *os)
 {
 	struct aqueue queue;
 	int ret;
 
-	xprintf(os, "\nEnque and Deque test with simple array queue\n");
-	xprintf(os, "============================================\n\n");
+	xprintf(os, "\nEnque and Deque test with the simple array queue\n");
+	xprintf(os, "================================================\n\n");
 
 	init(&queue);
 	while ((ret = fgetc(is)) != EOF)
@@ -127,7 +127,7 @@ int main()
 	}
 
 	/* Light the fire! */
-	process_input(is, os);
+	process(is, os);
 
 err:
 	if (os)
