@@ -63,7 +63,7 @@ int main()
 
 	/* Just copy the contents. */
 	while ((c = fgetc(is)) != EOF)
-		fputc(c, os);
+		xprintf(os, "%c", c);
 
 err:
 	if (os)
