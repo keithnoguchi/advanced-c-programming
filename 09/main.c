@@ -44,14 +44,14 @@ struct aqueue {
 	char end;
 	char size;
 	char capacity;
-#define MAX_SIZE 3
-	int array[MAX_SIZE];
+#define MAX_SIZE 10
+	int data[MAX_SIZE];
 };
 
 static void init(struct aqueue *q)
 {
 	q->begin = q->end = q->size = 0;
-	q->capacity = sizeof(q->array) / sizeof(int);
+	q->capacity = sizeof(q->data) / sizeof(int);
 }
 
 static bool is_empty(const struct aqueue *q)
@@ -64,6 +64,31 @@ static bool is_full(const struct aqueue *q)
 	return q->size == q->capacity;
 }
 
+static char next(const struct aqueue *q, const char current)
+{
+	return current + 1 == q->capacity ? 0 : current + 1;
+}
+
+static int enque(struct aqueue *q, int value)
+{
+	if (!is_full(q)) {
+		q->data[q->end] = value;
+		q->end = next(q, q->end);
+		++q->size;
+	}
+}
+
+static int deque(struct aqueue *q)
+{
+	int ret = -1;
+	if (!is_empty(q)) {
+		--q->size;
+		ret = q->data[q->begin];
+		q->begin = next(q, q->begin);
+	}
+	return ret;
+}
+
 static int print_queue(const struct aqueue *q, FILE *os)
 {
 	int counter = 0;
@@ -73,12 +98,12 @@ static int print_queue(const struct aqueue *q, FILE *os)
 		int i;
 
 		for (i = q->begin; i < end; ++i, ++counter)
-			xprintf(os, "%c", q->array[i]);
+			xprintf(os, "%d ", q->data[i]);
 
 		/* Queue is wrapped around. */
 		if (q->end < q->begin)
 			for (i = 0; i < q->end; ++i, ++counter)
-				xprintf(os, "%c ", q->array[i]);
+				xprintf(os, "%d ", q->data[i]);
 	}
 	return counter;
 }
@@ -87,16 +112,32 @@ static void process(FILE *is, FILE *os)
 {
 	struct aqueue queue;
 	int ret;
+	int i;
 
 	xprintf(os, "\nEnque and Deque test with the simple array queue\n");
 	xprintf(os, "================================================\n\n");
 
 	init(&queue);
-	while ((ret = fgetc(is)) != EOF)
-		/* Ignore white space. */
-		if (isalnum(ret))
-			xprintf(os, "%c", ret);
-	xprintf(os, "\n");
+	i = 0;
+	while ((ret = fgetc(is)) != EOF) {
+		/* First get the queue operator. */
+		if (isalpha(ret)) {
+			xprintf(os, "%2d) ", ++i);
+			if (tolower(ret) == 'e') {
+				/* Enque operation. */
+				fscanf(is, "%d", &ret);
+				enque(&queue, ret);
+				xprintf(os, "Enque %d", ret);
+			} else if (tolower(ret) == 'd') {
+				/* Deque operation. */
+				ret = deque(&queue);
+				xprintf(os, "Deque %d", ret);
+			}
+			xprintf(os, ", and the current queue is: ");
+			print_queue(&queue, os);
+			xprintf(os, "\n");
+		}
+	}
 
 	xprintf(os, "\nFinal queue contents: ");
 	if (print_queue(&queue, os) == 0)

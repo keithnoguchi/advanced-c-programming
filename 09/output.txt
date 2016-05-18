@@ -2,8 +2,19 @@
 Enque and Deque test with the simple array queue
 ================================================
 
-E25E37E45E52E98DDDE36E12DDE69
+ 1) Enque 25, and the current queue is: 25 
+ 2) Enque 37, and the current queue is: 25 37 
+ 3) Enque 45, and the current queue is: 25 37 45 
+ 4) Enque 52, and the current queue is: 25 37 45 52 
+ 5) Enque 98, and the current queue is: 25 37 45 52 98 
+ 6) Deque 25, and the current queue is: 37 45 52 98 
+ 7) Deque 37, and the current queue is: 45 52 98 
+ 8) Deque 45, and the current queue is: 52 98 
+ 9) Enque 36, and the current queue is: 52 98 36 
+10) Enque 12, and the current queue is: 52 98 36 12 
+11) Deque 52, and the current queue is: 98 36 12 
+12) Deque 98, and the current queue is: 36 12 
+13) Enque 69, and the current queue is: 36 12 69 
 
-Final queue contents: Queue is empty
-
+Final queue contents: 36 12 69 
 Thank you!
