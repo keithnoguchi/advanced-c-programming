@@ -44,7 +44,7 @@ struct aqueue {
 	char end;
 	char size;
 	char capacity;
-#define MAX_SIZE 10
+#define MAX_SIZE 6
 	int data[MAX_SIZE];
 };
 
