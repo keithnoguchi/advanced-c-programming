@@ -18,6 +18,24 @@
 */
 
 #include <stdio.h>
+#include <stdarg.h>
+
+static int xprintf(FILE *os, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vprintf(fmt, ap);
+	if (os != stdout) {
+		va_end(ap);
+		va_start(ap, fmt);
+		vfprintf(os, fmt, ap);
+	}
+	va_end(ap);
+
+	return ret;
+}
 
 int main()
 {
@@ -30,10 +48,10 @@ int main()
 		goto err;
 	}
 
-	printf("Tower of Hanoi\n");
-	printf("==============\n");
+	xprintf(os, "Tower of Hanoi\n");
+	xprintf(os, "==============\n");
 
-	printf("Thank you!\n");
+	xprintf(os, "\nThank you!\n");
 
 err:
 	if (os)
