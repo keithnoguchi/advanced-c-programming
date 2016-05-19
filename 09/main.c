@@ -66,46 +66,48 @@ static bool is_full(const struct aqueue *q)
 
 static char next(const struct aqueue *q, const char current)
 {
+	/* Wrap around handling. */
 	return current + 1 == q->capacity ? 0 : current + 1;
 }
 
 static int enque(struct aqueue *q, int value)
 {
-	if (!is_full(q)) {
-		q->data[q->end] = value;
-		q->end = next(q, q->end);
+	q->data[q->end] = value;
+	q->end = next(q, q->end);
+	/* Adjust the begin position, in case of overflow. */
+	if (is_full(q))
+		q->begin = next(q, q->begin);
+	else
 		++q->size;
-	}
 }
 
 static int deque(struct aqueue *q)
 {
-	int ret = -1;
-	if (!is_empty(q)) {
-		--q->size;
+	if (is_empty(q))
+		return EOF;
+	else {
+		int ret;
+
 		ret = q->data[q->begin];
 		q->begin = next(q, q->begin);
+		--q->size;
+		return ret;
 	}
-	return ret;
 }
 
-static int print_queue(const struct aqueue *q, FILE *os)
+static int print(const struct aqueue *q, FILE *os)
 {
-	int counter = 0;
 
-	if (!is_empty(q)) {
-		char end = q->begin < q->end ? q->end : q->capacity;
-		int i;
+	if (is_empty(q))
+		xprintf(os, "Queue is empty");
+	else {
+		int remain, i = q->begin;
 
-		for (i = q->begin; i < end; ++i, ++counter)
+		for (remain = q->size; remain > 0; --remain) {
 			xprintf(os, "%d ", q->data[i]);
-
-		/* Queue is wrapped around. */
-		if (q->end < q->begin)
-			for (i = 0; i < q->end; ++i, ++counter)
-				xprintf(os, "%d ", q->data[i]);
+			i = next(q, i);
+		}
 	}
-	return counter;
 }
 
 static void process(FILE *is, FILE *os)
@@ -131,17 +133,20 @@ static void process(FILE *is, FILE *os)
 			} else if (tolower(ret) == 'd') {
 				/* Deque operation. */
 				ret = deque(&queue);
-				xprintf(os, "Deque %d", ret);
+				if (ret == EOF)
+					xprintf(os, "Deque underflow");
+				else
+					xprintf(os, "Deque %d", ret);
 			}
 			xprintf(os, ", and the current queue is: ");
-			print_queue(&queue, os);
+			print(&queue, os);
 			xprintf(os, "\n");
 		}
 	}
 
 	xprintf(os, "\nFinal queue contents: ");
-	if (print_queue(&queue, os) == 0)
-		xprintf(os, "Queue is empty\n");
+	print(&queue, os);
+	xprintf(os, "\n");
 
 	xprintf(os, "\nThank you!\n");
 }

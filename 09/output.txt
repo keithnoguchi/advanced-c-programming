@@ -17,4 +17,5 @@ Enque and Deque test with the simple array queue
 13) Enque 69, and the current queue is: 36 12 69 
 
 Final queue contents: 36 12 69 
+
 Thank you!
