@@ -13,7 +13,7 @@
 
    Date: May 17th, 2016
 
-   Objective:
+   Objective: Implement a queue data structure using an array.
 */
 
 #include <stdio.h>
