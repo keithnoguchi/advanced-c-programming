@@ -21,8 +21,21 @@
 
 int main()
 {
+	const char *output_file = "output.txt";
+	FILE *os;
+
+	os = fopen(output_file, "w");
+	if (os == NULL) {
+		fprintf(stderr, "Can't open %s file.", output_file);
+		goto err;
+	}
+
 	printf("Tower of Hanoi\n");
 	printf("==============\n");
 
 	printf("Thank you!\n");
+
+err:
+	if (os)
+		fclose(os);
 }
