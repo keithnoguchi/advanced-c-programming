@@ -34,6 +34,34 @@
 */
 
 #include <stdio.h>
+#include <stdarg.h>
+
+static int xprintf(FILE *os, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vprintf(fmt, ap);
+	if (os != stdout) {
+		va_end(ap);
+		va_start(ap, fmt);
+		vfprintf(os, fmt, ap);
+	}
+	va_end(ap);
+
+	return ret;
+}
+
+static void process(FILE *is, FILE *os)
+{
+	int i;
+
+	while (fscanf(is, "%d,", &i) != EOF) {
+		xprintf(os, "%d ", i);
+	}
+	xprintf(os, "\n");
+}
 
 int main()
 {
@@ -54,6 +82,8 @@ int main()
 				output_file);
 		goto err;
 	}
+
+	process(is, os);
 
 err:
 	if (is != NULL)
