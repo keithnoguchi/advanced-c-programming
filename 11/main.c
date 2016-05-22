@@ -35,6 +35,18 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+
+struct node {
+	struct node *next;
+	struct node *prev;
+	int data;
+};
+
+struct list {
+	struct node *head;
+	struct node *tail;
+};
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -53,14 +65,76 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
-static void process(FILE *is, FILE *os)
+static struct node *new_node(const int data)
+{
+	struct node *n;
+
+	n = malloc(sizeof(*n));
+	if (n == NULL)
+		return NULL;
+
+	n->next = n->prev = NULL;
+	n->data = data;
+
+	return n;
+}
+
+static int add_node(struct list *l, const int data)
+{
+	struct node *n;
+
+	n = new_node(data);
+	if (n == NULL)
+		return -1;
+
+	if (l->head == NULL)
+		l->head = n;
+	else
+		l->tail->next = n;
+	l->tail = n;
+
+	return 0;
+}
+
+static void free_node(struct node *n)
+{
+	free(n);
+}
+
+static void delete_list(struct list *l)
+{
+	struct node *n, *next;
+
+	for (n = l->head, next = n; next != l->tail; n = next) {
+		next = n->next;
+		free_node(n);
+	}
+}
+
+static void print_list(const struct list *l, FILE *os)
+{
+	struct node *n;
+
+	for (n = l->head; n != NULL; n = n->next)
+		xprintf(os, "%d ", n->data);
+	xprintf(os, "\n");
+}
+
+static void create_list(FILE *is, struct list *l)
 {
 	int i;
 
-	while (fscanf(is, "%d,", &i) != EOF) {
-		xprintf(os, "%d ", i);
-	}
-	xprintf(os, "\n");
+	while (fscanf(is, "%d,", &i) != EOF)
+		add_node(l, i);
+}
+
+static void process(FILE *is, FILE *os)
+{
+	struct list l = { .head = NULL, .tail = NULL };
+
+	create_list(is, &l);
+	print_list(&l, os);
+	delete_list(&l);
 }
 
 int main()
