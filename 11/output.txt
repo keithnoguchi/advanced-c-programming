@@ -10,4 +10,50 @@ Linked-list operations
 
 50 7 20 60 95 35 15 22 45 58 91 25 100 10 8 73 88 23 41 67 47 4 99 44 65 77 29 51 84 38 62 19 71 33 97 12 85 56 17 49 
 
-Which number do you want to delete or ^D to quit> ^D
+Number to delete or ^D to quit> 71
+
+Current list
+
+50 7 20 60 95 35 15 22 45 58 91 25 100 10 8 73 88 23 41 67 47 4 99 44 65 77 29 51 84 38 62 19 33 97 12 85 56 17 49 
+
+Number to delete or ^D to quit> 51
+
+Current list
+
+50 7 20 60 95 35 15 22 45 58 91 25 100 10 8 73 88 23 41 67 47 4 99 44 65 77 29 84 38 62 19 33 97 12 85 56 17 49 
+
+Number to delete or ^D to quit> 38
+
+Current list
+
+50 7 20 60 95 35 15 22 45 58 91 25 100 10 8 73 88 23 41 67 47 4 99 44 65 77 29 84 62 19 33 97 12 85 56 17 49 
+
+Number to delete or ^D to quit> 5
+
+Data '5' doesn't exist
+
+Number to delete or ^D to quit> 0
+
+Data '0' doesn't exist
+
+Number to delete or ^D to quit> 25
+
+Current list
+
+50 7 20 60 95 35 15 22 45 58 91 100 10 8 73 88 23 41 67 47 4 99 44 65 77 29 84 62 19 33 97 12 85 56 17 49 
+
+Number to delete or ^D to quit> 42
+
+Data '42' doesn't exist
+
+Number to delete or ^D to quit> 32
+
+Data '32' doesn't exist
+
+Number to delete or ^D to quit> 47
+
+Current list
+
+50 7 20 60 95 35 15 22 45 58 91 100 10 8 73 88 23 41 67 4 99 44 65 77 29 84 62 19 33 97 12 85 56 17 49 
+
+Number to delete or ^D to quit> ^D

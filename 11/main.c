@@ -165,8 +165,7 @@ static void reverse(struct list *l)
 
 static void prompt(FILE *os)
 {
-	xprintf(os, "\n");
-	xprintf(os, "Which number do you want to delete or ^D to quit> ");
+	xprintf(os, "\nNumber to delete or ^D to quit> ");
 }
 
 static int input(FILE *is, FILE *os)
