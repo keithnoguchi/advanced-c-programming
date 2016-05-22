@@ -79,6 +79,22 @@ static struct node *new_node(const int data)
 	return n;
 }
 
+static void free_node(struct node *n)
+{
+	free(n);
+}
+
+static struct node *lookup(struct list *l, const int data)
+{
+	struct node *n;
+
+	for (n = l->head; n != NULL; n = n->next)
+		if (n->data == data)
+			return n;
+
+	return NULL;
+}
+
 static int add_node(struct list *l, const int data)
 {
 	struct node *n;
@@ -97,9 +113,17 @@ static int add_node(struct list *l, const int data)
 	return 0;
 }
 
-static void free_node(struct node *n)
+static int delete_node(struct list *l, struct node *n)
 {
-	free(n);
+	if (n->next)
+		n->next->prev = n->prev;
+	else
+		l->tail = n->prev;
+	if (n->prev)
+		n->prev->next = n->next;
+	else
+		l->head = n->next;
+	free_node(n);
 }
 
 static void delete_list(struct list *l)
@@ -139,10 +163,31 @@ static void reverse(struct list *l)
 	}
 }
 
+static void prompt(FILE *os)
+{
+	xprintf(os, "\n");
+	xprintf(os, "Which number do you want to delete or ^D to quit> ");
+}
+
+static int input(FILE *is, FILE *os)
+{
+	int ret;
+	char nl;
+	int d;
+
+	ret = fscanf(is, "%d%c", &d, &nl);
+	if (ret == EOF) {
+		xprintf(os, "^D\n");
+		return EOF;
+	} else
+		return d;
+}
+
 static void print(const struct list *l, FILE *os)
 {
 	struct node *n;
 
+	xprintf(os, "\n");
 	for (n = l->head; n != NULL; n = n->next)
 		xprintf(os, "%d ", n->data);
 	xprintf(os, "\n");
@@ -151,17 +196,31 @@ static void print(const struct list *l, FILE *os)
 static void process(FILE *is, FILE *os)
 {
 	struct list l = { .head = NULL, .tail = NULL };
+	struct node *n;
+	int d;
 
 	xprintf(os, "\nLinked-list operations\n");
 	xprintf(os, "======================\n");
 
 	create(is, &l);
-	xprintf(os, "\n1) Original list\n\n");
+	xprintf(os, "\n1) Original list\n");
 	print(&l, os);
 
 	reverse(&l);
-	xprintf(os, "\n2) Reversed list\n\n");
+	xprintf(os, "\n2) Reversed list\n");
 	print(&l, os);
+
+	/* Prompt the user to delete the node. */
+	for (prompt(os); (d = input(stdin, os)) != EOF; prompt(os)) {
+		xprintf(os, "%d\n", d);
+		if ((n = lookup(&l, d)) == NULL) {
+			xprintf(os, "\nData '%d' doesn't exist\n", d);
+			continue;
+		}
+		delete_node(&l, n);
+		xprintf(os, "\nCurrent list\n");
+		print(&l, os);
+	}
 
 	delete_list(&l);
 }

@@ -9,3 +9,5 @@ Linked-list operations
 2) Reversed list
 
 50 7 20 60 95 35 15 22 45 58 91 25 100 10 8 73 88 23 41 67 47 4 99 44 65 77 29 51 84 38 62 19 71 33 97 12 85 56 17 49 
+
+Which number do you want to delete or ^D to quit> ^D
