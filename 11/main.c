@@ -91,6 +91,7 @@ static int add_node(struct list *l, const int data)
 		l->head = n;
 	else
 		l->tail->next = n;
+	n->prev = l->tail;
 	l->tail = n;
 
 	return 0;
@@ -111,7 +112,34 @@ static void delete_list(struct list *l)
 	}
 }
 
-static void print_list(const struct list *l, FILE *os)
+static void create(FILE *is, struct list *l)
+{
+	int i;
+
+	while (fscanf(is, "%d,", &i) != EOF)
+		add_node(l, i);
+}
+
+static void swap(struct node *node1, struct node *node2)
+{
+	int tmp = node1->data;
+	node1->data = node2->data;
+	node2->data = tmp;
+}
+
+static void reverse(struct list *l)
+{
+	struct node *i, *j;
+
+	for (i = l->head, j = l->tail; i != j; i = i->next, j = j->prev) {
+		swap(i, j);
+		/* We've done if the i->next is equal to j. */
+		if (i->next == j)
+			break;
+	}
+}
+
+static void print(const struct list *l, FILE *os)
 {
 	struct node *n;
 
@@ -120,24 +148,20 @@ static void print_list(const struct list *l, FILE *os)
 	xprintf(os, "\n");
 }
 
-static void create_list(FILE *is, struct list *l)
-{
-	int i;
-
-	while (fscanf(is, "%d,", &i) != EOF)
-		add_node(l, i);
-}
-
 static void process(FILE *is, FILE *os)
 {
 	struct list l = { .head = NULL, .tail = NULL };
 
 	xprintf(os, "\nLinked-list operations\n");
-	xprintf(os, "======================\n\n");
+	xprintf(os, "======================\n");
 
-	create_list(is, &l);
-	xprintf(os, "1) Original list\n\n");
-	print_list(&l, os);
+	create(is, &l);
+	xprintf(os, "\n1) Original list\n\n");
+	print(&l, os);
+
+	reverse(&l);
+	xprintf(os, "\n2) Reversed list\n\n");
+	print(&l, os);
 
 	delete_list(&l);
 }
