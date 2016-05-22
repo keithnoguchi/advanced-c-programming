@@ -1,0 +1,97 @@
+
+Tic-tac-toe 4x4 version
+
+Provide the position in x, y format or ^C to exit.
+
+	  1 2 3 4 x
+	1 - - - - 
+	2 - - - - 
+	3 - - - - 
+	4 - - - - 
+	y
+
+Player X> 1,2
+
+	  1 2 3 4 x
+	1 - - - - 
+	2 X - - - 
+	3 - - - - 
+	4 - - - - 
+	y
+
+Player O> 2,1
+
+	  1 2 3 4 x
+	1 - O - - 
+	2 X - - - 
+	3 - - - - 
+	4 - - - - 
+	y
+
+Player X> 2,2
+
+	  1 2 3 4 x
+	1 - O - - 
+	2 X X - - 
+	3 - - - - 
+	4 - - - - 
+	y
+
+Player O> 3,2
+
+	  1 2 3 4 x
+	1 - O - - 
+	2 X X O - 
+	3 - - - - 
+	4 - - - - 
+	y
+
+Player X> 4,3
+
+	  1 2 3 4 x
+	1 - O - - 
+	2 X X O - 
+	3 - - - X 
+	4 - - - - 
+	y
+
+Player O> 4,1
+
+	  1 2 3 4 x
+	1 - O - O 
+	2 X X O - 
+	3 - - - X 
+	4 - - - - 
+	y
+
+Player X> 2,3
+
+	  1 2 3 4 x
+	1 - O - O 
+	2 X X O - 
+	3 - X - X 
+	4 - - - - 
+	y
+
+Player O> 2,4
+
+	  1 2 3 4 x
+	1 - O - O 
+	2 X X O - 
+	3 - X - X 
+	4 - O - - 
+	y
+
+Player X> 3,3
+
+	You rock, X!
+
+	You won the game!
+
+	  1 2 3 4 x
+	1 - O - O 
+	2 X X O - 
+	3 - X X X 
+	4 - O - - 
+	y
+
