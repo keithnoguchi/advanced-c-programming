@@ -132,8 +132,13 @@ static void process(FILE *is, FILE *os)
 {
 	struct list l = { .head = NULL, .tail = NULL };
 
+	xprintf(os, "\nLinked-list operations\n");
+	xprintf(os, "======================\n\n");
+
 	create_list(is, &l);
+	xprintf(os, "1) Original list\n\n");
 	print_list(&l, os);
+
 	delete_list(&l);
 }
 
