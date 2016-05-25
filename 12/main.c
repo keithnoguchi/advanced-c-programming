@@ -22,14 +22,19 @@
               two selected sort routine, will be displayed on the
               console, as well as saved into the output file, output.txt.
 
-   Input array: 49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51,
-                29, 77, 65, 44, 99,  4, 47, 67, 41, 23, 88, 73,  8,
-               100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20,  7, 50,
-                10
+   Input array:  49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51,
+                 29, 77, 65, 44, 99,  4, 47, 67, 41, 23, 88, 73,  8,
+                100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20,  7, 50,
+                 10
               */
 
 #include <stdio.h>
 #include <stdlib.h>
+
+static void process(FILE *is, FILE *os)
+{
+	printf("Hello world!\n");
+}
 
 int main()
 {
@@ -45,6 +50,17 @@ int main()
 		ret = EXIT_FAILURE;
 		goto err;
 	}
+
+	os = fopen(output_file, "w");
+	if (os == NULL) {
+		fprintf(stderr, "can't open '%s' for writing.\n",
+				output_file);
+		ret = EXIT_FAILURE;
+		goto err;
+	}
+
+	/* Let's light my fire! */
+	process(is, os);
 
 err:
 	if (os)
