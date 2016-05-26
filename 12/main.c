@@ -47,8 +47,9 @@ typedef enum {
 
 struct list {
 	size_t size;
-#define MAX_SIZE 100
+	size_t max;
 	size_t alloc;
+	size_t step;
 	int *data;
 };
 
@@ -74,15 +75,21 @@ static void init(struct list *l, const size_t max_size)
 	l->data = malloc(sizeof(int) * max_size);
 	if (l->data == NULL)
 		return;
+	l->step = 2; /* Double the size, when there is not enough memory. */
 	l->size = 0;
-	l->alloc = max_size;
+	l->max = max_size;
+	l->alloc = sizeof(int) * max_size;
 }
 
 static void add(struct list *l, const int value)
 {
-	if (l->size + 1 >= l->alloc) {
-		l->alloc *= 2; /* make it double. */
-		l->data = realloc(l->data, l->alloc * 2);
+	if (l->size + 1 >= l->max) {
+		/* Increase the size. */
+		l->data = realloc(l->data, l->alloc * l->step);
+		if (l->data == NULL)
+			return;
+		l->max *= l->step;
+		l->alloc *= l->step;
 	}
 	l->data[l->size++] = value;
 }
@@ -205,11 +212,12 @@ static void process(FILE *os)
 
 int main()
 {
+#define INITIAL_MAX_SIZE 10
+	const size_t max_size = INITIAL_MAX_SIZE;
 	const char *input_file = "input.txt";
 	const char *output_file = "output.txt";
 	FILE *is = NULL, *os = NULL;
 	int ret = EXIT_SUCCESS;
-	const size_t max_size = MAX_SIZE;
 	struct list list;
 	int value;
 
