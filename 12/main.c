@@ -39,6 +39,9 @@ typedef enum {
 	BUBBLE_SORT,
 	INSERTION_SORT,
 	SELECTION_SORT,
+	QUICK_SORT,
+	HEAP_SORT,
+	MERGE_SORT,
 	SHELL_SORT
 } sort_t;
 
@@ -59,9 +62,9 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
-static sort_t prompt_simple(FILE *os)
+static void prompt_simple(FILE *os)
 {
-	xprintf(os, "Which simple sort do you like or (Q) for quit?\n");
+	xprintf(os, "Which simple sort routine do you like or (X) for quit?\n");
 	xprintf(os, "(B)ubble, (I)nsertion, (S)election, or s(H)ell? ");
 }
 
@@ -83,16 +86,48 @@ static sort_t input_simple(FILE *os)
 				return SELECTION_SORT;
 			case 'h':
 				return SHELL_SORT;
-			case 'q':
+			case 'x':
 				return SORT_QUIT;
 			default:
 				return SORT_NONE;
 		}
 }
 
-typedef sort_t (*func_t)(FILE *os);
+static void prompt_advanced(FILE *os)
+{
+	xprintf(os,
+		"Which advanced sort routine do you like or (X) for quit?\n");
+	xprintf(os, "(Q)uick, (H)eap, or (M)erge sort? ");
+}
 
-static sort_t selection(FILE *os, const func_t prompt, const func_t input)
+static sort_t input_advanced(FILE *os)
+{
+	char answer, nl;
+	int ret;
+
+	ret = scanf("%c%c", &answer, &nl);
+	if (ret != 2)
+		return SORT_NONE;
+	else
+		switch (tolower(answer)) {
+			case 'q':
+				return QUICK_SORT;
+			case 'h':
+				return HEAP_SORT;
+			case 'm':
+				return MERGE_SORT;
+			case 'x':
+				return SORT_QUIT;
+			default:
+				return SORT_NONE;
+		}
+}
+
+typedef void (*prompt_func_t)(FILE *os);
+typedef sort_t (*input_func_t)(FILE *os);
+
+static sort_t selection(FILE *os, const prompt_func_t prompt,
+		const input_func_t input)
 {
 	sort_t ret;
 
@@ -106,9 +141,21 @@ static sort_t selection(FILE *os, const func_t prompt, const func_t input)
 
 static void process(FILE *is, FILE *os)
 {
-	sort_t simple;
+	sort_t simple, advanced;
+
+	xprintf(os, "\nSimple and advanced sorting\n");
+	xprintf(os, "===========================\n\n");
 
 	simple = selection(os, prompt_simple, input_simple);
+	if (simple == SORT_QUIT)
+		return;
+
+	advanced = selection(os, prompt_advanced, input_advanced);
+	if (advanced == SORT_QUIT)
+		return;
+
+	xprintf(os, "\n\nSimple sort is %d, advanced sort is %d\n",
+			simple, advanced);
 }
 
 int main()

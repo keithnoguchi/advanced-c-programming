@@ -1,2 +1,9 @@
-Which simple sort do you like or (Q) for quit?
-(B)ubble, (I)nsertion, (S)election, or s(H)ell? 
+
+Simple and advanced sorting
+===========================
+
+Which simple sort routine do you like or (X) for quit?
+(B)ubble, (I)nsertion, (S)election, or s(H)ell? Which advanced sort routine do you like or (X) for quit?
+(Q)uick, (H)eap, or (M)erge sort? 
+
+Simple sort is 2, advanced sort is 5
