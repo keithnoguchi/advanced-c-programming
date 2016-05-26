@@ -35,15 +35,16 @@
 #include <string.h>
 
 typedef enum {
-	SORT_NONE = 0,
-	SORT_QUIT = 1,
 	BUBBLE_SORT,
 	INSERTION_SORT,
 	SELECTION_SORT,
+	SHELL_SORT,
 	QUICK_SORT,
 	HEAP_SORT,
 	MERGE_SORT,
-	SHELL_SORT
+	SORT_MAX,
+	SORT_UNKNOWN = SORT_MAX,
+	SORT_QUIT
 } sort_t;
 
 struct list {
@@ -52,6 +53,12 @@ struct list {
 	size_t alloc;
 	size_t step;
 	int *data;
+};
+
+struct sorter {
+	sort_t type;
+	char *name;
+	void (*func)(struct list *l);
 };
 
 typedef void (*prompt_func_t)(FILE *os);
@@ -151,16 +158,6 @@ static void term(struct list *l)
 	l->alloc = l->size = 0;
 }
 
-static void selection_sort(struct list *l)
-{
-	int i, j;
-
-	for (i = 0; i < l->size - 1; ++i)
-		for (j = i + 1; j < l->size; ++j)
-			if (value(l, j) < value(l, i))
-				swap(l, i, j);
-}
-
 static void prompt_simple(FILE *os)
 {
 	xprintf(os, "\nWhich simple sort routine do you like\n");
@@ -174,7 +171,7 @@ static sort_t input_simple(FILE *os)
 
 	ret = scanf("%c%c", &answer, &nl);
 	if (ret != 2)
-		return SORT_NONE;
+		return SORT_UNKNOWN;
 
 	xprintf(os, "%c\n", answer);
 	switch (tolower(answer)) {
@@ -191,7 +188,7 @@ static sort_t input_simple(FILE *os)
 		default:
 			xprintf(os, "\nInvalid option '%c', plase try again.\n",
 				answer);
-			return SORT_NONE;
+			return SORT_UNKNOWN;
 	}
 }
 
@@ -208,7 +205,7 @@ static sort_t input_advanced(FILE *os)
 
 	ret = scanf("%c%c", &answer, &nl);
 	if (ret != 2)
-		return SORT_NONE;
+		return SORT_UNKNOWN;
 
 	xprintf(os, "%c\n", answer);
 	switch (tolower(answer)) {
@@ -223,7 +220,7 @@ static sort_t input_advanced(FILE *os)
 		default:
 			xprintf(os, "\nInvalid option '%c', plase try again.\n",
 				answer);
-			return SORT_NONE;
+			return SORT_UNKNOWN;
 	}
 }
 
@@ -234,39 +231,96 @@ static sort_t selection(FILE *os, const prompt_func_t prompt,
 
 	for ((*prompt)(os); (ret = (*input)(os)) != SORT_QUIT;
 			(*prompt)(os))
-		if (ret != SORT_NONE)
+		if (ret != SORT_UNKNOWN)
 			break;
 
 	return ret;
 }
 
-static void process(FILE *os, struct list *l)
+static void selection_sort(struct list *l)
 {
-	sort_t simple, advanced;
-	struct list temp;
+	int i, j;
 
-	simple = selection(os, prompt_simple, input_simple);
-	if (simple == SORT_QUIT)
-		return;
+	for (i = 0; i < l->size - 1; ++i)
+		for (j = i + 1; j < l->size; ++j)
+			if (value(l, j) < value(l, i))
+				swap(l, i, j);
+}
+
+static const struct sorter sorters[SORT_MAX] = {
+	{
+		.type = BUBBLE_SORT,
+		.name = "Bubble sort",
+		.func = NULL
+	},
+	{
+		.type = INSERTION_SORT,
+		.name = "Insertion sort",
+		.func = NULL
+	},
+	{
+		.type = SELECTION_SORT,
+		.name = "Selection sort",
+		.func = selection_sort
+	},
+	{
+		.type = SHELL_SORT,
+		.name = "Shell sort",
+		.func = NULL
+	},
+	{
+		.type = QUICK_SORT,
+		.name = "Quick sort",
+		.func = NULL
+	},
+	{
+		.type = HEAP_SORT,
+		.name = "Heap sort",
+		.func = NULL
+	},
+	{
+		.type = MERGE_SORT,
+		.name = "Merge sort",
+		.func = NULL
+	}
+};
+
+static void sort(FILE *os, struct list *l)
+{
+	struct list temp;
+	sort_t type;
 
 	init(&temp, max_size);
-	copy(&temp, l);
-	selection_sort(&temp);
 
-	xprintf(os, "\nResult of the simple sort\n");
-	xprintf(os, "-------------------------\n");
-	print(os, &temp);
+	type = selection(os, prompt_simple, input_simple);
+	if (type == SORT_QUIT)
+		goto end;
 
-	advanced = selection(os, prompt_advanced, input_advanced);
-	if (advanced == SORT_QUIT)
-		return;
+	if (sorters[type].func == NULL) {
+		xprintf(os, "\n%s sorting function has not implemented\n",
+				sorters[type].name);
+	} else {
+		copy(&temp, l);
+		xprintf(os, "\nResult of the %s\n", sorters[type].name);
+		(*sorters[type].func)(&temp);
+		print(os, &temp);
+	}
 
-	copy(&temp, l);
+	type = selection(os, prompt_advanced, input_advanced);
+	if (type == SORT_QUIT)
+		goto end;
 
-	xprintf(os, "\nResult of the advanced sort\n");
-	xprintf(os, "---------------------------\n");
-	print(os, &temp);
+	if (sorters[type].func == NULL) {
+		xprintf(os, "\n%s sorting function has not implemented\n",
+				sorters[type].name);
+	} else {
+		copy(&temp, l);
+		xprintf(os, "\nResult of the %s\n", sorters[type].name);
+		(*sorters[type].func)(&temp);
+		print(os, &temp);
+	}
 
+end:
 	term(&temp);
 }
 
@@ -309,7 +363,7 @@ int main()
 	print(os, &list);
 
 	/* Sort it. */
-	process(os, &list);
+	sort(os, &list);
 
 	/* Cleanup the list. */
 	term(&list);
