@@ -10,8 +10,16 @@ Which simple sort routine do you like
 
 (B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? b
 
+Result of the simple sort
+-------------------------
+
+49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51, 29, 77, 65, 44, 99, 4, 47, 67, 41, 23, 88, 73, 8, 100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20, 7, 50, 10, 
+
 Which advanced sort routine do you like
 
 (Q)uick, (H)eap, (M)erge sort, or (X) for quit? q
 
-Simple sort routine is 2 and advanced sort routine is 5
+Result of the advanced sort
+---------------------------
+
+49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51, 29, 77, 65, 44, 99, 4, 47, 67, 41, 23, 88, 73, 8, 100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20, 7, 50, 10, 

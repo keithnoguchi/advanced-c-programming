@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 typedef enum {
 	SORT_NONE = 0,
@@ -55,7 +56,9 @@ struct list {
 
 typedef void (*prompt_func_t)(FILE *os);
 typedef sort_t (*input_func_t)(FILE *os);
-typedef void (*sort_func_t)(struct list *l);
+
+#define INITIAL_MAX_SIZE 10
+const size_t max_size = INITIAL_MAX_SIZE;
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -115,9 +118,24 @@ static void print(FILE *os, const struct list *l)
 {
 	int i;
 
+	xprintf(os, "\n");
 	for (i = 0; i < l->size; ++i)
 		xprintf(os, "%d, ", l->data[i]);
 	xprintf(os, "\n");
+}
+
+static void copy(struct list *dst, const struct list *src)
+{
+	if (dst->alloc < src->alloc) {
+		dst->data = realloc(dst->data, src->alloc);
+		if (dst->data == NULL)
+			return;
+	}
+	dst->size = src->size;
+	dst->max = src->max;
+	dst->alloc = src->alloc;
+	dst->step = src->step;
+	memcpy(dst->data, src->data, dst->alloc);
 }
 
 static void term(struct list *l)
@@ -126,6 +144,11 @@ static void term(struct list *l)
 		free(l->data);
 	l->data = NULL;
 	l->alloc = l->size = 0;
+}
+
+static void selection_sort(struct list *l)
+{
+	;
 }
 
 static void prompt_simple(FILE *os)
@@ -210,24 +233,35 @@ static sort_t selection(FILE *os, const prompt_func_t prompt,
 static void process(FILE *os, struct list *l)
 {
 	sort_t simple, advanced;
+	struct list temp;
 
 	simple = selection(os, prompt_simple, input_simple);
 	if (simple == SORT_QUIT)
 		return;
 
+	init(&temp, max_size);
+	copy(&temp, l);
+	selection_sort(&temp);
+
+	xprintf(os, "\nResult of the simple sort\n");
+	xprintf(os, "-------------------------\n");
+	print(os, &temp);
+
 	advanced = selection(os, prompt_advanced, input_advanced);
 	if (advanced == SORT_QUIT)
 		return;
 
-	xprintf(os,
-		"\nSimple sort routine is %d and advanced sort routine is %d\n",
-		simple, advanced);
+	copy(&temp, l);
+
+	xprintf(os, "\nResult of the advanced sort\n");
+	xprintf(os, "---------------------------\n");
+	print(os, &temp);
+
+	term(&temp);
 }
 
 int main()
 {
-#define INITIAL_MAX_SIZE 10
-	const size_t max_size = INITIAL_MAX_SIZE;
 	const char *input_file = "input.txt";
 	const char *output_file = "output.txt";
 	FILE *is = NULL, *os = NULL;
@@ -257,7 +291,7 @@ int main()
 	/* Initialize the list. */
 	init(&list, max_size);
 
-	xprintf(os, "\nReading values from the '%s' file:\n\n", input_file);
+	xprintf(os, "\nReading values from the '%s' file:\n", input_file);
 	while (fscanf(is, "%d, ", &value) != EOF)
 		add(&list, value);
 
