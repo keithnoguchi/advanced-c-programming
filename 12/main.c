@@ -13,7 +13,7 @@
 
    Date: May 25th, 2016
 
-   Objective: Implement four sinple sort routines, bubble, insert,
+   Objective: Implement four sinple sort routines, bubble, insertion,
               selection, and shell, as well as three advanced sort
 	      routines, quick, heap, and merge sorts.  Get the array
               of input from the input file, input.txt, and ask the
@@ -32,6 +32,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
+typedef enum {
+	SIMPLE_SORT_NONE,
+	BUBBLE_SORT,
+	INSERTION_SORT,
+	SELECTION_SORT,
+	SHELL_SORT,
+	SIMPLE_SORT_MAX
+} simple_sort_t;
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -52,36 +61,41 @@ static int xprintf(FILE *os, const char *fmt, ...)
 
 static void prompt(FILE *os)
 {
-	xprintf(os, "Which simple sorting algorithm do you like or (Q) for quit?\n");
-	xprintf(os, "(S)election, (I)nsertion? (B)ubble, or s(H)ell? ");
+	xprintf(os, "Which simple sort do you like or (Q) for quit?\n");
+	xprintf(os, "(B)ubble, (I)nsertion, (S)election, or s(H)ell? ");
 }
 
-static int input(FILE *os)
+static simple_sort_t input(FILE *os)
 {
 	char answer, nl;
 	int ret;
 
 	ret = scanf("%c%c", &answer, &nl);
 	if (ret != 2)
-		return EOF;
-
-	switch (tolower(answer)) {
-		case 's':
-		case 'i':
-		case 'b':
-		case 'h':
-			return 1;
-		case 'q':
-			return EOF;
-		default:
-			return 0;
-	}
+		return SIMPLE_SORT_NONE;
+	else
+		switch (tolower(answer)) {
+			case 'b':
+				return BUBBLE_SORT;
+			case 'i':
+				return INSERTION_SORT;
+			case 's':
+				return SELECTION_SORT;
+			case 'h':
+				return SHELL_SORT;
+			case 'q':
+				return SIMPLE_SORT_MAX;
+			default:
+				return SIMPLE_SORT_NONE;
+		}
 }
 
 static void process(FILE *is, FILE *os)
 {
-	for (prompt(os); input(os) != EOF; prompt(os))
-		fprintf(os, "Hello world\n");
+	int ret;
+
+	for (prompt(os); (ret = input(os)) != SIMPLE_SORT_MAX; prompt(os))
+		;
 }
 
 int main()
