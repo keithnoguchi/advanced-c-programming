@@ -64,8 +64,8 @@ static int xprintf(FILE *os, const char *fmt, ...)
 
 static void prompt_simple(FILE *os)
 {
-	xprintf(os, "Which simple sort routine do you like or (X) for quit?\n");
-	xprintf(os, "(B)ubble, (I)nsertion, (S)election, or s(H)ell? ");
+	xprintf(os, "\nWhich simple sort routine do you like\n");
+	xprintf(os, "\n(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? ");
 }
 
 static sort_t input_simple(FILE *os)
@@ -76,28 +76,28 @@ static sort_t input_simple(FILE *os)
 	ret = scanf("%c%c", &answer, &nl);
 	if (ret != 2)
 		return SORT_NONE;
-	else
-		switch (tolower(answer)) {
-			case 'b':
-				return BUBBLE_SORT;
-			case 'i':
-				return INSERTION_SORT;
-			case 's':
-				return SELECTION_SORT;
-			case 'h':
-				return SHELL_SORT;
-			case 'x':
-				return SORT_QUIT;
-			default:
-				return SORT_NONE;
-		}
+
+	xprintf(os, "%c\n", answer);
+	switch (tolower(answer)) {
+		case 'b':
+			return BUBBLE_SORT;
+		case 'i':
+			return INSERTION_SORT;
+		case 's':
+			return SELECTION_SORT;
+		case 'h':
+			return SHELL_SORT;
+		case 'x':
+			return SORT_QUIT;
+		default:
+			return SORT_NONE;
+	}
 }
 
 static void prompt_advanced(FILE *os)
 {
-	xprintf(os,
-		"Which advanced sort routine do you like or (X) for quit?\n");
-	xprintf(os, "(Q)uick, (H)eap, or (M)erge sort? ");
+	xprintf(os, "\nWhich advanced sort routine do you like\n");
+	xprintf(os, "\n(Q)uick, (H)eap, (M)erge sort, or (X) for quit? ");
 }
 
 static sort_t input_advanced(FILE *os)
@@ -108,19 +108,20 @@ static sort_t input_advanced(FILE *os)
 	ret = scanf("%c%c", &answer, &nl);
 	if (ret != 2)
 		return SORT_NONE;
-	else
-		switch (tolower(answer)) {
-			case 'q':
-				return QUICK_SORT;
-			case 'h':
-				return HEAP_SORT;
-			case 'm':
-				return MERGE_SORT;
-			case 'x':
-				return SORT_QUIT;
-			default:
-				return SORT_NONE;
-		}
+
+	xprintf(os, "%c\n", answer);
+	switch (tolower(answer)) {
+		case 'q':
+			return QUICK_SORT;
+		case 'h':
+			return HEAP_SORT;
+		case 'm':
+			return MERGE_SORT;
+		case 'x':
+			return SORT_QUIT;
+		default:
+			return SORT_NONE;
+	}
 }
 
 typedef void (*prompt_func_t)(FILE *os);
@@ -144,7 +145,7 @@ static void process(FILE *is, FILE *os)
 	sort_t simple, advanced;
 
 	xprintf(os, "\nSimple and advanced sorting\n");
-	xprintf(os, "===========================\n\n");
+	xprintf(os, "===========================\n");
 
 	simple = selection(os, prompt_simple, input_simple);
 	if (simple == SORT_QUIT)
@@ -154,8 +155,9 @@ static void process(FILE *is, FILE *os)
 	if (advanced == SORT_QUIT)
 		return;
 
-	xprintf(os, "\n\nSimple sort is %d, advanced sort is %d\n",
-			simple, advanced);
+	xprintf(os,
+		"\nSimple sort routine is %d and advanced sort routine is %d\n",
+		simple, advanced);
 }
 
 int main()
