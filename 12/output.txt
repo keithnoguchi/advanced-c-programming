@@ -2,12 +2,16 @@
 Simple and advanced sorting
 ===========================
 
+Reading values from the 'input.txt' file:
+
+49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51, 29, 77, 65, 44, 99, 4, 47, 67, 41, 23, 88, 73, 8, 100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20, 7, 50, 10, 
+
 Which simple sort routine do you like
 
-(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? b
+(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? s
 
 Which advanced sort routine do you like
 
 (Q)uick, (H)eap, (M)erge sort, or (X) for quit? q
 
-Simple sort routine is 2 and advanced sort routine is 5
+Simple sort routine is 4 and advanced sort routine is 5

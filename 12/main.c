@@ -140,12 +140,9 @@ static sort_t selection(FILE *os, const prompt_func_t prompt,
 	return ret;
 }
 
-static void process(FILE *is, FILE *os)
+static void process(FILE *os)
 {
 	sort_t simple, advanced;
-
-	xprintf(os, "\nSimple and advanced sorting\n");
-	xprintf(os, "===========================\n");
 
 	simple = selection(os, prompt_simple, input_simple);
 	if (simple == SORT_QUIT)
@@ -166,6 +163,7 @@ int main()
 	const char *output_file = "output.txt";
 	FILE *is = NULL, *os = NULL;
 	int ret = EXIT_SUCCESS;
+	int value;
 
 	is = fopen(input_file, "r");
 	if (is == NULL) {
@@ -183,8 +181,16 @@ int main()
 		goto err;
 	}
 
-	/* Let's light my fire! */
-	process(is, os);
+	xprintf(os, "\nSimple and advanced sorting\n");
+	xprintf(os, "===========================\n");
+
+	xprintf(os, "\nReading values from the '%s' file:\n\n", input_file);
+	while (fscanf(is, "%d, ", &value) != EOF)
+		xprintf(os, "%d, ", value);
+	xprintf(os, "\n");
+
+	/* Let's sort it. */
+	process(os);
 
 err:
 	if (os)
