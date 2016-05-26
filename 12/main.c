@@ -45,6 +45,31 @@ typedef enum {
 	SHELL_SORT
 } sort_t;
 
+struct list {
+	size_t last;
+	size_t size;
+#define MAX_SIZE 100
+	size_t alloc;
+	int *data;
+};
+
+static void init(struct list *l, const size_t max_size)
+{
+	l->data = malloc(sizeof(int) * max_size);
+	if (l->data == NULL)
+		return;
+	l->last = l->size = 0;
+	l->alloc = max_size;
+}
+
+static void term(struct list *l)
+{
+	if (l->data)
+		free(l->data);
+	l->data = NULL;
+	l->alloc = l->size = l->last = 0;
+}
+
 static int xprintf(FILE *os, const char *fmt, ...)
 {
 	va_list ap;
@@ -163,6 +188,8 @@ int main()
 	const char *output_file = "output.txt";
 	FILE *is = NULL, *os = NULL;
 	int ret = EXIT_SUCCESS;
+	const size_t max_size = MAX_SIZE;
+	struct list list;
 	int value;
 
 	is = fopen(input_file, "r");
@@ -181,6 +208,9 @@ int main()
 		goto err;
 	}
 
+	/* Initialize the list. */
+	init(&list, max_size);
+
 	xprintf(os, "\nSimple and advanced sorting\n");
 	xprintf(os, "===========================\n");
 
@@ -192,6 +222,8 @@ int main()
 	/* Let's sort it. */
 	process(os);
 
+	/* Cleanup the list. */
+	term(&list);
 err:
 	if (os)
 		fclose(os);

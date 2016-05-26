@@ -12,6 +12,6 @@ Which simple sort routine do you like
 
 Which advanced sort routine do you like
 
-(Q)uick, (H)eap, (M)erge sort, or (X) for quit? q
+(Q)uick, (H)eap, (M)erge sort, or (X) for quit? m
 
-Simple sort routine is 4 and advanced sort routine is 5
+Simple sort routine is 4 and advanced sort routine is 7
