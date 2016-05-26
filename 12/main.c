@@ -34,13 +34,13 @@
 #include <stdarg.h>
 
 typedef enum {
-	SIMPLE_SORT_NONE,
+	SORT_NONE = 0,
+	SORT_QUIT = 1,
 	BUBBLE_SORT,
 	INSERTION_SORT,
 	SELECTION_SORT,
-	SHELL_SORT,
-	SIMPLE_SORT_MAX
-} simple_sort_t;
+	SHELL_SORT
+} sort_t;
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -59,20 +59,20 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
-static void prompt(FILE *os)
+static sort_t prompt_simple(FILE *os)
 {
 	xprintf(os, "Which simple sort do you like or (Q) for quit?\n");
 	xprintf(os, "(B)ubble, (I)nsertion, (S)election, or s(H)ell? ");
 }
 
-static simple_sort_t input(FILE *os)
+static sort_t input_simple(FILE *os)
 {
 	char answer, nl;
 	int ret;
 
 	ret = scanf("%c%c", &answer, &nl);
 	if (ret != 2)
-		return SIMPLE_SORT_NONE;
+		return SORT_NONE;
 	else
 		switch (tolower(answer)) {
 			case 'b':
@@ -84,18 +84,31 @@ static simple_sort_t input(FILE *os)
 			case 'h':
 				return SHELL_SORT;
 			case 'q':
-				return SIMPLE_SORT_MAX;
+				return SORT_QUIT;
 			default:
-				return SIMPLE_SORT_NONE;
+				return SORT_NONE;
 		}
+}
+
+typedef sort_t (*func_t)(FILE *os);
+
+static sort_t selection(FILE *os, const func_t prompt, const func_t input)
+{
+	sort_t ret;
+
+	for ((*prompt)(os); (ret = (*input)(os)) != SORT_QUIT;
+			(*prompt)(os))
+		if (ret != SORT_NONE)
+			break;
+
+	return ret;
 }
 
 static void process(FILE *is, FILE *os)
 {
-	int ret;
+	sort_t simple;
 
-	for (prompt(os); (ret = input(os)) != SIMPLE_SORT_MAX; prompt(os))
-		;
+	simple = selection(os, prompt_simple, input_simple);
 }
 
 int main()

@@ -1,4 +1,2 @@
 Which simple sort do you like or (Q) for quit?
-(B)ubble, (I)nsertion, (S)election, or s(H)ell? Which simple sort do you like or (Q) for quit?
-(B)ubble, (I)nsertion, (S)election, or s(H)ell? Which simple sort do you like or (Q) for quit?
 (B)ubble, (I)nsertion, (S)election, or s(H)ell? 
