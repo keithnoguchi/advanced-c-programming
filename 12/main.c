@@ -28,12 +28,60 @@
                  10
               */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+
+static int xprintf(FILE *os, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vprintf(fmt, ap);
+	if (os != stdout) {
+		va_end(ap);
+		va_start(ap, fmt);
+		vfprintf(os, fmt, ap);
+	}
+	va_end(ap);
+
+	return ret;
+}
+
+static void prompt(FILE *os)
+{
+	xprintf(os, "Which simple sorting algorithm do you like or (Q) for quit?\n");
+	xprintf(os, "(S)election, (I)nsertion? (B)ubble, or s(H)ell? ");
+}
+
+static int input(FILE *os)
+{
+	char answer, nl;
+	int ret;
+
+	ret = scanf("%c%c", &answer, &nl);
+	if (ret != 2)
+		return EOF;
+
+	switch (tolower(answer)) {
+		case 's':
+		case 'i':
+		case 'b':
+		case 'h':
+			return 1;
+		case 'q':
+			return EOF;
+		default:
+			return 0;
+	}
+}
 
 static void process(FILE *is, FILE *os)
 {
-	printf("Hello world!\n");
+	for (prompt(os); input(os) != EOF; prompt(os))
+		fprintf(os, "Hello world\n");
 }
 
 int main()

@@ -1,0 +1,10 @@
+Which simple sorting algorithm do you like or (Q) for quit?
+(S)election, (I)nsertion? (B)ubble, or s(H)ell? Hello world
+Which simple sorting algorithm do you like or (Q) for quit?
+(S)election, (I)nsertion? (B)ubble, or s(H)ell? Hello world
+Which simple sorting algorithm do you like or (Q) for quit?
+(S)election, (I)nsertion? (B)ubble, or s(H)ell? Hello world
+Which simple sorting algorithm do you like or (Q) for quit?
+(S)election, (I)nsertion? (B)ubble, or s(H)ell? Hello world
+Which simple sorting algorithm do you like or (Q) for quit?
+(S)election, (I)nsertion? (B)ubble, or s(H)ell? 
