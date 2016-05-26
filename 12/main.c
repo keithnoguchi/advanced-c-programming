@@ -46,29 +46,11 @@ typedef enum {
 } sort_t;
 
 struct list {
-	size_t last;
 	size_t size;
 #define MAX_SIZE 100
 	size_t alloc;
 	int *data;
 };
-
-static void init(struct list *l, const size_t max_size)
-{
-	l->data = malloc(sizeof(int) * max_size);
-	if (l->data == NULL)
-		return;
-	l->last = l->size = 0;
-	l->alloc = max_size;
-}
-
-static void term(struct list *l)
-{
-	if (l->data)
-		free(l->data);
-	l->data = NULL;
-	l->alloc = l->size = l->last = 0;
-}
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -85,6 +67,41 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	va_end(ap);
 
 	return ret;
+}
+
+static void init(struct list *l, const size_t max_size)
+{
+	l->data = malloc(sizeof(int) * max_size);
+	if (l->data == NULL)
+		return;
+	l->size = 0;
+	l->alloc = max_size;
+}
+
+static void add(struct list *l, const int value)
+{
+	if (l->size + 1 >= l->alloc) {
+		l->alloc *= 2; /* make it double. */
+		l->data = realloc(l->data, l->alloc * 2);
+	}
+	l->data[l->size++] = value;
+}
+
+static void print(FILE *os, const struct list *l)
+{
+	int i;
+
+	for (i = 0; i < l->size; ++i)
+		xprintf(os, "%d, ", l->data[i]);
+	xprintf(os, "\n");
+}
+
+static void term(struct list *l)
+{
+	if (l->data)
+		free(l->data);
+	l->data = NULL;
+	l->alloc = l->size = 0;
 }
 
 static void prompt_simple(FILE *os)
@@ -115,6 +132,8 @@ static sort_t input_simple(FILE *os)
 		case 'x':
 			return SORT_QUIT;
 		default:
+			xprintf(os, "\nInvalid option '%c', plase try again.\n",
+				answer);
 			return SORT_NONE;
 	}
 }
@@ -145,6 +164,8 @@ static sort_t input_advanced(FILE *os)
 		case 'x':
 			return SORT_QUIT;
 		default:
+			xprintf(os, "\nInvalid option '%c', plase try again.\n",
+				answer);
 			return SORT_NONE;
 	}
 }
@@ -216,8 +237,10 @@ int main()
 
 	xprintf(os, "\nReading values from the '%s' file:\n\n", input_file);
 	while (fscanf(is, "%d, ", &value) != EOF)
-		xprintf(os, "%d, ", value);
-	xprintf(os, "\n");
+		add(&list, value);
+
+	/* Print out the list. */
+	print(os, &list);
 
 	/* Let's sort it. */
 	process(os);
