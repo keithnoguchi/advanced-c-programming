@@ -1,6 +1,6 @@
 
-Simple and advanced sorting
-===========================
+Simple and advanced sorting, in ascending order
+==============================================
 
 Reading values from the 'input.txt' file:
 
@@ -8,12 +8,12 @@ Reading values from the 'input.txt' file:
 
 Which simple sort routine do you like
 
-(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? b
+(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? i
 
 Result of the simple sort
 -------------------------
 
-49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51, 29, 77, 65, 44, 99, 4, 47, 67, 41, 23, 88, 73, 8, 100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20, 7, 50, 10, 
+4, 7, 8, 10, 12, 15, 17, 19, 20, 22, 23, 25, 29, 33, 35, 38, 41, 44, 47, 49, 50, 51, 56, 58, 59, 60, 62, 65, 67, 71, 73, 77, 84, 85, 88, 91, 95, 97, 99, 100, 
 
 Which advanced sort routine do you like
 

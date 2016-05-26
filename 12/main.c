@@ -88,6 +88,11 @@ static void init(struct list *l, const size_t max_size)
 	l->alloc = sizeof(int) * max_size;
 }
 
+static int value(const struct list *l, const size_t i)
+{
+	return i < l->size ? l->data[i] : -1;
+}
+
 static void add(struct list *l, const int value)
 {
 	if (l->size + 1 >= l->max) {
@@ -148,7 +153,12 @@ static void term(struct list *l)
 
 static void selection_sort(struct list *l)
 {
-	;
+	int i, j;
+
+	for (i = 0; i < l->size - 1; ++i)
+		for (j = i + 1; j < l->size; ++j)
+			if (value(l, j) < value(l, i))
+				swap(l, i, j);
 }
 
 static void prompt_simple(FILE *os)
@@ -285,8 +295,8 @@ int main()
 		goto err;
 	}
 
-	xprintf(os, "\nSimple and advanced sorting\n");
-	xprintf(os, "===========================\n");
+	xprintf(os, "\nSimple and advanced sorting, in ascending order\n");
+	xprintf(os, "==============================================\n");
 
 	/* Initialize the list. */
 	init(&list, max_size);
