@@ -8,10 +8,10 @@ Reading values from the 'input.txt' file:
 
 Which simple sort routine do you like
 
-(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? h
+(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? b
 
 Which advanced sort routine do you like
 
-(Q)uick, (H)eap, (M)erge sort, or (X) for quit? m
+(Q)uick, (H)eap, (M)erge sort, or (X) for quit? q
 
-Simple sort routine is 8 and advanced sort routine is 7
+Simple sort routine is 2 and advanced sort routine is 5

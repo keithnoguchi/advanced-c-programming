@@ -53,6 +53,10 @@ struct list {
 	int *data;
 };
 
+typedef void (*prompt_func_t)(FILE *os);
+typedef sort_t (*input_func_t)(FILE *os);
+typedef void (*sort_func_t)(struct list *l);
+
 static int xprintf(FILE *os, const char *fmt, ...)
 {
 	va_list ap;
@@ -92,6 +96,19 @@ static void add(struct list *l, const int value)
 		l->alloc *= l->step;
 	}
 	l->data[l->size++] = value;
+}
+
+static void swap(struct list *l, const int i, const int j)
+{
+	int temp;
+
+	/* Sanity check. */
+	if (i >= l->size || j >= l->size)
+		return;
+
+	temp = l->data[i];
+	l->data[i] = l->data[j];
+	l->data[j] = temp;
 }
 
 static void print(FILE *os, const struct list *l)
@@ -177,9 +194,6 @@ static sort_t input_advanced(FILE *os)
 	}
 }
 
-typedef void (*prompt_func_t)(FILE *os);
-typedef sort_t (*input_func_t)(FILE *os);
-
 static sort_t selection(FILE *os, const prompt_func_t prompt,
 		const input_func_t input)
 {
@@ -193,7 +207,7 @@ static sort_t selection(FILE *os, const prompt_func_t prompt,
 	return ret;
 }
 
-static void process(FILE *os)
+static void process(FILE *os, struct list *l)
 {
 	sort_t simple, advanced;
 
@@ -237,11 +251,11 @@ int main()
 		goto err;
 	}
 
-	/* Initialize the list. */
-	init(&list, max_size);
-
 	xprintf(os, "\nSimple and advanced sorting\n");
 	xprintf(os, "===========================\n");
+
+	/* Initialize the list. */
+	init(&list, max_size);
 
 	xprintf(os, "\nReading values from the '%s' file:\n\n", input_file);
 	while (fscanf(is, "%d, ", &value) != EOF)
@@ -250,8 +264,8 @@ int main()
 	/* Print out the list. */
 	print(os, &list);
 
-	/* Let's sort it. */
-	process(os);
+	/* Sort it. */
+	process(os, &list);
 
 	/* Cleanup the list. */
 	term(&list);
