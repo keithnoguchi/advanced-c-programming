@@ -136,7 +136,7 @@ static void print(FILE *os, const struct list *l)
 	xprintf(os, "\n");
 }
 
-static void copy(struct list *dst, const struct list *src)
+static void copy(const struct list *src, struct list *dst)
 {
 	if (dst->alloc < src->alloc) {
 		dst->data = realloc(dst->data, src->alloc);
@@ -247,6 +247,33 @@ static void selection_sort(struct list *l)
 				swap(l, i, j);
 }
 
+void __merge_sort(int data[], const size_t size, int work[])
+{
+	int i, j;
+	int mid;
+
+	if (size <= 1)
+		return;
+
+	mid = size / 2;
+	__merge_sort(data, mid, work);
+	__merge_sort(&data[mid], size - mid, work);
+
+}
+
+static void merge_sort(struct list *l)
+{
+	struct list work;
+
+	init(&work, max_size);
+	copy(l, &work);
+
+	/* Let's do the work recursively. */
+	__merge_sort(l->data, l->size, work.data);
+
+	term(&work);
+}
+
 static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = BUBBLE_SORT,
@@ -281,7 +308,7 @@ static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = MERGE_SORT,
 		.name = "Merge sort",
-		.func = NULL
+		.func = merge_sort
 	}
 };
 
@@ -300,7 +327,7 @@ static void sort(FILE *os, struct list *l)
 		xprintf(os, "\n%s sorting function has not implemented\n",
 				sorters[type].name);
 	} else {
-		copy(&temp, l);
+		copy(l, &temp);
 		xprintf(os, "\nResult of the %s\n", sorters[type].name);
 		(*sorters[type].func)(&temp);
 		print(os, &temp);
@@ -314,7 +341,7 @@ static void sort(FILE *os, struct list *l)
 		xprintf(os, "\n%s sorting function has not implemented\n",
 				sorters[type].name);
 	} else {
-		copy(&temp, l);
+		copy(l, &temp);
 		xprintf(os, "\nResult of the %s\n", sorters[type].name);
 		(*sorters[type].func)(&temp);
 		print(os, &temp);
