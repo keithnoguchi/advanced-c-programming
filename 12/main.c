@@ -101,6 +101,12 @@ static int value(const struct list *l, const size_t i)
 	return i < l->size ? l->data[i] : -1;
 }
 
+static void set_value(const struct list *l, const size_t i, const int value)
+{
+	if (i < l->size)
+		l->data[i] = value;
+}
+
 static void add(struct list *l, const int value)
 {
 	if (l->size + 1 >= l->max) {
@@ -278,31 +284,30 @@ static void quick_sort(struct list *l)
 	__quick_sort(l, 0, l->size);
 }
 
-static void merge(int data[], const size_t low, const size_t mid,
-		const size_t high, int work[])
+static void merge(struct list *l, const size_t low, const size_t mid,
+		const size_t high, struct list *work)
 {
 	int i = low, j = mid;
-	int k = low, l;
+	int k = low, tmp;
 
 	while (i < mid && j < high) {
-		if (data[i] <= data[j])
-			work[k++] = data[i++];
+		if (value(l, i) <= value(l, j))
+			set_value(work, k++, value(l, i++));
 		else
-			work[k++] = data[j++];
+			set_value(work, k++, value(l, j++));
 	}
 
 	/* Take care of the rest of the data. */
-	l = i == mid ? j : i;
+	tmp = i == mid ? j : i;
 	while (k < high)
-		work[k++] = data[l++];
+		set_value(work, k++, value(l, tmp++));
 
 	/* Copy back the result to the original arary. */
-	for (i = low; i < high; ++i)
-		data[i] = work[i];
+	copy(work, l);
 }
 
-static void __merge_sort(int data[], const size_t low, const size_t high,
-		int work[])
+static void __merge_sort(struct list *l, const size_t low, const size_t high,
+		struct list *work)
 {
 	size_t mid;
 
@@ -311,10 +316,10 @@ static void __merge_sort(int data[], const size_t low, const size_t high,
 		return;
 
 	mid = (low + high) / 2;
-	__merge_sort(data, low, mid, work);
-	__merge_sort(data, mid, high, work);
+	__merge_sort(l, low, mid, work);
+	__merge_sort(l, mid, high, work);
 
-	merge(data, low, mid, high, work);
+	merge(l, low, mid, high, work);
 }
 
 static void merge_sort(struct list *l)
@@ -325,7 +330,7 @@ static void merge_sort(struct list *l)
 	copy(l, &work);
 
 	/* Let's do the work recursively. */
-	__merge_sort(l->data, 0, l->size, work.data);
+	__merge_sort(l, 0, l->size, &work);
 
 	term(&work);
 }
