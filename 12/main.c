@@ -359,27 +359,29 @@ static size_t right_child(const size_t p)
 	return 2 * p + 2;
 }
 
-static void heap_sort(struct list *l)
+static void heapify(struct list *l, const size_t size)
 {
 	int i, p;
 
-	/* Heapify the list. */
-	for (i = l->size - 1; i >= 0; --i) {
+	for (i = size - 1; i >= 0; --i) {
 		p = parent(i);
 		if (value(l, i) > value(l, p))
 			swap(l, p, i);
 	}
+}
 
-#if 0
-	/* Pick the top and add it to the sorted part. */
+static void heap_sort(struct list *l)
+{
+	int i;
+
+	/* Heapify the list. */
+	heapify(l, l->size);
+
+	/* Pick the top and re-heapify. */
 	for (i = l->size - 1; i >= 0; --i) {
 		swap(l, 0, i);
-		if (value(l, left_child(0)) > value(l, 0))
-			swap(l, 0, left_child(0));
-		if (value(l, right_child(0)) > value(l, 0))
-			swap(l, 0, right_child(0));
+		heapify(l, i);
 	}
-#endif
 }
 
 static void merge(struct list *l, const size_t low, const size_t mid,
