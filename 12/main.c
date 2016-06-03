@@ -244,6 +244,16 @@ static sort_t selection(FILE *os, const prompt_func_t prompt,
 	return ret;
 }
 
+static void bubble_sort(struct list *l)
+{
+	int i, j;
+
+	for (i = 1; i < l->size; ++i)
+		for (j = 0; j < l->size - i; ++j)
+			if (value(l, j) > value(l, j + 1))
+				swap(l, j, j + 1);
+}
+
 static void selection_sort(struct list *l)
 {
 	int i, j;
@@ -339,7 +349,7 @@ static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = BUBBLE_SORT,
 		.name = "bubble sort",
-		.func = NULL
+		.func = bubble_sort
 	},
 	{
 		.type = INSERTION_SORT,
