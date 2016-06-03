@@ -375,17 +375,16 @@ static void heapify(struct list *l, const size_t size)
 
 static void siftdown(struct list *l, const size_t size)
 {
-	size_t root, new_root, child;
+	size_t root, child;
 
-	for (root = 0; left_child(root) < size; root = new_root) {
-		new_root = root;
+	for (root = 0; left_child(root) < size; root = child) {
 		child = left_child(root);
 		if (right_child(root) < size
 			&& value(l, right_child(root)) > value(l, child))
 			child = right_child(root);
+
 		if (value(l, child) > value(l, root)) {
 			swap(l, root, child);
-			new_root = child;
 		} else {
 			break;
 		}
