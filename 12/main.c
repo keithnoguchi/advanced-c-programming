@@ -250,7 +250,7 @@ static void selection_sort(struct list *l)
 
 static void __quick_sort(struct list *l, const size_t low, const size_t high)
 {
-	int i, last;
+	size_t i, last;
 
 	/* Base case. */
 	if (low + 1 >= high)
