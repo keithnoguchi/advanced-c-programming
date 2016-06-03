@@ -248,10 +248,34 @@ static void selection_sort(struct list *l)
 				swap(l, i, j);
 }
 
+static void __quick_sort(struct list *l, const size_t low, const size_t high)
+{
+	int i, last;
+
+	/* Base case. */
+	if (low + 1 >= high)
+		return;
+
+	/* Put pivot on slot low. */
+	swap(l, low, rand() % (high - low) + low);
+
+	/* Partitioning. */
+	last = low;
+	for (i = low + 1; i < high; ++i)
+		if (value(l, i) < value(l, low))
+			swap(l, i, ++last);
+	swap(l, low, last);
+
+	__quick_sort(l, low, last);
+	__quick_sort(l, last, high);
+}
+
 static void quick_sort(struct list *l)
 {
 	/* For rand() for pivot. */
 	srand(time(NULL));
+
+	__quick_sort(l, 0, l->size);
 }
 
 static void merge(int data[], const size_t low, const size_t mid,
