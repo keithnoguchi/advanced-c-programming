@@ -69,6 +69,9 @@ typedef sort_t (*input_func_t)(FILE *os);
 #define INITIAL_MAX_SIZE 10
 const size_t max_size = INITIAL_MAX_SIZE;
 
+/* We don't support the nagative value. */
+const int invalid_value = -1;
+
 static int xprintf(FILE *os, const char *fmt, ...)
 {
 	va_list ap;
@@ -99,7 +102,7 @@ static void init(struct list *l, const size_t max_size)
 
 static int value(const struct list *l, const size_t i)
 {
-	return i < l->size ? l->data[i] : -1;
+	return i < l->size ? l->data[i] : invalid_value;
 }
 
 static void set_value(const struct list *l, const size_t i, const int value)
@@ -370,6 +373,25 @@ static void heapify(struct list *l, const size_t size)
 	}
 }
 
+static void siftdown(struct list *l, const size_t size)
+{
+	size_t root, new_root, child;
+
+	for (root = 0; left_child(root) < size; root = new_root) {
+		new_root = root;
+		child = left_child(root);
+		if (right_child(root) < size
+			&& value(l, right_child(root)) > value(l, child))
+			child = right_child(root);
+		if (value(l, child) > value(l, root)) {
+			swap(l, root, child);
+			new_root = child;
+		}
+		if (new_root == root)
+			break; /* done! */
+	}
+}
+
 static void heap_sort(struct list *l)
 {
 	int i;
@@ -377,10 +399,10 @@ static void heap_sort(struct list *l)
 	/* Heapify the list. */
 	heapify(l, l->size);
 
-	/* Pick the top and re-heapify. */
+	/* Pick the top and sift-down. */
 	for (i = l->size - 1; i >= 0; --i) {
 		swap(l, 0, i);
-		heapify(l, i);
+		siftdown(l, i);
 	}
 }
 
