@@ -386,9 +386,9 @@ static void siftdown(struct list *l, const size_t size)
 		if (value(l, child) > value(l, root)) {
 			swap(l, root, child);
 			new_root = child;
+		} else {
+			break;
 		}
-		if (new_root == root)
-			break; /* done! */
 	}
 }
 
