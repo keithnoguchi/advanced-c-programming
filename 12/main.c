@@ -299,6 +299,21 @@ static void selection_sort(struct list *l)
 				swap(l, i, j);
 }
 
+static void shell_sort(struct list *l)
+{
+	/* We limit the maximum gap to 57. */
+	int gaps[] = { 57, 23, 11, 7, 5, 3, 1 };
+	int i, j, k, g;
+
+	for (g = 0; g < sizeof(gaps) / sizeof(int); ++g)
+		for (k = 0; k < gaps[g]; ++k)
+			/* Using selection sort. */
+			for (i = k; i < l->size; i += gaps[g])
+				for (j = i + gaps[g]; j < l->size; j += gaps[g])
+					if (value(l, j) < value(l, i))
+						swap(l, i, j);
+}
+
 static void __quick_sort(struct list *l, const size_t low, const size_t high)
 {
 	size_t i, last;
@@ -399,7 +414,7 @@ static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = SHELL_SORT,
 		.name = "shell sort",
-		.func = NULL
+		.func = shell_sort
 	},
 	{
 		.type = QUICK_SORT,
