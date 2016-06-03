@@ -247,18 +247,43 @@ static void selection_sort(struct list *l)
 				swap(l, i, j);
 }
 
-void __merge_sort(int data[], const size_t size, int work[])
+static void merge(int data[], const size_t low, const size_t mid,
+		const size_t high, int work[])
 {
-	int i, j;
-	int mid;
+	int i = low, j = mid;
+	int k = low, l;
 
-	if (size <= 1)
+	while (i < mid && j < high) {
+		if (data[i] <= data[j])
+			work[k++] = data[i++];
+		else
+			work[k++] = data[j++];
+	}
+
+	/* Take care of the rest of the data. */
+	l = i == mid ? j : i;
+	while (k < high)
+		work[k++] = data[l++];
+
+	/* Copy back the result to the original arary. */
+	for (i = low; i < high; ++i)
+		data[i] = work[i];
+}
+
+static void __merge_sort(int data[], const size_t low, const size_t high,
+		int work[])
+{
+	size_t mid;
+
+	/* Base case. */
+	if (low + 1 >= high)
 		return;
 
-	mid = size / 2;
-	__merge_sort(data, mid, work);
-	__merge_sort(&data[mid], size - mid, work);
+	mid = (low + high) / 2;
+	__merge_sort(data, low, mid, work);
+	__merge_sort(data, mid, high, work);
 
+	merge(data, low, mid, high, work);
 }
 
 static void merge_sort(struct list *l)
@@ -269,7 +294,7 @@ static void merge_sort(struct list *l)
 	copy(l, &work);
 
 	/* Let's do the work recursively. */
-	__merge_sort(l->data, l->size, work.data);
+	__merge_sort(l->data, 0, l->size, work.data);
 
 	term(&work);
 }
