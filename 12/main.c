@@ -181,7 +181,7 @@ static void print(FILE *os, const struct list *l)
 
 	xprintf(os, "\n");
 	for (i = 0; i < l->size; ++i)
-		xprintf(os, "%d, ", l->data[i]);
+		xprintf(os, "%d, ", value(l, i));
 	xprintf(os, "\n");
 }
 
