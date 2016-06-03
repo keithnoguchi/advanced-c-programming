@@ -344,6 +344,11 @@ static void quick_sort(struct list *l)
 	__quick_sort(l, 0, l->size);
 }
 
+static void heap_sort(struct list *l)
+{
+	;
+}
+
 static void merge(struct list *l, const size_t low, const size_t mid,
 		const size_t high, struct list *work)
 {
@@ -424,7 +429,7 @@ static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = HEAP_SORT,
 		.name = "heap sort",
-		.func = NULL
+		.func = heap_sort
 	},
 	{
 		.type = MERGE_SORT,
