@@ -338,37 +338,37 @@ static void merge_sort(struct list *l)
 static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = BUBBLE_SORT,
-		.name = "Bubble sort",
+		.name = "bubble sort",
 		.func = NULL
 	},
 	{
 		.type = INSERTION_SORT,
-		.name = "Insertion sort",
+		.name = "insertion sort",
 		.func = NULL
 	},
 	{
 		.type = SELECTION_SORT,
-		.name = "Selection sort",
+		.name = "selection sort",
 		.func = selection_sort
 	},
 	{
 		.type = SHELL_SORT,
-		.name = "Shell sort",
+		.name = "shell sort",
 		.func = NULL
 	},
 	{
 		.type = QUICK_SORT,
-		.name = "Quick sort",
+		.name = "quick sort",
 		.func = quick_sort
 	},
 	{
 		.type = HEAP_SORT,
-		.name = "Heap sort",
+		.name = "heap sort",
 		.func = NULL
 	},
 	{
 		.type = MERGE_SORT,
-		.name = "Merge sort",
+		.name = "merge sort",
 		.func = merge_sort
 	}
 };
