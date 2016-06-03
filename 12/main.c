@@ -344,9 +344,42 @@ static void quick_sort(struct list *l)
 	__quick_sort(l, 0, l->size);
 }
 
+static size_t parent(const size_t i)
+{
+	return (i > 0 ? (i - 1) : i) / 2;
+}
+
+static size_t left_child(const size_t p)
+{
+	return 2 * p + 1;
+}
+
+static size_t right_child(const size_t p)
+{
+	return 2 * p + 2;
+}
+
 static void heap_sort(struct list *l)
 {
-	;
+	int i, p;
+
+	/* Heapify the list. */
+	for (i = l->size - 1; i >= 0; --i) {
+		p = parent(i);
+		if (value(l, i) > value(l, p))
+			swap(l, p, i);
+	}
+
+#if 0
+	/* Pick the top and add it to the sorted part. */
+	for (i = l->size - 1; i >= 0; --i) {
+		swap(l, 0, i);
+		if (value(l, left_child(0)) > value(l, 0))
+			swap(l, 0, left_child(0));
+		if (value(l, right_child(0)) > value(l, 0))
+			swap(l, 0, right_child(0));
+	}
+#endif
 }
 
 static void merge(struct list *l, const size_t low, const size_t mid,

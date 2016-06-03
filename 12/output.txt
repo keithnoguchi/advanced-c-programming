@@ -8,9 +8,9 @@ Reading values from the 'input.txt' file:
 
 Which simple sort routine do you like
 
-(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? s
+(B)ubble, (I)nsertion, (S)election, s(H)ell, or (X) for quit? i
 
-Result of the selection sort
+Result of the insertion sort
 
 4, 7, 8, 10, 12, 15, 17, 19, 20, 22, 23, 25, 29, 33, 35, 38, 41, 44, 47, 49, 50, 51, 56, 58, 59, 60, 62, 65, 67, 71, 73, 77, 84, 85, 88, 91, 95, 97, 99, 100, 
 
@@ -20,6 +20,6 @@ Which advanced sort routine do you like
 
 Result of the heap sort
 
-49, 17, 56, 85, 12, 97, 33, 71, 19, 62, 38, 84, 51, 29, 77, 65, 44, 99, 4, 47, 67, 41, 23, 88, 73, 8, 100, 25, 91, 58, 59, 22, 15, 35, 95, 60, 20, 7, 50, 10, 
+100, 99, 49, 67, 17, 91, 56, 95, 85, 41, 12, 88, 97, 77, 33, 65, 71, 50, 19, 47, 62, 38, 23, 84, 73, 8, 51, 25, 29, 58, 59, 22, 15, 35, 44, 60, 20, 7, 4, 10, 
 
 NG! Result is not the same.
