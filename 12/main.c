@@ -28,6 +28,7 @@
                  10
 */
 
+#include <time.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -247,6 +248,12 @@ static void selection_sort(struct list *l)
 				swap(l, i, j);
 }
 
+static void quick_sort(struct list *l)
+{
+	/* For rand() for pivot. */
+	srand(time(NULL));
+}
+
 static void merge(int data[], const size_t low, const size_t mid,
 		const size_t high, int work[])
 {
@@ -323,7 +330,7 @@ static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = QUICK_SORT,
 		.name = "Quick sort",
-		.func = NULL
+		.func = quick_sort
 	},
 	{
 		.type = HEAP_SORT,
