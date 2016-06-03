@@ -134,14 +134,14 @@ static void swap(struct list *l, const int i, const int j)
 	l->data[j] = temp;
 }
 
-static void print(FILE *os, const struct list *l)
+static void insert(struct list *l, const int i, const int value,
+		const size_t nelem)
 {
-	int i;
-
-	xprintf(os, "\n");
-	for (i = 0; i < l->size; ++i)
-		xprintf(os, "%d, ", l->data[i]);
-	xprintf(os, "\n");
+	/* Sanity check. */
+	if (i + 1 + nelem > l->size)
+		return;
+	memmove(&l->data[i + 1], &l->data[i], sizeof(int) * nelem);
+	l->data[i] = value;
 }
 
 static void copy(const struct list *src, struct list *dst)
@@ -170,6 +170,16 @@ static bool same(const struct list *l1, const struct list *l2)
 			return false;
 
 	return true;
+}
+
+static void print(FILE *os, const struct list *l)
+{
+	int i;
+
+	xprintf(os, "\n");
+	for (i = 0; i < l->size; ++i)
+		xprintf(os, "%d, ", l->data[i]);
+	xprintf(os, "\n");
 }
 
 static void term(struct list *l)
@@ -267,6 +277,16 @@ static void bubble_sort(struct list *l)
 		for (j = 0; j < l->size - i; ++j)
 			if (value(l, j) > value(l, j + 1))
 				swap(l, j, j + 1);
+}
+
+static void insertion_sort(struct list *l)
+{
+	int i, j;
+
+	for (i = 1; i < l->size; ++i)
+		for (j = 0; j < i; ++j)
+			if (value(l, i) < value(l, j))
+				insert(l, j, value(l, i), i - j);
 }
 
 static void selection_sort(struct list *l)
@@ -369,7 +389,7 @@ static const struct sorter sorters[SORT_MAX] = {
 	{
 		.type = INSERTION_SORT,
 		.name = "insertion sort",
-		.func = NULL
+		.func = insertion_sort
 	},
 	{
 		.type = SELECTION_SORT,
@@ -438,8 +458,7 @@ static void sort(FILE *os, struct list *l)
 	if (same(&simple, &advanced))
 		xprintf(os, "\nGood!  Both results are the same.\n");
 	else
-		xprintf(os,
-			"\nSomething wrong with one of the sorting function!");
+		xprintf(os, "\nNG! Result is not the same.\n");
 
 end:
 	term(&advanced);
