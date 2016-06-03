@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <string.h>
 
 typedef enum {
@@ -155,6 +156,20 @@ static void copy(const struct list *src, struct list *dst)
 	dst->alloc = src->alloc;
 	dst->step = src->step;
 	memcpy(dst->data, src->data, dst->alloc);
+}
+
+static bool same(const struct list *l1, const struct list *l2)
+{
+	int i;
+
+	if (l1->size != l2->size)
+		return false;
+
+	for (i = 0; i < l1->size; ++i)
+		if (value(l1, i) != value(l2, i))
+			return false;
+
+	return true;
 }
 
 static void term(struct list *l)
@@ -385,10 +400,11 @@ static const struct sorter sorters[SORT_MAX] = {
 
 static void sort(FILE *os, struct list *l)
 {
-	struct list temp;
+	struct list simple, advanced;
 	sort_t type;
 
-	init(&temp, max_size);
+	init(&simple, max_size);
+	init(&advanced, max_size);
 
 	type = selection(os, prompt_simple, input_simple);
 	if (type == SORT_QUIT)
@@ -398,10 +414,10 @@ static void sort(FILE *os, struct list *l)
 		xprintf(os, "\n%s sorting function has not implemented\n",
 				sorters[type].name);
 	} else {
-		copy(l, &temp);
+		copy(l, &simple);
 		xprintf(os, "\nResult of the %s\n", sorters[type].name);
-		(*sorters[type].func)(&temp);
-		print(os, &temp);
+		(*sorters[type].func)(&simple);
+		print(os, &simple);
 	}
 
 	type = selection(os, prompt_advanced, input_advanced);
@@ -412,14 +428,22 @@ static void sort(FILE *os, struct list *l)
 		xprintf(os, "\n%s sorting function has not implemented\n",
 				sorters[type].name);
 	} else {
-		copy(l, &temp);
+		copy(l, &advanced);
 		xprintf(os, "\nResult of the %s\n", sorters[type].name);
-		(*sorters[type].func)(&temp);
-		print(os, &temp);
+		(*sorters[type].func)(&advanced);
+		print(os, &advanced);
 	}
 
+	/* Compare the two and report the result. */
+	if (same(&simple, &advanced))
+		xprintf(os, "\nGood!  Both results are the same.\n");
+	else
+		xprintf(os,
+			"\nSomething wrong with one of the sorting function!");
+
 end:
-	term(&temp);
+	term(&advanced);
+	term(&simple);
 }
 
 int main()
