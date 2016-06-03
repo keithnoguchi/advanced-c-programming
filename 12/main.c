@@ -362,11 +362,11 @@ static size_t right_child(const size_t p)
 	return 2 * p + 2;
 }
 
-static void siftdown(struct list *l, const size_t parent, const size_t end)
+static void siftdown(struct list *l, const size_t start, const size_t end)
 {
 	size_t root, child;
 
-	for (root = parent; left_child(root) < end; root = child) {
+	for (root = start; left_child(root) < end; root = child) {
 		child = left_child(root);
 		if (right_child(root) < end
 			&& value(l, right_child(root)) > value(l, child))
@@ -394,7 +394,7 @@ static void heap_sort(struct list *l)
 	/* Heapify the list. */
 	heapify(l);
 
-	/* Pick the top and sift-down. */
+	/* Pick the top and put it in the end, and siftdown. */
 	for (i = l->size - 1; i >= 0; --i) {
 		swap(l, 0, i);
 		siftdown(l, 0, i);
