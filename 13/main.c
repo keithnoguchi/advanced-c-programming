@@ -32,16 +32,108 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
 
-static void read_and_write_data(FILE *is, FILE *os)
+struct node {
+	int value;
+	struct node *left;
+	struct node *right;
+};
+
+static int xprintf(FILE *os, const char *const fmt, ...)
 {
-	int data;
+	va_list ap;
 	int ret;
 
-	while (fscanf(is, "%d,", &data) != EOF) {
-		fprintf(os, "%d, ", data);
+	va_start(ap, fmt);
+	ret = vprintf(fmt, ap);
+	if (os != stdout) {
+		va_end(ap);
+		va_start(ap, fmt);
+		vfprintf(os, fmt, ap);
 	}
-	fprintf(os, "\n");
+	va_end(ap);
+	return ret;
+}
+
+static struct node *new_node(const int value)
+{
+	struct node *node;
+
+	node = malloc(sizeof(struct node));
+	if (node == NULL) {
+		fprintf(stderr, "malloc(3)\n");
+		exit(EXIT_FAILURE);
+	}
+	memset(node, 0, sizeof(*node));
+	node->value = value;
+	node->left = node->right = NULL;
+
+	return node;
+}
+
+static struct node *free_node(struct node *node)
+{
+	if (node->left != NULL) {
+		fprintf(stderr, "left chaild is still there\n");
+		exit(EXIT_FAILURE);
+	}
+	if (node->right != NULL) {
+		fprintf(stderr, "right child is still there\n");
+		exit(EXIT_FAILURE);
+	}
+	free(node);
+	return NULL;
+}
+
+static struct node *insert(struct node *root, struct node *node)
+{
+	/* Base case. */
+	if (root == NULL)
+		return node;
+	else if (node->value < root->value)
+		root->left = insert(root->left, node);
+	else if (node->value > root->value)
+		root->right = insert(root->right, node);
+	else
+		/* We just delete the duplicate node. */
+		free_node(node);
+
+	return root;
+}
+
+static struct node *create_tree(FILE *is)
+{
+	struct node *root = NULL;
+	struct node *node;
+	int data;
+
+	while (fscanf(is, "%d,", &data) != EOF) {
+		node = new_node(data);
+		if (node != NULL)
+			root = insert(root, node);
+	}
+	return root;
+}
+
+static struct node *delete_tree(struct node *root)
+{
+	if (root == NULL)
+		return NULL;
+	/* post order deletion. */
+	root->left = delete_tree(root->left);
+	root->right = delete_tree(root->right);
+	return free_node(root);
+}
+
+static void print_tree(FILE *os, const struct node *const node)
+{
+	if (node == NULL)
+		return;
+	print_tree(os, node->left);
+	xprintf(os, "%d, ", node->value);
+	print_tree(os, node->right);
 }
 
 int main()
@@ -49,6 +141,7 @@ int main()
 	const char *const input = "input.txt";
 	const char *const output = "output.txt";
 	FILE *is = NULL, *os = NULL;
+	struct node *root;
 
 	is = fopen(input, "r");
 	if (is == NULL) {
@@ -62,7 +155,11 @@ int main()
 		goto err;
 	}
 
-	read_and_write_data(is, os);
+	/* Create a tree based on the input file. */
+	root = create_tree(is);
+	print_tree(os, root);
+	delete_tree(root);
+	xprintf(os, "\n");
 
 err:
 	if (is != NULL)
