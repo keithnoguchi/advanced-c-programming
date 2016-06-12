@@ -31,9 +31,44 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+
+static void read_and_write_data(FILE *is, FILE *os)
+{
+	int data;
+	int ret;
+
+	while (fscanf(is, "%d,", &data) != EOF) {
+		fprintf(os, "%d, ", data);
+	}
+	fprintf(os, "\n");
+}
 
 int main()
 {
-	printf("Hello world!\n");
-}
+	const char *const input = "input.txt";
+	const char *const output = "output.txt";
+	FILE *is = NULL, *os = NULL;
 
+	is = fopen(input, "r");
+	if (is == NULL) {
+		fprintf(stderr, "Can't optn %s for read\n", input);
+		goto err;
+	}
+
+	os = fopen(output, "w");
+	if (os == NULL) {
+		fprintf(stderr, "Can't open %s for output\n", output);
+		goto err;
+	}
+
+	read_and_write_data(is, os);
+
+err:
+	if (is != NULL)
+		fclose(is);
+	if (os != NULL)
+		fclose(os);
+
+	exit(EXIT_SUCCESS);
+}
