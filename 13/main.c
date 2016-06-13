@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 
 /* Maintain the list of node, easy traversal. */
 struct list *node_head = NULL;
@@ -87,6 +88,12 @@ struct list *new_list(void *data)
 	return list;
 }
 
+static void free_list(struct list *list)
+{
+	assert(list->next == NULL);
+	free(list);
+}
+
 static void free_lists(struct list *head)
 {
 	struct list *next;
@@ -125,10 +132,7 @@ static struct node *new_node(const int value)
 	struct node *node;
 
 	node = malloc(sizeof(struct node));
-	if (node == NULL) {
-		fprintf(stderr, "malloc(3)\n");
-		exit(EXIT_FAILURE);
-	}
+	assert(node);
 	memset(node, 0, sizeof(*node));
 	node->value = value;
 	node->left = node->right = NULL;
@@ -138,14 +142,8 @@ static struct node *new_node(const int value)
 
 static struct node *free_node(struct node *node)
 {
-	if (node->left != NULL) {
-		fprintf(stderr, "left child is still there\n");
-		exit(EXIT_FAILURE);
-	}
-	if (node->right != NULL) {
-		fprintf(stderr, "right child is still there\n");
-		exit(EXIT_FAILURE);
-	}
+	assert(node->left == NULL);
+	assert(node->right == NULL);
 	free(node);
 	return NULL;
 }
@@ -161,7 +159,8 @@ static struct node *insert(struct node *root, struct node *node)
 		root->right = insert(root->right, node);
 	else {
 		/* We just delete the duplicate node. */
-		fprintf(stderr, "%d is duplicate. Don't add it!\n", node->value);
+		fprintf(stderr, "%d is duplicate. Don't add it!\n",
+				node->value);
 		free_node(node);
 	}
 
