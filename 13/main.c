@@ -226,24 +226,24 @@ static void print_tree_inorder(FILE *os, struct node *const node, int *count,
 static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 		int *count, int *sum)
 {
-	struct node *n = (struct node *) root;
+	struct node *node = (struct node *) root;
 	struct list *stack = NULL;
 	struct list *list;
 
-	while (n != NULL) {
-		if (n->left && n->left->processed == false) {
-			stack = push(stack, n);
-			n = n->left;
-		} else if (n->processed == false) {
-			print_node(os, n, count, sum);
-			n->processed = true;
-			if (n->right) {
-				stack = push(stack, n);
-				n = n->right;
+	while (node) {
+		if (node->left && node->left->processed == false) {
+			stack = push(stack, node);
+			node = node->left;
+		} else if (node->processed == false) {
+			print_node(os, node, count, sum);
+			node->processed = true;
+			if (node->right) {
+				stack = push(stack, node);
+				node = node->right;
 			} else {
 				for (list = pop(&stack); list; list = pop(&stack)) {
-					n = list->data;
-					if (n->processed == false)
+					node = list->data;
+					if (node->processed == false)
 						break;
 				}
 			}
