@@ -241,19 +241,14 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const node,
 				stack = push(stack, n);
 				n = n->right;
 			} else {
-				list = pop(&stack);
-				if (list)
+				for (list = pop(&stack); list; list = pop(&stack)) {
 					n = list->data;
-				else
-					break;
+					if (n->processed == false)
+						break;
+				}
 			}
-		} else {
-			list = pop(&stack);
-			if (list)
-				n = list->data;
-			else
-				break;
-		}
+		} else
+			break;
 	}
 
 	free_list(stack);
