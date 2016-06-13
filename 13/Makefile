@@ -1,4 +1,4 @@
-CFLAGS += -g
+CFLAGS += -g -Wall -Werror
 all: a.out
 a.out: main.o
 	$(CC) -o $@ $^

@@ -291,7 +291,6 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 {
 	struct node *node = (struct node *) root;
 	struct list *stack = NULL;
-	struct list *list;
 
 	while (node) {
 		if (node->left && node->left->processed == false) {
