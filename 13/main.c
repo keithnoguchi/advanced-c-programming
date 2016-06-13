@@ -18,6 +18,7 @@
               tree structure read the number and form an inordered tree.
               All nodes to left subtree of the root will be lower than
               root and all nodes in the right subtree are higher.
+
               Traverse the tree in preorder, inorder, postorder, and
               print the data value (info) of the node when the node is
               visited.  Write delete algorithm to delete nodes and
@@ -76,7 +77,7 @@ static struct node *new_node(const int value)
 static struct node *free_node(struct node *node)
 {
 	if (node->left != NULL) {
-		fprintf(stderr, "left chaild is still there\n");
+		fprintf(stderr, "left child is still there\n");
 		exit(EXIT_FAILURE);
 	}
 	if (node->right != NULL) {
@@ -96,24 +97,33 @@ static struct node *insert(struct node *root, struct node *node)
 		root->left = insert(root->left, node);
 	else if (node->value > root->value)
 		root->right = insert(root->right, node);
-	else
+	else {
 		/* We just delete the duplicate node. */
+		fprintf(stderr, "%d is duplicate. Don't add it!\n", node->value);
 		free_node(node);
+	}
 
 	return root;
 }
 
-static struct node *create_tree(FILE *is)
+static struct node *read_data(FILE *is, FILE *os)
 {
 	struct node *root = NULL;
 	struct node *node;
+	int count = 0;
 	int data;
 
+	printf("\nRead data in the following order\n\n");
+
 	while (fscanf(is, "%d,", &data) != EOF) {
+		printf("%d, ", data);
+		++count;
 		node = new_node(data);
 		if (node != NULL)
 			root = insert(root, node);
 	}
+	printf("\n\nTotal number of data is %d\n", count);
+
 	return root;
 }
 
@@ -127,13 +137,48 @@ static struct node *delete_tree(struct node *root)
 	return free_node(root);
 }
 
-static void print_tree(FILE *os, const struct node *const node)
+static void print_tree_preorder(FILE *os, const struct node *const root, int *count,
+		int *sum)
+{
+	if (root == NULL)
+		return;
+	xprintf(os, "%d, ", root->value);
+	*sum += root->value;
+	++*count;
+	print_tree_preorder(os, root->left, count, sum);
+	print_tree_preorder(os, root->right, count, sum);
+}
+
+static void print_tree_inorder(FILE *os, const struct node *const node, int *count,
+		int *sum)
 {
 	if (node == NULL)
 		return;
-	print_tree(os, node->left);
+	print_tree_inorder(os, node->left, count, sum);
 	xprintf(os, "%d, ", node->value);
-	print_tree(os, node->right);
+	*sum += node->value;
+	++*count;
+	print_tree_inorder(os, node->right, count, sum);
+}
+
+static void print_tree(FILE *is, FILE *os, const struct node *const tree)
+{
+	int count, sum;
+
+	xprintf(os, "\n1) Preorder traversal result\n\n");
+	count = sum = 0;
+	print_tree_preorder(os, tree, &count, &sum);
+	xprintf(os, "\n\nSum is %d, out of %d number of data.\n", sum, count);
+
+	xprintf(os, "\n2) Inorder traversal result\n\n");
+	count = sum = 0;
+	print_tree_inorder(os, tree, &count, &sum);
+	xprintf(os, "\n\nSum is %d, out of %d number of data.\n", sum, count);
+}
+
+static void handle_delete(FILE *is, FILE *os, struct node *tree)
+{
+	;
 }
 
 int main()
@@ -141,7 +186,7 @@ int main()
 	const char *const input = "input.txt";
 	const char *const output = "output.txt";
 	FILE *is = NULL, *os = NULL;
-	struct node *root;
+	struct node *root = NULL;
 
 	is = fopen(input, "r");
 	if (is == NULL) {
@@ -156,12 +201,16 @@ int main()
 	}
 
 	/* Create a tree based on the input file. */
-	root = create_tree(is);
-	print_tree(os, root);
-	delete_tree(root);
-	xprintf(os, "\n");
+	root = read_data(is, os);
+
+	/* Process tree printing. */
+	print_tree(is, os, root);
+
+	/* Process node deletion. */
+	handle_delete(is, os, root);
 
 err:
+	delete_tree(root);
 	if (is != NULL)
 		fclose(is);
 	if (os != NULL)
