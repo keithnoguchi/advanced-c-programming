@@ -19,12 +19,16 @@
               All nodes to left subtree of the root will be lower than
               root and all nodes in the right subtree are higher.
 
-              Traverse the tree in preorder, inorder, postorder, and
+              1) Traverse the tree in preorder, inorder, postorder, and
               print the data value (info) of the node when the node is
-              visited.  Write delete algorithm to delete nodes and
-              replacing them with their inorder successor.  Print value
-              inorder after all deletes.  Write both non-recursive and
-              recursive routines to traverse the trees.
+              visited.
+
+	      2) Write delete algorithm to delete nodes and replacing them
+              with their inorder successor.  Print value inorder after
+              all deletes.
+
+              Write both non-recursive and recursive routines to traverse
+              the trees.
 
    Input array:  55, 62, 89, 85, 97, 56, 71, 82, 38, 49, 25, 67, 58, 92,
                 100, 44, 69, 72, 65, 52, 41, 84, 21, 60, 95, 12,
