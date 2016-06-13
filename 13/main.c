@@ -219,9 +219,7 @@ static void print_tree_inorder(FILE *os, struct node *const node, int *count,
 	if (node == NULL)
 		return;
 	print_tree_inorder(os, node->left, count, sum);
-	xprintf(os, "%d, ", node->value);
-	*sum += node->value;
-	++*count;
+	print_node(os, node, count, sum);
 	print_tree_inorder(os, node->right, count, sum);
 }
 
@@ -237,10 +235,8 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const node,
 			stack = push(stack, n);
 			n = n->left;
 		} else if (n->processed == false) {
-			xprintf(os, "%d, ", n->value);
+			print_node(os, n, count, sum);
 			n->processed = true;
-			*sum += n->value;
-			++*count;
 			if (n->right) {
 				stack = push(stack, n);
 				n = n->right;
@@ -270,9 +266,7 @@ static void print_tree_postorder(FILE *os, struct node *const root, int *count,
 		return;
 	print_tree_postorder(os, root->left, count, sum);
 	print_tree_postorder(os, root->right, count, sum);
-	xprintf(os, "%d, ", root->value);
-	*sum += root->value;
-	++*count;
+	print_node(os, root, count, sum);
 }
 
 struct printer {
