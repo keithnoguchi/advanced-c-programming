@@ -74,7 +74,7 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-struct list *new_list(void *data)
+struct list *list_new(void *data)
 {
 	struct list *list;
 
@@ -88,24 +88,13 @@ struct list *new_list(void *data)
 	return list;
 }
 
-static void free_list(struct list *list)
+static void list_free(struct list *list)
 {
 	assert(list->next == NULL);
 	free(list);
 }
 
-static void free_lists(struct list *head)
-{
-	struct list *next;
-
-	while (head) {
-		next = head->next;
-		free(head);
-		head = next;
-	}
-}
-
-static void iterate_lists(struct list *head, void (*func)(void *data))
+static void list_iterate(struct list *head, void (*func)(void *data))
 {
 	struct list *list;
 
@@ -113,7 +102,7 @@ static void iterate_lists(struct list *head, void (*func)(void *data))
 		(*func)(list->data);
 }
 
-static struct list *delete_list(struct list *head, const void *data)
+static struct list *list_delete(struct list *head, const void *data)
 {
 	struct list *list, *prev;
 
@@ -124,7 +113,7 @@ static struct list *delete_list(struct list *head, const void *data)
 			else
 				prev->next = list->next;
 			list->next = NULL;
-			free_list(list);
+			list_free(list);
 			break;
 		}
 		prev = list;
@@ -132,11 +121,22 @@ static struct list *delete_list(struct list *head, const void *data)
 	return head;
 }
 
+static void list_delete_all(struct list *head)
+{
+	struct list *next;
+
+	while (head) {
+		next = head->next;
+		free(head);
+		head = next;
+	}
+}
+
 static struct list *push(struct list *head, struct node *node)
 {
 	struct list *list;
 
-	list = new_list(node);
+	list = list_new(node);
 	if (list != NULL)
 		list->next = head;
 
@@ -174,7 +174,7 @@ static struct node *free_node(struct node *node)
 	assert(node->processed == false);
 	assert(node->left == NULL);
 	assert(node->right == NULL);
-	tree_head = delete_list(tree_head, node);
+	tree_head = list_delete(tree_head, node);
 	free(node);
 	return NULL;
 }
@@ -187,7 +187,7 @@ static void reset_node_flag(void *data)
 
 static void reset_tree(void)
 {
-	iterate_lists(tree_head, reset_node_flag);
+	list_iterate(tree_head, reset_node_flag);
 }
 
 static struct node *insert(struct node *root, struct node *node)
@@ -295,7 +295,7 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 			break;
 	}
 
-	free_lists(stack);
+	list_delete_all(stack);
 }
 
 static void print_tree_postorder(FILE *os, struct node *const root, int *count,
