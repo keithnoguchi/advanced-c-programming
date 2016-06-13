@@ -41,17 +41,20 @@
 #include <stdbool.h>
 #include <string.h>
 
-struct node {
-	int value;
-	bool processed; /* For iterative process. */
-	struct node *left;
-	struct node *right;
-};
+/* Maintain the list of node, easy traversal. */
+struct list *node_head = NULL;
 
 /* List for stack implementation. */
 struct list {
 	void *data;
 	struct list *next;
+};
+
+struct node {
+	int value;
+	bool processed; /* For iterative process. */
+	struct node *left;
+	struct node *right;
 };
 
 static int xprintf(FILE *os, const char *const fmt, ...)
@@ -68,6 +71,53 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	}
 	va_end(ap);
 	return ret;
+}
+
+struct list *new_list(void *data)
+{
+	struct list *list;
+
+	list = malloc(sizeof(struct list));
+	if (list == NULL)
+		return NULL;
+
+	list->next = NULL;
+	list->data = data;
+
+	return list;
+}
+
+static void free_lists(struct list *head)
+{
+	struct list *next;
+
+	while (head) {
+		next = head->next;
+		free(head);
+		head = next;
+	}
+}
+
+static struct list *push(struct list *head, struct node *node)
+{
+	struct list *list;
+
+	list = new_list(node);
+	if (list != NULL)
+		list->next = head;
+
+	return list;
+}
+
+static struct list *pop(struct list **head)
+{
+	struct list *list;
+
+	list = *head;
+	if (list != NULL)
+		*head = list->next;
+
+	return list;
 }
 
 static struct node *new_node(const int value)
@@ -149,53 +199,6 @@ static struct node *delete_tree(struct node *root)
 	return free_node(root);
 }
 
-struct list *new_list(void *data)
-{
-	struct list *list;
-
-	list = malloc(sizeof(struct list));
-	if (list == NULL)
-		return NULL;
-
-	list->next = NULL;
-	list->data = data;
-
-	return list;
-}
-
-static void free_list(struct list *head)
-{
-	struct list *next;
-
-	while (head) {
-		next = head->next;
-		free(head);
-		head = next;
-	}
-}
-
-static struct list *push(struct list *head, struct node *node)
-{
-	struct list *list;
-
-	list = new_list(node);
-	if (list != NULL)
-		list->next = head;
-
-	return list;
-}
-
-static struct list *pop(struct list **head)
-{
-	struct list *list;
-
-	list = *head;
-	if (list != NULL)
-		*head = list->next;
-
-	return list;
-}
-
 static void print_node(FILE *os, struct node *const node, int *count, int *sum)
 {
 	xprintf(os, "%d, ", node->value);
@@ -251,7 +254,7 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 			break;
 	}
 
-	free_list(stack);
+	free_lists(stack);
 }
 
 static void print_tree_postorder(FILE *os, struct node *const root, int *count,
