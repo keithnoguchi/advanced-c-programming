@@ -223,10 +223,10 @@ static void print_tree_inorder(FILE *os, struct node *const node, int *count,
 	print_tree_inorder(os, node->right, count, sum);
 }
 
-static void print_tree_inorder_iterative(FILE *os, struct node *const node,
+static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 		int *count, int *sum)
 {
-	struct node *n = (struct node *) node;
+	struct node *n = (struct node *) root;
 	struct list *stack = NULL;
 	struct list *list;
 
