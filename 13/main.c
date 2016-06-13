@@ -143,15 +143,23 @@ static struct list *push(struct list *head, struct node *node)
 	return list;
 }
 
-static struct list *pop(struct list **head)
+static void *pop(struct list **head)
 {
 	struct list *list;
+	void *data = NULL;
 
 	list = *head;
-	if (list != NULL)
+	while (list != NULL) {
 		*head = list->next;
-
-	return list;
+		data = list->data;
+		list->data = NULL;
+		list->next = NULL;
+		list_free(list);
+		if (data != NULL)
+			return data;
+		list = *head;
+	}
+	return NULL;
 }
 
 static struct node *new_node(const int value)
@@ -295,12 +303,9 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 				stack = push(stack, node);
 				node = node->right;
 			} else {
-				for (list = pop(&stack); list;
-						list = pop(&stack)) {
-					node = list->data;
+				while ((node = pop(&stack)))
 					if (node->processed == false)
 						break;
-				}
 			}
 		} else
 			break;
