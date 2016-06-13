@@ -161,19 +161,34 @@ static void print_tree_inorder(FILE *os, const struct node *const node, int *cou
 	print_tree_inorder(os, node->right, count, sum);
 }
 
+struct printer {
+	const char *name;
+	void (*print)(FILE *os, const struct node *root, int *count, int *sum);
+} printer[] = {
+	{
+		.name = "Preorder",
+		.print = print_tree_preorder
+	},
+	{
+		.name = "Inorder",
+		.print = print_tree_inorder
+	},
+	{
+		.name = "Postorder",
+		.print = NULL
+	}
+};
+
 static void print_tree(FILE *is, FILE *os, const struct node *const tree)
 {
 	int count, sum;
+	int i;
 
-	xprintf(os, "\n1) Preorder traversal result\n\n");
-	count = sum = 0;
-	print_tree_preorder(os, tree, &count, &sum);
-	xprintf(os, "\n\nSum is %d, out of %d number of data.\n", sum, count);
-
-	xprintf(os, "\n2) Inorder traversal result\n\n");
-	count = sum = 0;
-	print_tree_inorder(os, tree, &count, &sum);
-	xprintf(os, "\n\nSum is %d, out of %d number of data.\n", sum, count);
+	for (i = count = sum = 0; printer[i].print != NULL; i++, count = sum = 0) {
+		xprintf(os, "\n%d) %s traversal result\n\n", i + 1, printer[i].name);
+		(*printer[i].print)(os, tree, &count, &sum);
+		xprintf(os, "\n\nSum is %d, out of %d number of data.\n", sum, count);
+	}
 }
 
 static void handle_delete(FILE *is, FILE *os, struct node *tree)
