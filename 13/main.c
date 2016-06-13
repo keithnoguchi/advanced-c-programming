@@ -165,6 +165,38 @@ static void print_tree_inorder(FILE *os, const struct node *const node, int *cou
 	print_tree_inorder(os, node->right, count, sum);
 }
 
+static void push(const struct node *const node)
+{
+	;
+}
+
+static const struct node *pop()
+{
+	return NULL;
+}
+
+static void print_tree_inorder_iterative(FILE *os, const struct node *const node,
+		int *count, int *sum)
+{
+	const struct node *n;
+
+	n = node;
+	while (n) {
+		if (n->left) {
+			push(n);
+			n = n->left;
+		} else {
+			xprintf(os, "%d, ", n->value);
+			*sum += n->value;
+			++*count;
+			if (n->right)
+				n = n->right;
+			else
+				n = pop();
+		}
+	}
+}
+
 static void print_tree_postorder(FILE *os, const struct node *const root, int *count,
 		int *sum)
 {
@@ -190,8 +222,16 @@ struct printer {
 		.print = print_tree_inorder
 	},
 	{
+		.name = "inorder in iterative",
+		.print = print_tree_inorder_iterative
+	},
+	{
 		.name = "postorder in recursive",
 		.print = print_tree_postorder
+	},
+	{
+		.name = "postorder in iterative",
+		.print = NULL
 	}
 };
 
