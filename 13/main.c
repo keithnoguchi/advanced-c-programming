@@ -182,15 +182,15 @@ struct printer {
 	void (*print)(FILE *os, const struct node *root, int *count, int *sum);
 } printer[] = {
 	{
-		.name = "Preorder",
+		.name = "preorder in recursive",
 		.print = print_tree_preorder
 	},
 	{
-		.name = "Inorder",
+		.name = "inorder in recursive",
 		.print = print_tree_inorder
 	},
 	{
-		.name = "Postorder",
+		.name = "postorder in recursive",
 		.print = print_tree_postorder
 	}
 };
@@ -200,8 +200,12 @@ static void print_tree(FILE *is, FILE *os, const struct node *const tree)
 	int count, sum;
 	int i;
 
+	xprintf(os, "\nTree traversal\n");
+	xprintf(os, "--------------\n");
+
 	for (i = count = sum = 0; printer[i].print != NULL; i++, count = sum = 0) {
-		xprintf(os, "\n%d) %s traversal result\n\n", i + 1, printer[i].name);
+		xprintf(os, "\n%d) Result with %s traversal case\n\n",
+				i + 1, printer[i].name);
 		(*printer[i].print)(os, tree, &count, &sum);
 		printf("\n\nSum is %d, out of %d number of data.", sum, count);
 		xprintf(os, "\n");
@@ -236,7 +240,7 @@ int main()
 	/* Create a tree based on the input file. */
 	root = read_data(is, os);
 
-	xprintf(os, "\n\nBinary tree traversal and removal\n");
+	xprintf(os, "Binary tree traversal and removal\n");
 	xprintf(os, "=================================\n");
 
 	/* Process tree printing. */
