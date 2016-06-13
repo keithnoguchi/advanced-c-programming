@@ -221,21 +221,24 @@ struct node *delete(struct node *node)
 {
 	struct node *delete = node;
 
-	if (node->left) {
-		struct node *left = node->left;
-		struct node *sub = left->right;
+	if (node->left && node->right) {
+		struct node *sub = node->left->right;
 		struct node **tmp;
 
-		left->right = node->right;
+		node->left->right = node->right;
+		node = node->left;
 
 		/* Look for the left most node of the right child. */
-		for (tmp = &left->right; *tmp; tmp = &(*tmp)->left)
+		for (tmp = &node->right; *tmp; tmp = &(*tmp)->left)
 			;
+
+		/* Store the sub tree to the found position. */
 		*tmp = sub;
-		node = left;
-	} else if (node->left) {
-		;
-	} else
+	} else if (node->left)
+		node = node->left;
+	else if (node->right)
+		node = node->right;
+	else
 		node = NULL;
 
 	free_node(delete);
