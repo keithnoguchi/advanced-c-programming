@@ -38,12 +38,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <string.h>
 
 struct node {
 	int value;
+	bool processed; /* For iterative process. */
 	struct node *left;
 	struct node *right;
+};
+
+/* List for stack implementation. */
+struct list {
+	void *data;
+	struct list *next;
 };
 
 static int xprintf(FILE *os, const char *const fmt, ...)
@@ -141,19 +149,71 @@ static struct node *delete_tree(struct node *root)
 	return free_node(root);
 }
 
-static void print_tree_preorder(FILE *os, const struct node *const root, int *count,
+struct list *new_list(void *data)
+{
+	struct list *list;
+
+	list = malloc(sizeof(struct list));
+	if (list == NULL)
+		return NULL;
+
+	list->next = NULL;
+	list->data = data;
+
+	return list;
+}
+
+static void free_list(struct list *head)
+{
+	struct list *next;
+
+	while (head) {
+		next = head->next;
+		free(head);
+		head = next;
+	}
+}
+
+static struct list *push(struct list *head, struct node *node)
+{
+	struct list *list;
+
+	list = new_list(node);
+	if (list != NULL)
+		list->next = head;
+
+	return list;
+}
+
+static struct list *pop(struct list **head)
+{
+	struct list *list;
+
+	list = *head;
+	if (list != NULL)
+		*head = list->next;
+
+	return list;
+}
+
+static void print_node(FILE *os, struct node *const node, int *count, int *sum)
+{
+	xprintf(os, "%d, ", node->value);
+	*sum += node->value;
+	++*count;
+}
+
+static void print_tree_preorder(FILE *os, struct node *const root, int *count,
 		int *sum)
 {
 	if (root == NULL)
 		return;
-	xprintf(os, "%d, ", root->value);
-	*sum += root->value;
-	++*count;
+	print_node(os, root, count, sum);
 	print_tree_preorder(os, root->left, count, sum);
 	print_tree_preorder(os, root->right, count, sum);
 }
 
-static void print_tree_inorder(FILE *os, const struct node *const node, int *count,
+static void print_tree_inorder(FILE *os, struct node *const node, int *count,
 		int *sum)
 {
 	if (node == NULL)
@@ -165,39 +225,45 @@ static void print_tree_inorder(FILE *os, const struct node *const node, int *cou
 	print_tree_inorder(os, node->right, count, sum);
 }
 
-static void push(const struct node *const node)
-{
-	;
-}
-
-static const struct node *pop()
-{
-	return NULL;
-}
-
-static void print_tree_inorder_iterative(FILE *os, const struct node *const node,
+static void print_tree_inorder_iterative(FILE *os, struct node *const node,
 		int *count, int *sum)
 {
-	const struct node *n;
+	struct node *n = (struct node *) node;
+	struct list *stack = NULL;
+	struct list *list;
 
-	n = node;
-	while (n) {
-		if (n->left) {
-			push(n);
+	while (n != NULL) {
+		if (n->left && n->left->processed == false) {
+			stack = push(stack, n);
 			n = n->left;
-		} else {
+		} else if (n->processed == false) {
 			xprintf(os, "%d, ", n->value);
+			n->processed = true;
 			*sum += n->value;
 			++*count;
-			if (n->right)
+			if (n->right) {
+				stack = push(stack, n);
 				n = n->right;
+			} else {
+				list = pop(&stack);
+				if (list)
+					n = list->data;
+				else
+					break;
+			}
+		} else {
+			list = pop(&stack);
+			if (list)
+				n = list->data;
 			else
-				n = pop();
+				break;
 		}
 	}
+
+	free_list(stack);
 }
 
-static void print_tree_postorder(FILE *os, const struct node *const root, int *count,
+static void print_tree_postorder(FILE *os, struct node *const root, int *count,
 		int *sum)
 {
 	if (root == NULL)
@@ -211,31 +277,32 @@ static void print_tree_postorder(FILE *os, const struct node *const root, int *c
 
 struct printer {
 	const char *name;
-	void (*print)(FILE *os, const struct node *root, int *count, int *sum);
+	void (*print_recursive)(FILE *os, struct node *const root, int *count,
+			int *sum);
+	void (*print_iterative)(FILE *os, struct node *const root, int *count,
+			int *sum);
 } printer[] = {
 	{
-		.name = "preorder in recursive",
-		.print = print_tree_preorder
+		.name = "preorder",
+		.print_recursive = print_tree_preorder,
+		.print_iterative = NULL
 	},
 	{
-		.name = "inorder in recursive",
-		.print = print_tree_inorder
+		.name = "inorder",
+		.print_recursive = print_tree_inorder,
+		.print_iterative = print_tree_inorder_iterative
 	},
 	{
-		.name = "inorder in iterative",
-		.print = print_tree_inorder_iterative
+		.name = "postorder",
+		.print_recursive = print_tree_postorder,
+		.print_iterative = NULL
 	},
 	{
-		.name = "postorder in recursive",
-		.print = print_tree_postorder
-	},
-	{
-		.name = "postorder in iterative",
-		.print = NULL
+		.name = NULL
 	}
 };
 
-static void print_tree(FILE *is, FILE *os, const struct node *const tree)
+static void print_tree(FILE *is, FILE *os, struct node *const tree)
 {
 	int count, sum;
 	int i;
@@ -243,12 +310,26 @@ static void print_tree(FILE *is, FILE *os, const struct node *const tree)
 	xprintf(os, "\nTree traversal\n");
 	xprintf(os, "--------------\n");
 
-	for (i = count = sum = 0; printer[i].print != NULL; i++, count = sum = 0) {
-		xprintf(os, "\n%d) Result with %s traversal case\n\n",
+	for (i = count = sum = 0; printer[i].name != NULL; i++, count = sum = 0) {
+		if (printer[i].print_recursive) {
+			xprintf(os,
+				"\n%d.1) Result with %s recursive traversal\n\n",
 				i + 1, printer[i].name);
-		(*printer[i].print)(os, tree, &count, &sum);
-		printf("\n\nSum is %d, out of %d number of data.", sum, count);
-		xprintf(os, "\n");
+			(*printer[i].print_recursive)(os, tree, &count, &sum);
+			printf("\n\nSum is %d, out of %d number of data.",
+				sum, count);
+			xprintf(os, "\n");
+		}
+		if (printer[i].print_iterative) {
+			count = sum = 0;
+			xprintf(os,
+				"\n%d.2) Result with %s iterative traversal\n\n",
+				i + 1, printer[i].name);
+			(*printer[i].print_iterative)(os, tree, &count, &sum);
+			printf("\n\nSum is %d, out of %d number of data.",
+				sum, count);
+			xprintf(os, "\n");
+		}
 	}
 	xprintf(os, "\n");
 }
