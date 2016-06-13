@@ -1,10 +1,10 @@
 CFLAGS += -g
-all: bintree
-bintree: main.o
+all: a.out
+a.out: main.o
 	$(CC) -o $@ $^
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 .PHONY: clean
 clean:
-	$(RM) *.o *~ a.out bintree
+	$(RM) *.o *~ a.out
