@@ -232,6 +232,9 @@ int main()
 	/* Create a tree based on the input file. */
 	root = read_data(is, os);
 
+	xprintf(os, "\n\nBinary tree traversal and removal\n");
+	xprintf(os, "=================================\n");
+
 	/* Process tree printing. */
 	print_tree(is, os, root);
 
