@@ -217,6 +217,32 @@ static struct node *insert(struct node *root, struct node *node)
 	return root;
 }
 
+struct node *delete(struct node *node)
+{
+	struct node *delete = node;
+
+	if (node->left) {
+		struct node *left = node->left;
+		struct node *sub = left->right;
+		struct node **tmp;
+
+		left->right = node->right;
+
+		/* Look for the left most node of the right child. */
+		for (tmp = &left->right; *tmp; tmp = &(*tmp)->left)
+			;
+		*tmp = sub;
+		node = left;
+	} else if (node->left) {
+		;
+	} else
+		node = NULL;
+
+	free_node(delete);
+
+	return node;
+}
+
 static struct node *read_data(FILE *is, FILE *os)
 {
 	struct node *root = NULL;
