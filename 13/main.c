@@ -243,6 +243,7 @@ static struct node *delete_tree(struct node *root)
 static void print_node(FILE *os, struct node *const node, int *count, int *sum)
 {
 	xprintf(os, "%d, ", node->value);
+	node->processed = true;
 	*sum += node->value;
 	++*count;
 }
@@ -267,6 +268,16 @@ static void print_tree_inorder(FILE *os, struct node *const node, int *count,
 	print_tree_inorder(os, node->right, count, sum);
 }
 
+static void print_tree_postorder(FILE *os, struct node *const root, int *count,
+		int *sum)
+{
+	if (root == NULL)
+		return;
+	print_tree_postorder(os, root->left, count, sum);
+	print_tree_postorder(os, root->right, count, sum);
+	print_node(os, root, count, sum);
+}
+
 static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 		int *count, int *sum)
 {
@@ -280,12 +291,12 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 			node = node->left;
 		} else if (node->processed == false) {
 			print_node(os, node, count, sum);
-			node->processed = true;
 			if (node->right) {
 				stack = push(stack, node);
 				node = node->right;
 			} else {
-				for (list = pop(&stack); list; list = pop(&stack)) {
+				for (list = pop(&stack); list;
+						list = pop(&stack)) {
 					node = list->data;
 					if (node->processed == false)
 						break;
@@ -296,16 +307,6 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 	}
 
 	list_delete_all(stack);
-}
-
-static void print_tree_postorder(FILE *os, struct node *const root, int *count,
-		int *sum)
-{
-	if (root == NULL)
-		return;
-	print_tree_postorder(os, root->left, count, sum);
-	print_tree_postorder(os, root->right, count, sum);
-	print_node(os, root, count, sum);
 }
 
 struct printer {
