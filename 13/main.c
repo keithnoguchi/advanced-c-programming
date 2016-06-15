@@ -280,6 +280,8 @@ static struct node *delete_tree(struct node *root)
 
 static void print_node(FILE *os, struct node *const node, int *count, int *sum)
 {
+	if (node->processed)
+		return;
 	xprintf(os, "%d, ", node->value);
 	node->processed = true;
 	if (sum)
