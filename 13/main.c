@@ -217,7 +217,7 @@ static struct node *insert(struct node *root, struct node *node)
 	return root;
 }
 
-struct node *delete(struct node *node)
+static struct node *delete_node(struct node *node)
 {
 	struct node *delete = node;
 
@@ -244,9 +244,28 @@ struct node *delete(struct node *node)
 	else
 		node = NULL;
 
+	delete->left = delete->right = NULL;
+	delete->processed = false;
 	free_node(delete);
 
 	return node;
+}
+
+static bool delete(struct node *head, const int value)
+{
+	struct node **node = &head;
+
+	while (*node) {
+		if (value < (*node)->value)
+			node = &(*node)->left;
+		else if (value > (*node)->value)
+			node = &(*node)->right;
+		else {
+			*node = delete_node(*node);
+			return true;
+		}
+	}
+	return false;
 }
 
 static struct node *read_data(FILE *is, FILE *os)
@@ -434,8 +453,18 @@ static void handle_delete(FILE *is, FILE *os, struct node *tree)
 	xprintf(os, "\nTree node deletion\n");
 	xprintf(os, "------------------\n\n");
 
+	xprintf(os, "Here is the current tree\n\n");
+	print_tree_inorder_iterative(os, tree, NULL, NULL);
+	xprintf(os, "\n\n");
+	reset_tree();
+
 	for (prompt(os); input(os, &value) != EOF; prompt(os)) {
-		xprintf(os, "\nHere is the current tree\n\n");
+		if (delete(tree, value) == false) {
+			xprintf(os, "There is no '%d' in the tree\n\n", value);
+			continue;
+		}
+		xprintf(os, "Deleted '%d' from the tree\n\n", value);
+		xprintf(os, "Here is the current tree after the deletion\n\n");
 		print_tree_inorder_iterative(os, tree, NULL, NULL);
 		xprintf(os, "\n\n");
 		reset_tree();
