@@ -251,9 +251,9 @@ static struct node *delete_node(struct node *node)
 	return node;
 }
 
-static bool delete(struct node *head, const int value)
+static bool delete(struct node **head, const int value)
 {
-	struct node **node = &head;
+	struct node **node = head;
 
 	while (*node) {
 		if (value < (*node)->value)
@@ -473,7 +473,7 @@ static int input(FILE *os, int *value)
 		return ret;
 }
 
-static void handle_delete(FILE *is, FILE *os, struct node *tree)
+static void handle_delete(FILE *is, FILE *os, struct node **tree)
 {
 	int value;
 
@@ -481,7 +481,7 @@ static void handle_delete(FILE *is, FILE *os, struct node *tree)
 	xprintf(os, "------------------\n\n");
 
 	xprintf(os, "Here is the current tree\n\n");
-	print_tree_inorder_iterative(os, tree, NULL, NULL);
+	print_tree_inorder_iterative(os, *tree, NULL, NULL);
 	xprintf(os, "\n\n");
 	reset_tree();
 
@@ -492,7 +492,7 @@ static void handle_delete(FILE *is, FILE *os, struct node *tree)
 		}
 		xprintf(os, "Deleted '%d' from the tree\n\n", value);
 		xprintf(os, "Here is the current tree after the deletion\n\n");
-		print_tree_inorder_iterative(os, tree, NULL, NULL);
+		print_tree_inorder_iterative(os, *tree, NULL, NULL);
 		xprintf(os, "\n\n");
 		reset_tree();
 	}
@@ -527,7 +527,7 @@ int main()
 	print_tree(is, os, root);
 
 	/* Handling node deletion. */
-	handle_delete(is, os, root);
+	handle_delete(is, os, &root);
 
 err:
 	delete_tree(root);
