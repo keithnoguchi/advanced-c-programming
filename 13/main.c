@@ -374,6 +374,29 @@ static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 	list_delete_all(stack);
 }
 
+static void print_tree_postorder_iterative(FILE *os, struct node *const root,
+		int *count, int *sum)
+{
+	struct node *node = (struct node *) root;
+	struct list *stack = NULL;
+
+	while (node) {
+		if (node->left && node->left->processed == false) {
+			stack = push(stack, node);
+			node = node->left;
+		} else if (node->right && node->right->processed == false) {
+			stack = push(stack, node);
+			node = node->right;
+		} else {
+			print_node(os, node, count, sum);
+			while ((node = pop(&stack)))
+				if (node->processed == false)
+					break;
+		}
+	}
+	list_delete_all(stack);
+}
+
 struct printer {
 	const char *name;
 	void (*print_recursive)(FILE *os, struct node *const root, int *count,
@@ -394,7 +417,7 @@ struct printer {
 	{
 		.name = "Postorder",
 		.print_recursive = print_tree_postorder,
-		.print_iterative = NULL
+		.print_iterative = print_tree_postorder_iterative
 	},
 	{
 		.name = NULL
