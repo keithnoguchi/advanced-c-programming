@@ -222,17 +222,20 @@ struct node *delete(struct node *node)
 	struct node *delete = node;
 
 	if (node->left && node->right) {
-		struct node *sub = node->left->right;
+		/* Make inorder successer as the current
+		 * node. */
+		struct node *sub = node->right->left;
 		struct node **tmp;
 
-		node->left->right = node->right;
-		node = node->left;
+		node->right->left = node->left;
+		node = node->right;
 
 		/* Look for the left most node of the right child. */
-		for (tmp = &node->right; *tmp; tmp = &(*tmp)->left)
+		for (tmp = &node->left; *tmp; tmp = &(*tmp)->right)
 			;
 
-		/* Store the sub tree to the found position. */
+		/* Store the sub tree to the right most new
+		 * lsft subtree. */
 		*tmp = sub;
 	} else if (node->left)
 		node = node->left;
@@ -281,8 +284,10 @@ static void print_node(FILE *os, struct node *const node, int *count, int *sum)
 {
 	xprintf(os, "%d, ", node->value);
 	node->processed = true;
-	*sum += node->value;
-	++*count;
+	if (sum)
+		*sum += node->value;
+	if (count)
+		++*count;
 }
 
 static void print_tree_preorder(FILE *os, struct node *const root, int *count,
@@ -377,7 +382,7 @@ static void print_tree(FILE *is, FILE *os, struct node *const tree)
 	xprintf(os, "\nTree traversal\n");
 	xprintf(os, "--------------\n");
 
-	for (i = count = sum = 0; printer[i].name != NULL; i++, count = sum = 0) {
+	for (i = count = sum = 0; printer[i].name; i++, count = sum = 0) {
 		if (printer[i].print_recursive) {
 			xprintf(os,
 				"\n%d.1) %s recursive traversal\n\n",
@@ -403,9 +408,38 @@ static void print_tree(FILE *is, FILE *os, struct node *const tree)
 	xprintf(os, "\n");
 }
 
+static void prompt(FILE *os)
+{
+	xprintf(os, "Which number do you want to delete, or -1 to exit? ");
+}
+
+static int input(FILE *os, int *value)
+{
+	char lf;
+	int ret;
+
+	*value = -1;
+	ret = scanf("%d%c", value, &lf);
+	xprintf(os, "%d\n", *value);
+	if (ret != 2 || *value == -1)
+		return EOF;
+	else
+		return ret;
+}
+
 static void handle_delete(FILE *is, FILE *os, struct node *tree)
 {
-	;
+	int value;
+
+	xprintf(os, "\nTree node deletion\n");
+	xprintf(os, "------------------\n\n");
+
+	for (prompt(os); input(os, &value) != EOF; prompt(os)) {
+		xprintf(os, "\nHere is the current tree\n\n");
+		print_tree_inorder_iterative(os, tree, NULL, NULL);
+		xprintf(os, "\n\n");
+		reset_tree();
+	}
 }
 
 int main()
@@ -430,8 +464,8 @@ int main()
 	/* Create a tree based on the input file. */
 	root = read_data(is, os);
 
-	xprintf(os, "Binary tree traversal and removal\n");
-	xprintf(os, "=================================\n");
+	xprintf(os, "Binary tree traversal and deletion\n");
+	xprintf(os, "==================================\n");
 
 	/* Process tree printing. */
 	print_tree(is, os, root);
