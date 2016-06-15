@@ -268,27 +268,6 @@ static bool delete(struct node *head, const int value)
 	return false;
 }
 
-static struct node *read_data(FILE *is, FILE *os)
-{
-	struct node *root = NULL;
-	struct node *node;
-	int count = 0;
-	int data;
-
-	printf("\nRead data in the following order\n\n");
-
-	while (fscanf(is, "%d,", &data) != EOF) {
-		printf("%d, ", data);
-		++count;
-		node = new_node(data);
-		if (node != NULL)
-			root = insert(root, node);
-	}
-	printf("\n\nTotal number of data is %d\n", count);
-
-	return root;
-}
-
 static struct node *delete_tree(struct node *root)
 {
 	if (root == NULL)
@@ -339,6 +318,33 @@ static void print_tree_postorder(FILE *os, struct node *const root, int *count,
 	print_node(os, root, count, sum);
 }
 
+static void print_tree_preorder_iterative(FILE *os, struct node *const root,
+		int *count, int *sum)
+{
+	struct node *node = (struct node *) root;
+	struct list *stack = NULL;
+
+	while (node) {
+		if (node->processed == false) {
+			print_node(os, node, count, sum);
+			if (node->left) {
+				stack = push(stack, node);
+				node = node->left;
+			} else if (node->right) {
+				stack = push(stack, node);
+				node = node->right;
+			}
+		} else
+			while ((node = pop(&stack)))
+				if (node->right) {
+					node = node->right;
+					break;
+				}
+	}
+
+	list_delete_all(stack);
+}
+
 static void print_tree_inorder_iterative(FILE *os, struct node *const root,
 		int *count, int *sum)
 {
@@ -376,7 +382,7 @@ struct printer {
 	{
 		.name = "Preorder",
 		.print_recursive = print_tree_preorder,
-		.print_iterative = NULL
+		.print_iterative = print_tree_preorder_iterative
 	},
 	{
 		.name = "Inorder",
@@ -425,6 +431,27 @@ static void print_tree(FILE *is, FILE *os, struct node *const tree)
 		}
 	}
 	xprintf(os, "\n");
+}
+
+static struct node *read_data(FILE *is, FILE *os)
+{
+	struct node *root = NULL;
+	struct node *node;
+	int count = 0;
+	int data;
+
+	printf("\nRead data in the following order\n\n");
+
+	while (fscanf(is, "%d,", &data) != EOF) {
+		printf("%d, ", data);
+		++count;
+		node = new_node(data);
+		if (node != NULL)
+			root = insert(root, node);
+	}
+	printf("\n\nTotal number of data is %d\n", count);
+
+	return root;
 }
 
 static void prompt(FILE *os)
@@ -499,7 +526,7 @@ int main()
 	/* Process tree printing. */
 	print_tree(is, os, root);
 
-	/* Process node deletion. */
+	/* Handling node deletion. */
 	handle_delete(is, os, root);
 
 err:
