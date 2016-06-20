@@ -49,7 +49,7 @@ struct bnode {
 	struct bnode *child[CHILDNUM];
 };
 
-static struct bnode *create_node(struct bnode *parent, const int pindex)
+static struct bnode *new_node(struct bnode *parent, const int pindex)
 {
 	struct bnode *node;
 	int i;
@@ -66,7 +66,7 @@ static struct bnode *create_node(struct bnode *parent, const int pindex)
 	return node;
 }
 
-static void delete_node(struct bnode *node)
+static void free_node(struct bnode *node)
 {
 	int i;
 
@@ -79,29 +79,77 @@ static void delete_node(struct bnode *node)
 	free(node);
 }
 
+static struct bnode *add_key(struct bnode *node, const int key)
+{
+	int i, position, total_keys;
+
+	assert(key != invalid_key);
+
+	if (node == NULL)
+		node = new_node(NULL, invalid_index);
+	assert(node != NULL);
+
+	total_keys = 0;
+	position = 0;
+	for (i = 0; i < KEYNUM; i++)
+		if (node->keys[i] != invalid_index) {
+			if (key < node->keys[i])
+				position = i;
+			total_keys++;
+		}
+	if (total_keys < KEYNUM)
+		node->keys[position] = key;
+	else
+		; /* not yet implemented */
+
+	return node;
+}
+
 static struct bnode *build_tree(FILE *is, FILE *os)
 {
-	struct bnode *tree;
+	struct bnode *tree = NULL;
 	int value;
 	char comma;
 
 	while (fscanf(is, "%d%c", &value, &comma) != EOF)
-		if (comma == ',')
-			fprintf(os, "%d, ", value);
-		else {
-			fprintf(os, "%d\n", value);
-			break;
-		}
+		tree = add_key(tree, 1);
 
-	return create_node(NULL, invalid_index);
+	return tree;
+}
+
+/* inorder traversal. */
+static void print_tree(FILE *os, const struct bnode *const tree)
+{
+	if (tree != NULL) {
+		int i;
+
+		print_tree(os, tree->child[0]);
+		for (i = 0; i < KEYNUM; i++) {
+			fprintf(os, "%d, ", tree->keys[i]);
+			print_tree(os, tree->child[i + 1]);
+		}
+	}
 }
 
 static void delete_tree(struct bnode *tree)
 {
-	delete_node(tree);
+	int i;
+
+	/* Base case. */
+	if (tree != NULL) {
+		for (i = 0; i < CHILDNUM; i++) {
+			delete_tree(tree->child[i]);
+			tree->child[i] = NULL;
+		}
+		for (i = 0; i < KEYNUM; i++)
+			tree->keys[i] = invalid_key;
+		tree->pindex = invalid_index;
+		tree->parent = NULL;
+		free_node(tree);
+	}
 }
 
-void main()
+int main()
 {
 	const char *input = "input.txt", *output = "output.txt";
 	FILE *is = NULL, *os = NULL;
@@ -129,6 +177,9 @@ void main()
 		ret = EXIT_FAILURE;
 		goto err;
 	}
+
+	/* Print the tree with inorder traversal. */
+	print_tree(os, tree);
 
 err:
 	if (tree != NULL)
