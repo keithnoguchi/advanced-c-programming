@@ -33,6 +33,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static void echo(FILE *is, FILE *os)
+{
+	int value;
+	char comma;
+
+	while (fscanf(is, "%d%c", &value, &comma) != EOF)
+		if (comma == ',')
+			fprintf(os, "%d, ", value);
+		else {
+			fprintf(os, "%d\n", value);
+			break;
+		}
+}
+
 void main()
 {
 	const char *input = "input.txt", *output = "output.txt";
@@ -53,7 +67,7 @@ void main()
 		goto err;
 	}
 
-	printf("Hello world\n");
+	echo(is, os);
 
 err:
 	if (os != NULL)
