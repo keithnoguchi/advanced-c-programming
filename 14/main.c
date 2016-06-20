@@ -32,9 +32,56 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <assert.h>
 
-static void echo(FILE *is, FILE *os)
+#define KEYNUM   1
+#define CHILDNUM (KEYNUM + 1)
+
+static const int invalid_index = -1;
+static const int invalid_key = -999;
+
+/* B-tree node. */
+struct bnode {
+	int pindex; /* parent index. */
+	int keys[KEYNUM];
+	struct bnode *parent;
+	struct bnode *child[CHILDNUM];
+};
+
+static struct bnode *create_node(struct bnode *parent, const int pindex)
 {
+	struct bnode *node;
+	int i;
+
+	node = malloc(sizeof(struct bnode));
+	assert(node != NULL);
+	for (i = 0; i < KEYNUM; i++)
+		node->keys[i] = invalid_key;
+	node->pindex = pindex;
+	node->parent = parent;
+	for (i = 0; i < CHILDNUM; i++)
+		node->child[i] = NULL;
+
+	return node;
+}
+
+static void delete_node(struct bnode *node)
+{
+	int i;
+
+	assert(node->pindex == invalid_index);
+	assert(node->parent == NULL);
+	for (i = 0; i < KEYNUM; i++)
+		assert(node->keys[i] == invalid_key);
+	for (i = 0; i < CHILDNUM; i++)
+		assert(node->child[i] == NULL);
+	free(node);
+}
+
+static struct bnode *build_tree(FILE *is, FILE *os)
+{
+	struct bnode *tree;
 	int value;
 	char comma;
 
@@ -45,6 +92,13 @@ static void echo(FILE *is, FILE *os)
 			fprintf(os, "%d\n", value);
 			break;
 		}
+
+	return create_node(NULL, invalid_index);
+}
+
+static void delete_tree(struct bnode *tree)
+{
+	delete_node(tree);
 }
 
 void main()
@@ -52,6 +106,7 @@ void main()
 	const char *input = "input.txt", *output = "output.txt";
 	FILE *is = NULL, *os = NULL;
 	int ret = EXIT_SUCCESS;
+	struct bnode *tree;
 
 	is = fopen(input, "r");
 	if (is == NULL) {
@@ -67,9 +122,17 @@ void main()
 		goto err;
 	}
 
-	echo(is, os);
+	/* First build tree. */
+	tree = build_tree(is, os);
+	if (tree == NULL) {
+		fprintf(stderr, "can't build tree\n");
+		ret = EXIT_FAILURE;
+		goto err;
+	}
 
 err:
+	if (tree != NULL)
+		delete_tree(tree);
 	if (os != NULL)
 		fclose(os);
 	if (is != NULL)
