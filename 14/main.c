@@ -39,12 +39,14 @@
 #define KEYNUM   4
 #define CHILDNUM (KEYNUM + 1)
 
-static const int invalid_index = -1;
+typedef char bnode_index_t;
+static const bnode_index_t invalid_index = -1;
 static const int invalid_key = -999;
 
 /* B-tree node. */
 struct bnode {
-	int pindex; /* parent index. */
+	bnode_index_t pindex; /* parent index. */
+	bnode_index_t last;   /* last valid index. */
 	int keys[KEYNUM];
 	struct bnode *parent;
 	struct bnode *child[CHILDNUM];
@@ -63,6 +65,7 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 		vfprintf(os, fmt, ap);
 	}
 	va_end(ap);
+	fflush(stdout);
 
 	return ret;
 }
@@ -76,7 +79,7 @@ static struct bnode *new_node(void)
 	assert(node != NULL);
 	for (i = 0; i < KEYNUM; i++)
 		node->keys[i] = invalid_key;
-	node->pindex = invalid_index;
+	node->pindex = node->last = invalid_index;
 	node->parent = NULL;
 	for (i = 0; i < CHILDNUM; i++)
 		node->child[i] = NULL;
@@ -89,6 +92,7 @@ static void free_node(struct bnode *node)
 	int i;
 
 	assert(node->pindex == invalid_index);
+	assert(node->last == invalid_index);
 	assert(node->parent == NULL);
 	for (i = 0; i < KEYNUM; i++)
 		assert(node->keys[i] == invalid_key);
@@ -99,84 +103,84 @@ static void free_node(struct bnode *node)
 
 static bool is_node_full(const struct bnode *const node)
 {
-	return node->keys[KEYNUM - 1] != invalid_key;
+	return node->last == KEYNUM - 1;
 }
 
-static int find_position(const struct bnode *const node, const int key)
+static bool is_node_empty(const struct bnode *const node)
+{
+	return node->last == invalid_key;
+}
+
+static struct bnode *find_node(struct bnode *node, const int key,
+		bnode_index_t *position)
 {
 	int low, mid, high;
 
-	/* There is no key in the node. */
-	if (node->keys[0] == invalid_key)
-		return 0;
+	/* There is no valid key in this node. */
+	if (is_node_empty(node)) {
+		*position = 0;
+		return node;
+	}
 
-	low = 0, high = KEYNUM - 1;
+	low = 0, high = node->last;
 	while (low < high) {
 		mid = (low + high) / 2;
-		if (node->keys[mid] == invalid_key
-				|| key < node->keys[mid])
+		if (key < node->keys[mid])
 			high = mid;
 		else if (key > node->keys[mid])
-			low = low == mid ? mid + 1 : mid;
+			low = mid == low ? mid + 1 : mid;
 		else
-			/* No duplicate key support. */
+			/* Duplicate key is not support. */
 			assert(node->keys[mid] != invalid_key);
 	}
-	return low;
-}
-
-static struct bnode *find_node(struct bnode *node, const int key)
-{
+	*position = low;
 	return node;
 }
 
 static struct bnode *split_node(struct bnode *node, const int key,
-		const int position)
+		const bnode_index_t position)
 {
 	return node; /* TBD */
 }
 
-static void insert_key(struct bnode *node, const int key, const int position)
+static void insert_key(struct bnode *node, const int key,
+		const bnode_index_t position)
 {
+	int pos = position;
 	int i;
 
-	for (i = KEYNUM - 1; i > position; i--) {
-		if (node->keys[i - 1] == invalid_key)
-			continue;
-		node->keys[i] = node->keys[i - 1];
+	for (i = node->last; i >= pos; i--) {
+		node->keys[i + 1] = node->keys[i];
 		node->child[i + 1] = node->child[i];
 	}
-	node->keys[position] = key;
-	node->child[position + 1] = node->child[position];
+	if (pos != node->last + 1)
+		node->child[pos + 1] = node->child[pos];
+	node->child[pos] = NULL;
+	node->keys[pos] = key;
+	node->last++;
 }
 
 static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 		bool *is_split)
 {
 	struct bnode *node = root;
-	int position;
+	bnode_index_t position;
 
 	assert(key != invalid_key);
 
 	if (node == NULL) {
 		node = new_node();
-		node->keys[0] = key;
+		insert_key(node, key, position);
 		return node;
 	}
 
-	node = find_node(node, key);
-	position = find_position(node, key);
-
+	node = find_node(node, key, &position);
 	if (is_node_full(node)) {
 		*is_split = true;
-		return split_node(node, key, position);
-	} else {
-		if (node->keys[position] == invalid_key)
-			node->keys[position] = key;
-		else
-			insert_key(node, key, position);
-		return node;
-	}
+		split_node(node, key, position);
+	} else
+		insert_key(node, key, position);
+	return root;
 }
 
 /* inorder traversal. */
@@ -224,17 +228,18 @@ static void delete_tree(struct bnode *tree)
 	int i;
 
 	/* Base case. */
-	if (tree != NULL) {
-		for (i = 0; i < CHILDNUM; i++) {
-			delete_tree(tree->child[i]);
-			tree->child[i] = NULL;
-		}
-		for (i = 0; i < KEYNUM; i++)
-			tree->keys[i] = invalid_key;
-		tree->pindex = invalid_index;
-		tree->parent = NULL;
-		free_node(tree);
+	if (tree == NULL)
+		return;
+
+	for (i = 0; i < CHILDNUM; i++) {
+		delete_tree(tree->child[i]);
+		tree->child[i] = NULL;
 	}
+	for (i = 0; i < KEYNUM; i++)
+		tree->keys[i] = invalid_key;
+	tree->pindex = tree->last = invalid_index;
+	tree->parent = NULL;
+	free_node(tree);
 }
 
 int main()
