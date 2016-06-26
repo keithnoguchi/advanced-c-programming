@@ -36,7 +36,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define KEYNUM   10
+#define KEYNUM   5
 #define CHILDNUM (KEYNUM + 1)
 
 typedef char bnode_index_t;
@@ -227,6 +227,7 @@ static struct bnode *split_node(struct bnode *node)
 
 	for (i = mid + 1, j = 0; i <= left->last; i++, j++) {
 		right->keys[j] = left->keys[i];
+		right->child[j] = left->child[j];
 		right->last++;
 	}
 
