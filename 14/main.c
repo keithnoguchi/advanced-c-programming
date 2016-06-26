@@ -116,25 +116,35 @@ static struct bnode *find_node(struct bnode *node, const int key,
 {
 	int low, mid, high;
 
-	/* There is no valid key in this node. */
-	if (is_node_empty(node)) {
-		*position = 0;
-		return node;
-	}
+	while (1) {
+		low = 0, high = node->last;
+		while (low + 1 < high) {
+			mid = (low + high) / 2;
+			if (key < node->keys[mid])
+				high = mid;
+			else if (key > node->keys[mid])
+				low = mid;
+			else
+				/* Duplicate key is not support. */
+				assert(node->keys[mid] != invalid_key);
+		}
 
-	low = 0, high = node->last;
-	while (low < high) {
-		mid = (low + high) / 2;
-		if (key < node->keys[mid])
-			high = mid;
-		else if (key > node->keys[mid])
-			low = mid == low ? mid + 1 : mid;
-		else
+		if (is_node_empty(node) || key < node->keys[low]) {
+			*position = 0;
+			return node;
+		} else if (key > node->keys[high]) {
+			*position = high + 1;
+			return node;
+		} else if (key == node->keys[low] || key == node->keys[high]) {
 			/* Duplicate key is not support. */
 			assert(node->keys[mid] != invalid_key);
+		} else if (node->child[high] != NULL) {
+			node = node->child[high];
+		} else {
+			*position = high;
+			return node;
+		}
 	}
-	*position = low;
-	return node;
 }
 
 static struct bnode *split_node(struct bnode *node, const int key,
@@ -170,7 +180,7 @@ static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 
 	if (node == NULL) {
 		node = new_node();
-		insert_key(node, key, position);
+		insert_key(node, key, 0);
 		return node;
 	}
 
