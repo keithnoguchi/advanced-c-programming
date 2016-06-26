@@ -1,83 +1,36 @@
-Add 572
-Add 430
-Add 315
-Add 363
-Add 320
-Tree after split:315, 363, 430, 572, 
 
-Add 545
-Tree after split:315, 363, 430, 572, 
+Building B-tree
+===============
 
-Add 451
-Tree after split:315, 363, 430, 572, 
-
-Add 437
-Tree after split:315, 363, 430, 572, 
-
-Add 476
-Tree after split:315, 363, 430, 572, 
-
-Add 472
-Tree after split:315, 363, 430, 572, 
-
-Add 493
-Tree after split:315, 363, 430, 572, 
-
-Add 395
-Tree after split:315, 363, 430, 572, 
-
-Add 462
-Tree after split:315, 363, 430, 572, 
-
-Add 521
-Tree after split:315, 363, 430, 572, 
-
-Add 406
-Tree after split:315, 363, 430, 572, 
-
-Add 412
-Tree after split:315, 363, 430, 572, 
-
-Add 510
-Tree after split:315, 363, 430, 572, 
-
-Add 560
-Tree after split:315, 363, 430, 572, 
-
-Add 425
-Tree after split:315, 363, 430, 572, 
-
-Add 595
-Tree after split:315, 363, 430, 572, 
-
-Add 580
-Tree after split:315, 363, 430, 572, 
-
-Add 583
-Tree after split:315, 363, 430, 572, 
-
-Add 531
-Tree after split:315, 363, 430, 572, 
-
-Add 511
-Tree after split:315, 363, 430, 572, 
-
-Add 459
-Tree after split:315, 363, 430, 572, 
-
-Add 518
-Tree after split:315, 363, 430, 572, 
-
-Add 356
-Tree after split:315, 363, 430, 572, 
-
-Add 379
-Tree after split:315, 363, 430, 572, 
-
-Add 488
-Tree after split:315, 363, 430, 572, 
-
-Add 532
-Tree after split:315, 363, 430, 572, 
+Add 572: 572, 
+Add 430: 430, 572, 
+Add 315: 315, 430, 572, 
+Add 363: 315, 363, 430, 572, 
+Add 320, triggered split: 315, 363, 430, 572, 
+Add 545, triggered split: 315, 363, 430, 572, 
+Add 451, triggered split: 315, 363, 430, 572, 
+Add 437, triggered split: 315, 363, 430, 572, 
+Add 476, triggered split: 315, 363, 430, 572, 
+Add 472, triggered split: 315, 363, 430, 572, 
+Add 493, triggered split: 315, 363, 430, 572, 
+Add 395, triggered split: 315, 363, 430, 572, 
+Add 462, triggered split: 315, 363, 430, 572, 
+Add 521, triggered split: 315, 363, 430, 572, 
+Add 406, triggered split: 315, 363, 430, 572, 
+Add 412, triggered split: 315, 363, 430, 572, 
+Add 510, triggered split: 315, 363, 430, 572, 
+Add 560, triggered split: 315, 363, 430, 572, 
+Add 425, triggered split: 315, 363, 430, 572, 
+Add 595, triggered split: 315, 363, 430, 572, 
+Add 580, triggered split: 315, 363, 430, 572, 
+Add 583, triggered split: 315, 363, 430, 572, 
+Add 531, triggered split: 315, 363, 430, 572, 
+Add 511, triggered split: 315, 363, 430, 572, 
+Add 459, triggered split: 315, 363, 430, 572, 
+Add 518, triggered split: 315, 363, 430, 572, 
+Add 356, triggered split: 315, 363, 430, 572, 
+Add 379, triggered split: 315, 363, 430, 572, 
+Add 488, triggered split: 315, 363, 430, 572, 
+Add 532, triggered split: 315, 363, 430, 572, 
 
 Final tree: 315, 363, 430, 572, 
