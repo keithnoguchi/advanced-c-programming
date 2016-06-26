@@ -97,6 +97,11 @@ static void free_node(struct bnode *node)
 	free(node);
 }
 
+static bool is_node_full(const struct bnode *const node)
+{
+	return node->keys[KEYNUM - 1] != invalid_key;
+}
+
 static int find_position(const struct bnode *const node, const int key)
 {
 	int low, mid, high;
@@ -120,9 +125,9 @@ static int find_position(const struct bnode *const node, const int key)
 	return low;
 }
 
-static bool is_node_full(const struct bnode *const node)
+static struct bnode *find_node(struct bnode *node, const int key)
 {
-	return node->keys[KEYNUM - 1] != invalid_key;
+	return node;
 }
 
 static struct bnode *split_node(struct bnode *node, const int key,
@@ -145,9 +150,10 @@ static void insert_key(struct bnode *node, const int key, const int position)
 	node->child[position + 1] = node->child[position];
 }
 
-static struct bnode *add_key(FILE *os, struct bnode *node, const int key,
+static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 		bool *is_split)
 {
+	struct bnode *node = root;
 	int position;
 
 	assert(key != invalid_key);
@@ -158,6 +164,7 @@ static struct bnode *add_key(FILE *os, struct bnode *node, const int key,
 		return node;
 	}
 
+	node = find_node(node, key);
 	position = find_position(node, key);
 
 	if (is_node_full(node)) {
