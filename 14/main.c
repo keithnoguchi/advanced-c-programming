@@ -111,6 +111,11 @@ static bool is_node_empty(const struct bnode *const node)
 	return node->last == invalid_key;
 }
 
+static bool is_node_root(const struct bnode *const node)
+{
+	return node->parent == NULL;
+}
+
 static struct bnode *find_node(struct bnode *node, const int key,
 		bnode_index_t *position)
 {
@@ -150,7 +155,25 @@ static struct bnode *find_node(struct bnode *node, const int key,
 static struct bnode *split_node(struct bnode *node, const int key,
 		const bnode_index_t position)
 {
-	return node; /* TBD */
+	struct bnode *parent, *right, *left = node;
+	int mid = (node->last + 1) / 2;
+	int i, j;
+
+	if (node->parent == NULL) {
+		parent = new_node();
+		right = new_node();
+		parent->child[0] = left;
+		parent->child[1] = right;
+		parent->keys[0] = left->keys[mid];
+		parent->last++;
+
+		for (i = mid + 1, j = 0; i <= node->last; i++, j++)
+			right->keys[j] = left->keys[i];
+
+		left->last = mid - 1;
+		right->last = j - 1;
+	}
+	return parent;
 }
 
 static void insert_key(struct bnode *node, const int key,
@@ -186,10 +209,15 @@ static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 
 	node = find_node(node, key, &position);
 	if (is_node_full(node)) {
+		bool is_root = is_node_root(node);
+
 		*is_split = true;
-		split_node(node, key, position);
+		node = split_node(node, key, position);
+		if (is_root)
+			root = node;
 	} else
 		insert_key(node, key, position);
+
 	return root;
 }
 
@@ -202,13 +230,10 @@ static void print_tree(FILE *os, const struct bnode *const tree)
 		return;
 
 	print_tree(os, tree->child[0]);
-	for (i = 0; i < KEYNUM; i++) {
-		if (tree->keys[i] == invalid_key)
-			break;
+	for (i = 0; i <= tree->last; i++) {
 		xprintf(os, "%d, ", tree->keys[i]);
 		print_tree(os, tree->child[i + 1]);
 	}
-	xprintf(os, "\n");
 }
 
 static struct bnode *build_tree(FILE *is, FILE *os)
@@ -227,6 +252,7 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 		else
 			xprintf(os, ": ");
 		print_tree(os, tree);
+		xprintf(os, "\n");
 		is_split = false;
 	}
 
@@ -287,6 +313,7 @@ int main()
 	/* Print the tree with inorder traversal. */
 	xprintf(os, "\nFinal tree: ");
 	print_tree(os, tree);
+	xprintf(os, "\n");
 
 err:
 	if (tree != NULL)
