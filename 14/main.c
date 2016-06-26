@@ -111,7 +111,7 @@ static bool is_node_empty(const struct bnode *const node)
 	return node->last == invalid_key;
 }
 
-static bool is_node_root(const struct bnode *const node)
+static bool is_root_node(const struct bnode *const node)
 {
 	return node->parent == NULL;
 }
@@ -152,30 +152,6 @@ static struct bnode *find_node(struct bnode *node, const int key,
 	}
 }
 
-static struct bnode *split_node(struct bnode *node, const int key,
-		const bnode_index_t position)
-{
-	struct bnode *parent, *right, *left = node;
-	int mid = (node->last + 1) / 2;
-	int i, j;
-
-	if (node->parent == NULL) {
-		parent = new_node();
-		right = new_node();
-		parent->child[0] = left;
-		parent->child[1] = right;
-		parent->keys[0] = left->keys[mid];
-		parent->last++;
-
-		for (i = mid + 1, j = 0; i <= node->last; i++, j++)
-			right->keys[j] = left->keys[i];
-
-		left->last = mid - 1;
-		right->last = j - 1;
-	}
-	return parent;
-}
-
 static void insert_key(struct bnode *node, const int key,
 		const bnode_index_t position)
 {
@@ -191,6 +167,31 @@ static void insert_key(struct bnode *node, const int key,
 	node->child[pos] = NULL;
 	node->keys[pos] = key;
 	node->last++;
+}
+
+static struct bnode *split_node(struct bnode *node, const int key,
+		const bnode_index_t position)
+{
+	struct bnode *parent, *right, *left = node;
+	int mid = node->last / 2;
+	int i, j;
+
+	if (node->parent == NULL) {
+		parent = new_node();
+		right = new_node();
+		insert_key(parent, node->keys[mid], 0);
+		parent->child[0] = left;
+		parent->child[1] = right;
+		left->pindex = 0;
+		right->pindex = 1;
+		left->parent = right->parent = parent;
+
+		for (i = mid + 1, j = 0; i <= node->last; i++, j++)
+			insert_key(right, left->keys[i], j);
+
+		left->last = mid - 1;
+	}
+	return parent;
 }
 
 static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
@@ -209,7 +210,7 @@ static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 
 	node = find_node(node, key, &position);
 	if (is_node_full(node)) {
-		bool is_root = is_node_root(node);
+		bool is_root = is_root_node(node);
 
 		*is_split = true;
 		node = split_node(node, key, position);
@@ -229,11 +230,13 @@ static void print_tree(FILE *os, const struct bnode *const tree)
 	if (tree == NULL)
 		return;
 
+	xprintf(os, "[");
 	print_tree(os, tree->child[0]);
 	for (i = 0; i <= tree->last; i++) {
 		xprintf(os, "%d, ", tree->keys[i]);
 		print_tree(os, tree->child[i + 1]);
 	}
+	xprintf(os, "], ");
 }
 
 static struct bnode *build_tree(FILE *is, FILE *os)
