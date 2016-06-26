@@ -116,13 +116,13 @@ static bool is_root_node(const struct bnode *const node)
 	return node->parent == NULL;
 }
 
-static struct bnode *find_node(struct bnode *node, const int key,
+static struct bnode *find_position(struct bnode *node, const int key,
 		bnode_index_t *position)
 {
 	int low, mid, high;
 
 	while (1) {
-		low = 0, high = node->last;
+		low = mid = 0, high = node->last;
 		while (low + 1 < high) {
 			mid = (low + high) / 2;
 			if (key < node->keys[mid])
@@ -130,24 +130,37 @@ static struct bnode *find_node(struct bnode *node, const int key,
 			else if (key > node->keys[mid])
 				low = mid;
 			else
-				/* Duplicate key is not support. */
+				/* Duplicate key is not supported. */
 				assert(node->keys[mid] != invalid_key);
 		}
 
-		if (is_node_empty(node) || key < node->keys[low]) {
+		if (is_node_empty(node)) {
 			*position = 0;
 			return node;
-		} else if (key > node->keys[high]) {
-			*position = high + 1;
-			return node;
-		} else if (key == node->keys[low] || key == node->keys[high]) {
-			/* Duplicate key is not support. */
-			assert(node->keys[mid] != invalid_key);
-		} else if (node->child[high] != NULL) {
-			node = node->child[high];
+		} else if (key < node->keys[mid]) {
+			if (node->child[mid] != NULL)
+				node = node->child[mid];
+			else {
+				*position = mid;
+				return node;
+			}
+		} else if (key > node->keys[mid]) {
+			if (node->child[mid + 1] != NULL)
+				node = node->child[mid + 1];
+			else {
+				*position = mid + 1;
+				return node;
+			}
 		} else {
-			*position = high;
-			return node;
+			if (key == node->keys[mid])
+				/* Duplicate key is not supported. */
+				assert(node->keys[mid] != invalid_key);
+			if (node->child[low + 1] != NULL)
+				node = node->child[low + 1];
+			else {
+				*position = low + 1;
+				return node;
+			}
 		}
 	}
 }
@@ -162,9 +175,10 @@ static void insert_key(struct bnode *node, const int key,
 		node->keys[i + 1] = node->keys[i];
 		node->child[i + 1] = node->child[i];
 	}
-	if (pos != node->last + 1)
+	if (pos != node->last + 1) {
 		node->child[pos + 1] = node->child[pos];
-	node->child[pos] = NULL;
+		node->child[pos] = NULL;
+	}
 	node->keys[pos] = key;
 	node->last++;
 }
@@ -208,7 +222,7 @@ static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 		return node;
 	}
 
-	node = find_node(node, key, &position);
+	node = find_position(node, key, &position);
 	if (is_node_full(node)) {
 		bool is_root = is_root_node(node);
 
