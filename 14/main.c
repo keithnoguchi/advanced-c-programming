@@ -193,11 +193,12 @@ static void print_tree(FILE *os, const struct bnode *const tree)
 static struct bnode *build_tree(FILE *is, FILE *os)
 {
 	struct bnode *tree = NULL;
-	bool is_split = false;
+	bool is_split;
 	char comma;
 	int value;
 
-	for ( ; fscanf(is, "%d%c", &value, &comma) != EOF; is_split = false) {
+	is_split = false;
+	while (fscanf(is, "%d%c", &value, &comma) != EOF) {
 		xprintf(os, "Add %d", value);
 		tree = add_key(os, tree, value, &is_split);
 		if (is_split)
@@ -205,6 +206,7 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 		else
 			xprintf(os, ": ");
 		print_tree(os, tree);
+		is_split = false;
 	}
 
 	return tree;
