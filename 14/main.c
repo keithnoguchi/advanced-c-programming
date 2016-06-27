@@ -36,7 +36,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define CHILDNUM  7
+#define CHILDNUM  6
 #define KEYNUM    (CHILDNUM - 1)
 
 typedef char bnode_index_t;
@@ -74,9 +74,9 @@ static void print_node(FILE *os, const struct bnode *const node)
 {
 	int i;
 
-	if (node->parent != NULL)
-		fprintf(os, "node->parent: %p\n", node->parent);
 	fprintf(os, "node->pindex: %d\n", node->pindex);
+	fprintf(os, "node->parent: %p\n", node->parent);
+	fprintf(os, "node->last: %d\n", node->last);
 	for (i = 0; i <= node->last; i++)
 		fprintf(os, "node->keys[%d]: %d\n", i, node->keys[i]);
 }
@@ -142,11 +142,6 @@ static bool is_node_full(const struct bnode *const node)
 static bool is_node_empty(const struct bnode *const node)
 {
 	return node->last == invalid_key;
-}
-
-static bool is_root_node(const struct bnode *const node)
-{
-	return node->parent == NULL;
 }
 
 static bool is_leaf_node(const struct bnode *const node)
@@ -276,39 +271,51 @@ static void insert_key_and_update_children(struct bnode *node, const int key,
 	node->last++;
 }
 
-static struct bnode *split_node(struct bnode *node)
+static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
+		struct bnode **root)
 {
-	struct bnode *root, *parent, *right, *left = node;
+	struct bnode *parent, *right, *left = node;
 	int mid = left->last / 2;
-	int pindex;
+	int lindex;
 	int i, j;
 
 	print_node(stdout, node);
 
 	if ((parent = left->parent) == NULL) {
 		parent = new_node(NULL, invalid_index);
-		pindex = 0;
+		lindex = 0;
 		left->parent = parent;
-		left->pindex = pindex;
-		root = parent;
+		left->pindex = lindex;
+		*root = parent;
 	} else {
-		pindex = left->pindex;
 		if (is_node_full(parent))
-			root = split_node(parent);
+			parent = split_node(parent, node->pindex, root);
+		lindex = node->pindex;
 	}
 
-	insert_key_and_update_children(parent, left->keys[mid], pindex);
-	parent->child[pindex] = left;
+	print_node(stdout, parent);
 
-	right = new_node(parent, pindex + 1);
+	insert_key_and_update_children(parent, left->keys[mid], lindex);
+	parent->child[lindex] = left;
+
+	right = new_node(parent, lindex + 1);
 	for (i = mid + 1, j = 0; i <= left->last; i++, j++) {
 		insert_key(right, left->keys[i], j);
 		right->child[j] = left->child[i];
+		if (right->child[j]) {
+			right->child[j]->parent = right;
+			right->child[j]->pindex = j;
+		}
+	}
+	right->child[j] = left->child[i];
+	if (right->child[j]) {
+		right->child[j]->parent = right;
+		right->child[j]->pindex = j;
 	}
 
 	left->last = mid - 1;
 
-	return root;
+	return child_index <= mid ? left : right;
 }
 
 static bool add_key(FILE *os, struct bnode **root, const int key)
@@ -329,9 +336,7 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 		node = find_position(root, key, &position);
 		if (is_node_full(node)) {
 			is_split = true;
-			node = split_node(node);
-			if (is_root_node(node))
-				*root = node;
+			node = split_node(node, position, root);
 		} else {
 			insert_key(node, key, position);
 			break;
