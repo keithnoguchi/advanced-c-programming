@@ -36,8 +36,8 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define KEYNUM   5
-#define CHILDNUM (KEYNUM + 1)
+#define CHILDNUM  6
+#define KEYNUM    (CHILDNUM - 1)
 
 typedef char bnode_index_t;
 static const bnode_index_t invalid_index = -1;
