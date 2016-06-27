@@ -339,21 +339,25 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 	debug_node(stdout, parent);
 
 	insert_key_and_update_children(parent, node->keys[mid], pindex);
+	node->keys[mid] = invalid_key;
 	parent->child[pindex] = node;
 
 	sibling = new_node(parent, pindex + 1);
 	for (i = mid + 1, j = 0; i <= node->last; i++, j++) {
 		insert_key(sibling, node->keys[i], j);
+		node->keys[i] = invalid_key;
 		sibling->child[j] = node->child[i];
 		if (sibling->child[j]) {
 			sibling->child[j]->parent = sibling;
 			sibling->child[j]->pindex = j;
+			node->child[i] = NULL;
 		}
 	}
 	sibling->child[j] = node->child[i];
 	if (sibling->child[j]) {
 		sibling->child[j]->parent = sibling;
 		sibling->child[j]->pindex = j;
+		node->child[i] = NULL;
 	}
 
 	node->last = mid - 1;
@@ -427,7 +431,7 @@ static void delete_tree(struct bnode *tree)
 		delete_tree(tree->child[i]);
 		tree->child[i] = NULL;
 	}
-	for (i = 0; i < KEYNUM; i++)
+	for (i = 0; i <= tree->last; i++)
 		tree->keys[i] = invalid_key;
 	tree->pindex = tree->last = invalid_index;
 	tree->parent = NULL;
