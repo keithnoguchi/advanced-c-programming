@@ -290,61 +290,61 @@ static struct bnode *find_position(struct bnode **root, const int key,
 	}
 }
 
-static void insert_key_to_parent(struct bnode *child, const int key_index,
-		struct bnode *parent, const int pos)
+static void insert_key_to_parent(struct bnode *node, const int key_index,
+		struct bnode *parent, const int pindex)
 {
 	int i;
 
 	assert(!is_node_full(parent));
 
-	for (i = parent->last; i >= pos; i--) {
+	for (i = parent->last; i >= pindex; i--) {
 		parent->child[i + 2] = parent->child[i + 1];
 		if (parent->child[i + 2])
 			parent->child[i + 2]->pindex++;
 		parent->keys[i + 1] = parent->keys[i];
 	}
-	if (pos != parent->last + 1) {
-		parent->child[pos + 1] = parent->child[pos];
-		if (parent->child[pos + 1])
-			parent->child[pos + 1]->pindex++;
-		parent->child[pos] = NULL;
+	if (pindex != parent->last + 1) {
+		parent->child[pindex + 1] = parent->child[pindex];
+		if (parent->child[pindex + 1])
+			parent->child[pindex + 1]->pindex++;
+		parent->child[pindex] = NULL;
 	}
-	parent->keys[pos] = child->keys[key_index];
-	child->keys[key_index] = invalid_key;
-	parent->child[pos] = child;
+	parent->keys[pindex] = node->keys[key_index];
+	node->keys[key_index] = invalid_key;
+	parent->child[pindex] = node;
 	parent->last++;
 }
 
-static struct bnode *move_keys_to_sibling(struct bnode *child,
-		const int key_index, struct bnode *parent, const int pos)
+static struct bnode *move_keys_to_sibling(struct bnode *node,
+		const int key_index, struct bnode *parent, const int pindex)
 {
 	struct bnode *sibling;
 	int i, j;
 
-	sibling = new_node(parent, pos + 1);
-	for (i = key_index + 1, j = 0; i <= child->last; i++, j++) {
-		insert_key(sibling, child->keys[i], j);
-		child->keys[i] = invalid_key;
-		sibling->child[j] = child->child[i];
+	sibling = new_node(parent, pindex + 1);
+	for (i = key_index + 1, j = 0; i <= node->last; i++, j++) {
+		insert_key(sibling, node->keys[i], j);
+		node->keys[i] = invalid_key;
+		sibling->child[j] = node->child[i];
 		if (sibling->child[j]) {
 			sibling->child[j]->parent = sibling;
 			sibling->child[j]->pindex = j;
-			child->child[i] = NULL;
+			node->child[i] = NULL;
 		}
 	}
-	sibling->child[j] = child->child[i];
+	sibling->child[j] = node->child[i];
 	if (sibling->child[j]) {
 		sibling->child[j]->parent = sibling;
 		sibling->child[j]->pindex = j;
-		child->child[i] = NULL;
+		node->child[i] = NULL;
 	}
 
-	child->last = key_index - 1;
+	node->last = key_index - 1;
 
 	return sibling;
 }
 
-static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
+static struct bnode *split_node(struct bnode *node, const int key_index,
 		struct bnode **root)
 {
 	struct bnode *parent, *sibling;
@@ -368,7 +368,7 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 	insert_key_to_parent(node, mid, parent, pindex);
 	sibling = move_keys_to_sibling(node, mid, parent, pindex);
 
-	return child_index <= mid ? node : sibling;
+	return key_index <= mid ? node : sibling;
 }
 
 static bool add_key(FILE *os, struct bnode **root, const int key)
