@@ -276,6 +276,8 @@ static struct bnode *split_node(struct bnode *node)
 	if ((parent = left->parent) == NULL) {
 		parent = new_node(NULL, 0);
 		lindex = 0;
+		left->parent = parent;
+		left->pindex = lindex;
 	} else
 		lindex = left->pindex;
 	rindex = lindex + 1;
@@ -283,8 +285,6 @@ static struct bnode *split_node(struct bnode *node)
 	insert_key(parent, left->keys[mid], lindex);
 	right = new_node(parent, rindex);
 	parent->child[lindex] = left;
-	left->pindex = lindex;
-	left->parent = parent;
 
 	for (i = mid + 1, j = 0; i <= left->last; i++, j++)
 		insert_key(right, left->keys[i], j);
