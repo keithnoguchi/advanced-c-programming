@@ -290,28 +290,32 @@ static struct bnode *find_position(struct bnode **root, const int key,
 	}
 }
 
-static void insert_key_and_update_children(struct bnode *node, const int key,
-		const bnode_index_t position)
+static void insert_key_to_parent(struct bnode *parent,
+		const bnode_index_t position, struct bnode *child,
+		const bnode_index_t key_index)
 {
+	int cpos = key_index;
 	int pos = position;
 	int i;
 
-	assert(node->last + 1 < KEYNUM);
+	assert(!is_node_full(parent));
 
-	for (i = node->last; i >= pos; i--) {
-		node->child[i + 2] = node->child[i + 1];
-		if (node->child[i + 2])
-			node->child[i + 2]->pindex++;
-		node->keys[i + 1] = node->keys[i];
+	for (i = parent->last; i >= pos; i--) {
+		parent->child[i + 2] = parent->child[i + 1];
+		if (parent->child[i + 2])
+			parent->child[i + 2]->pindex++;
+		parent->keys[i + 1] = parent->keys[i];
 	}
-	if (pos != node->last + 1) {
-		node->child[pos + 1] = node->child[pos];
-		if (node->child[pos + 1])
-			node->child[pos + 1]->pindex++;
-		node->child[pos] = NULL;
+	if (pos != parent->last + 1) {
+		parent->child[pos + 1] = parent->child[pos];
+		if (parent->child[pos + 1])
+			parent->child[pos + 1]->pindex++;
+		parent->child[pos] = NULL;
 	}
-	node->keys[pos] = key;
-	node->last++;
+	parent->keys[pos] = child->keys[cpos];
+	child->keys[cpos] = invalid_key;
+	parent->child[pos] = child;
+	parent->last++;
 }
 
 static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
@@ -326,10 +330,8 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 
 	if ((parent = node->parent) == NULL) {
 		parent = new_node(NULL, invalid_index);
-		pindex = 0;
-		node->parent = parent;
-		node->pindex = pindex;
-		*root = parent;
+		*root = node->parent = parent;
+		pindex = node->pindex = 0;
 	} else {
 		if (is_node_full(parent))
 			parent = split_node(parent, node->pindex, root);
@@ -338,9 +340,7 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 
 	debug_node(stdout, parent);
 
-	insert_key_and_update_children(parent, node->keys[mid], pindex);
-	node->keys[mid] = invalid_key;
-	parent->child[pindex] = node;
+	insert_key_to_parent(parent, pindex, node, mid);
 
 	sibling = new_node(parent, pindex + 1);
 	for (i = mid + 1, j = 0; i <= node->last; i++, j++) {
