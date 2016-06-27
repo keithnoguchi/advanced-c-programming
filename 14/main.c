@@ -317,7 +317,7 @@ static void insert_key_and_update_children(struct bnode *node, const int key,
 static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 		struct bnode **root)
 {
-	struct bnode *parent, *right;
+	struct bnode *parent, *sibling;
 	int mid = node->last / 2;
 	int lindex;
 	int i, j;
@@ -341,24 +341,24 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 	insert_key_and_update_children(parent, node->keys[mid], lindex);
 	parent->child[lindex] = node;
 
-	right = new_node(parent, lindex + 1);
+	sibling = new_node(parent, lindex + 1);
 	for (i = mid + 1, j = 0; i <= node->last; i++, j++) {
-		insert_key(right, node->keys[i], j);
-		right->child[j] = node->child[i];
-		if (right->child[j]) {
-			right->child[j]->parent = right;
-			right->child[j]->pindex = j;
+		insert_key(sibling, node->keys[i], j);
+		sibling->child[j] = node->child[i];
+		if (sibling->child[j]) {
+			sibling->child[j]->parent = sibling;
+			sibling->child[j]->pindex = j;
 		}
 	}
-	right->child[j] = node->child[i];
-	if (right->child[j]) {
-		right->child[j]->parent = right;
-		right->child[j]->pindex = j;
+	sibling->child[j] = node->child[i];
+	if (sibling->child[j]) {
+		sibling->child[j]->parent = sibling;
+		sibling->child[j]->pindex = j;
 	}
 
 	node->last = mid - 1;
 
-	return child_index <= mid ? node : right;
+	return child_index <= mid ? node : sibling;
 }
 
 static bool add_key(FILE *os, struct bnode **root, const int key)
