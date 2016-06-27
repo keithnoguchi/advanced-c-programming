@@ -78,7 +78,7 @@ static bool is_node_full(const struct bnode *const node)
 
 static bool is_node_empty(const struct bnode *const node)
 {
-	return node == NULL ? true : node->last == invalid_key;
+	return node == NULL ? true : node->last == invalid_index;
 }
 
 static bool is_leaf_node(const struct bnode *const node)
@@ -360,8 +360,6 @@ static struct bnode *split_parent(struct bnode *node, const int key_index,
 	int mid = node->last / 2;
 	int pindex;
 
-	debug_node(stdout, node);
-
 	if ((parent = node->parent) == NULL) {
 		parent = new_node(NULL, invalid_index);
 		*root = node->parent = parent;
@@ -371,8 +369,6 @@ static struct bnode *split_parent(struct bnode *node, const int key_index,
 			parent = split_parent(parent, node->pindex, root);
 		pindex = node->pindex;
 	}
-
-	debug_node(stdout, parent);
 
 	insert_key_to_parent(node, mid, parent, pindex);
 	sibling = move_keys_to_sibling(node, mid, parent, pindex);
@@ -444,7 +440,7 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 		is_split = add_key(os, &tree, value);
 		if (is_split) {
 			xprintf(os, " triggers split ");
-			xprintf(os, "and make the tree as below:\n\n");
+			xprintf(os, "and makes a tree as below:\n\n");
 			print_tree(os, tree);
 			xprintf(os, "\n%d) ", ++i);
 		} else {
