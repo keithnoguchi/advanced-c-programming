@@ -319,29 +319,29 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 {
 	struct bnode *parent, *sibling;
 	int mid = node->last / 2;
-	int lindex;
+	int pindex;
 	int i, j;
 
 	debug_node(stdout, node);
 
 	if ((parent = node->parent) == NULL) {
 		parent = new_node(NULL, invalid_index);
-		lindex = 0;
+		pindex = 0;
 		node->parent = parent;
-		node->pindex = lindex;
+		node->pindex = pindex;
 		*root = parent;
 	} else {
 		if (is_node_full(parent))
 			parent = split_node(parent, node->pindex, root);
-		lindex = node->pindex;
+		pindex = node->pindex;
 	}
 
 	debug_node(stdout, parent);
 
-	insert_key_and_update_children(parent, node->keys[mid], lindex);
-	parent->child[lindex] = node;
+	insert_key_and_update_children(parent, node->keys[mid], pindex);
+	parent->child[pindex] = node;
 
-	sibling = new_node(parent, lindex + 1);
+	sibling = new_node(parent, pindex + 1);
 	for (i = mid + 1, j = 0; i <= node->last; i++, j++) {
 		insert_key(sibling, node->keys[i], j);
 		sibling->child[j] = node->child[i];
