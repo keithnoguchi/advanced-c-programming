@@ -348,7 +348,7 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 			xprintf(stdout, "\n");
 		}
 	}
-	xprintf(os, "\n\n");
+	xprintf(os, "\n");
 
 	return tree;
 }
