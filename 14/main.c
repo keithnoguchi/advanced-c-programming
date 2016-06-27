@@ -427,12 +427,12 @@ static void delete_tree(struct bnode *tree)
 	if (tree == NULL)
 		return;
 
-	for (i = 0; i < CHILDNUM; i++) {
+	for (i = 0; i <= tree->last + 1; i++) {
+		if (i <= tree->last)
+			tree->keys[i] = invalid_key;
 		delete_tree(tree->child[i]);
 		tree->child[i] = NULL;
 	}
-	for (i = 0; i <= tree->last; i++)
-		tree->keys[i] = invalid_key;
 	tree->pindex = tree->last = invalid_index;
 	tree->parent = NULL;
 	free_node(tree);
