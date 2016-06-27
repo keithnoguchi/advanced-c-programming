@@ -42,6 +42,7 @@
 typedef char bnode_index_t;
 static const bnode_index_t invalid_index = -1;
 static const int invalid_key = -999;
+static const bool debug = false;
 
 /* B-tree node. */
 struct bnode {
@@ -70,9 +71,33 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-static void print_node(FILE *os, const struct bnode *const node)
+static bool is_node_full(const struct bnode *const node)
+{
+	return node->last == KEYNUM - 1;
+}
+
+static bool is_node_empty(const struct bnode *const node)
+{
+	return node == NULL ? true : node->last == invalid_key;
+}
+
+static bool is_leaf_node(const struct bnode *const node)
 {
 	int i;
+
+	for (i = 0; i < CHILDNUM; i++)
+		if (node->child[i] != NULL)
+			return false;
+
+	return true;
+}
+
+static void debug_node(FILE *os, const struct bnode *const node)
+{
+	int i;
+
+	if (debug == false)
+		return;
 
 	fprintf(os, "node->pindex: %d\n", node->pindex);
 	fprintf(os, "node->parent: %p\n", node->parent);
@@ -81,30 +106,60 @@ static void print_node(FILE *os, const struct bnode *const node)
 		fprintf(os, "node->keys[%d]: %d\n", i, node->keys[i]);
 }
 
+static void print_subtree(FILE *os, const struct bnode *const tree)
+{
+	int i;
+
+	if (!is_node_empty(tree->child[0])) {
+		xprintf(os, "{");
+		print_subtree(os, tree->child[0]);
+		xprintf(os, "}, ");
+	}
+	for (i = 0; i < tree->last; i++) {
+		xprintf(os, "%d, ", tree->keys[i]);
+		if (!is_node_empty(tree->child[i + 1])) {
+			xprintf(os, "{");
+			print_subtree(os, tree->child[i + 1]);
+			xprintf(os, "}, ");
+		}
+	}
+	xprintf(os, "%d", tree->keys[i]);
+	if (!is_node_empty(tree->child[i + 1])) {
+		xprintf(os, ", {");
+		print_subtree(os, tree->child[i + 1]);
+		xprintf(os, "}");
+	}
+}
+
 /* inorder traversal. */
 static void print_tree(FILE *os, const struct bnode *const tree)
 {
 	int i;
 
-	if (tree == NULL)
+	if (is_node_empty(tree))
 		return;
 
 	xprintf(os, "{");
-	print_tree(os, tree->child[0]);
-	if (tree->last < -1) {
-		xprintf(os, "} ");
-	} else {
-		for (i = 0; i < tree->last; i++) {
-			xprintf(os, "%d, ", tree->keys[i]);
-			print_tree(os, tree->child[i + 1]);
-		}
-		xprintf(os, "%d", tree->keys[i]);
-		if (tree->child[i + 1]) {
-			xprintf(os, ", ");
-			print_tree(os, tree->child[i + 1]);
-		}
+	if (!is_node_empty(tree->child[0])) {
+		xprintf(os, "{");
+		print_subtree(os, tree->child[0]);
 		xprintf(os, "}, ");
 	}
+	for (i = 0; i < tree->last; i++) {
+		xprintf(os, "%d, ", tree->keys[i]);
+		if (!is_node_empty(tree->child[i + 1])) {
+			xprintf(os, "{");
+			print_subtree(os, tree->child[i + 1]);
+			xprintf(os, "}, ");
+		}
+	}
+	xprintf(os, "%d", tree->keys[i]);
+	if (!is_node_empty(tree->child[i + 1])) {
+		xprintf(os, ", {");
+		print_subtree(os, tree->child[i + 1]);
+		xprintf(os, "}");
+	}
+	xprintf(os, "}\n");
 }
 
 static struct bnode *new_node(struct bnode *parent, bnode_index_t pindex)
@@ -124,7 +179,7 @@ static struct bnode *new_node(struct bnode *parent, bnode_index_t pindex)
 		parent->child[pos] = node;
 	for (i = 0; i < CHILDNUM; i++)
 		node->child[i] = NULL;
-	print_node(stdout, node);
+	debug_node(stdout, node);
 
 	return node;
 }
@@ -141,27 +196,6 @@ static void free_node(struct bnode *node)
 	for (i = 0; i < CHILDNUM; i++)
 		assert(node->child[i] == NULL);
 	free(node);
-}
-
-static bool is_node_full(const struct bnode *const node)
-{
-	return node->last == KEYNUM - 1;
-}
-
-static bool is_node_empty(const struct bnode *const node)
-{
-	return node->last == invalid_key;
-}
-
-static bool is_leaf_node(const struct bnode *const node)
-{
-	int i;
-
-	for (i = 0; i < CHILDNUM; i++)
-		if (node->child[i] != NULL)
-			return false;
-
-	return true;
 }
 
 static void insert_key(struct bnode *node, const int key,
@@ -288,7 +322,7 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 	int lindex;
 	int i, j;
 
-	print_node(stdout, node);
+	debug_node(stdout, node);
 
 	if ((parent = left->parent) == NULL) {
 		parent = new_node(NULL, invalid_index);
@@ -302,7 +336,7 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 		lindex = node->pindex;
 	}
 
-	print_node(stdout, parent);
+	debug_node(stdout, parent);
 
 	insert_key_and_update_children(parent, left->keys[mid], lindex);
 	parent->child[lindex] = left;
@@ -360,22 +394,23 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 	bool is_split;
 	char comma;
 	int value;
+	int i = 0;
 
+	xprintf(os, "%d) ", ++i);
 	while (fscanf(is, "%d%c", &value, &comma) != EOF) {
 		xprintf(os, "%d", value);
 		is_split = add_key(os, &tree, value);
 		if (is_split) {
 			xprintf(os, " triggers split ");
-			xprintf(os, "and made B-tree as in:\n\n");
+			xprintf(os, "and make the tree as below:\n\n");
 			print_tree(os, tree);
-			xprintf(os, "\n\n");
+			xprintf(os, "\n%d) ", ++i);
 		} else {
 			xprintf(os, ", ");
-			print_tree(stdout, tree);
-			xprintf(stdout, "\n");
+			if (debug)
+				print_tree(stdout, tree);
 		}
 	}
-	xprintf(os, "\n");
 
 	return tree;
 }
@@ -432,9 +467,8 @@ int main()
 	}
 
 	/* Print the tree with inorder traversal. */
-	xprintf(os, "Final B-tree:\n\n");
+	xprintf(os, "Final B-tree\n\n");
 	print_tree(os, tree);
-	xprintf(os, "\n");
 
 err:
 	if (tree != NULL)
