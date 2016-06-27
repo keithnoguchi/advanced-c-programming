@@ -318,29 +318,14 @@ static void insert_key_to_parent(struct bnode *parent,
 	parent->last++;
 }
 
-static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
-		struct bnode **root)
+static struct bnode *move_keys_to_sibling(struct bnode *parent,
+		const bnode_index_t position, struct bnode *node,
+		const bnode_index_t key_index)
 {
-	struct bnode *parent, *sibling;
-	int mid = node->last / 2;
-	int pindex;
+	struct bnode *sibling;
+	int pindex = position;
+	int mid = key_index;
 	int i, j;
-
-	debug_node(stdout, node);
-
-	if ((parent = node->parent) == NULL) {
-		parent = new_node(NULL, invalid_index);
-		*root = node->parent = parent;
-		pindex = node->pindex = 0;
-	} else {
-		if (is_node_full(parent))
-			parent = split_node(parent, node->pindex, root);
-		pindex = node->pindex;
-	}
-
-	debug_node(stdout, parent);
-
-	insert_key_to_parent(parent, pindex, node, mid);
 
 	sibling = new_node(parent, pindex + 1);
 	for (i = mid + 1, j = 0; i <= node->last; i++, j++) {
@@ -361,6 +346,33 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 	}
 
 	node->last = mid - 1;
+
+	return sibling;
+}
+
+static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
+		struct bnode **root)
+{
+	struct bnode *parent, *sibling;
+	int mid = node->last / 2;
+	int pindex;
+
+	debug_node(stdout, node);
+
+	if ((parent = node->parent) == NULL) {
+		parent = new_node(NULL, invalid_index);
+		*root = node->parent = parent;
+		pindex = node->pindex = 0;
+	} else {
+		if (is_node_full(parent))
+			parent = split_node(parent, node->pindex, root);
+		pindex = node->pindex;
+	}
+
+	debug_node(stdout, parent);
+
+	insert_key_to_parent(parent, pindex, node, mid);
+	sibling = move_keys_to_sibling(parent, pindex, node, mid);
 
 	return child_index <= mid ? node : sibling;
 }
