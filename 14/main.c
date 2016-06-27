@@ -36,7 +36,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define KEYNUM   5
+#define KEYNUM   8
 #define CHILDNUM (KEYNUM + 1)
 
 typedef char bnode_index_t;
@@ -154,11 +154,18 @@ static struct bnode *find_position(struct bnode *node, const int key,
 		if (is_node_empty(node)) {
 			*position = 0;
 			return node;
-		} else if (key < node->keys[mid]) {
-			if (node->child[mid] != NULL)
-				node = node->child[mid];
+		} else if (key < node->keys[low]) {
+			if (node->child[low] != NULL)
+				node = node->child[low];
 			else {
-				*position = mid;
+				*position = low;
+				return node;
+			}
+		} else if (key > node->keys[high]) {
+			if (node->child[high + 1] != NULL)
+				node = node->child[high + 1];
+			else {
+				*position = high + 1;
 				return node;
 			}
 		} else if (key > node->keys[mid]) {
