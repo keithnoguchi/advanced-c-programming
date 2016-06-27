@@ -347,10 +347,9 @@ static void insert_key_to_parent(struct bnode *node, const int key_index,
 static struct bnode *move_keys_to_sibling(struct bnode *node,
 		const int key_index, struct bnode *parent, const int pindex)
 {
-	struct bnode *sibling;
+	struct bnode *sibling = new_node(parent, pindex + 1);
 	int i, j;
 
-	sibling = new_node(parent, pindex + 1);
 	for (i = key_index + 1, j = 0; i <= node->end; i++, j++)
 		move_key(sibling, j, node, i);
 
