@@ -290,12 +290,9 @@ static struct bnode *find_position(struct bnode **root, const int key,
 	}
 }
 
-static void insert_key_to_parent(struct bnode *parent,
-		const bnode_index_t position, struct bnode *child,
-		const bnode_index_t key_index)
+static void insert_key_to_parent(struct bnode *parent, const int pos,
+		struct bnode *child, const int key_index)
 {
-	int cpos = key_index;
-	int pos = position;
 	int i;
 
 	assert(!is_node_full(parent));
@@ -312,40 +309,37 @@ static void insert_key_to_parent(struct bnode *parent,
 			parent->child[pos + 1]->pindex++;
 		parent->child[pos] = NULL;
 	}
-	parent->keys[pos] = child->keys[cpos];
-	child->keys[cpos] = invalid_key;
+	parent->keys[pos] = child->keys[key_index];
+	child->keys[key_index] = invalid_key;
 	parent->child[pos] = child;
 	parent->last++;
 }
 
-static struct bnode *move_keys_to_sibling(struct bnode *parent,
-		const bnode_index_t position, struct bnode *node,
-		const bnode_index_t key_index)
+static struct bnode *move_keys_to_sibling(struct bnode *parent, const int pos,
+		struct bnode *child, const int key_index)
 {
 	struct bnode *sibling;
-	int pindex = position;
-	int mid = key_index;
 	int i, j;
 
-	sibling = new_node(parent, pindex + 1);
-	for (i = mid + 1, j = 0; i <= node->last; i++, j++) {
-		insert_key(sibling, node->keys[i], j);
-		node->keys[i] = invalid_key;
-		sibling->child[j] = node->child[i];
+	sibling = new_node(parent, pos + 1);
+	for (i = key_index + 1, j = 0; i <= child->last; i++, j++) {
+		insert_key(sibling, child->keys[i], j);
+		child->keys[i] = invalid_key;
+		sibling->child[j] = child->child[i];
 		if (sibling->child[j]) {
 			sibling->child[j]->parent = sibling;
 			sibling->child[j]->pindex = j;
-			node->child[i] = NULL;
+			child->child[i] = NULL;
 		}
 	}
-	sibling->child[j] = node->child[i];
+	sibling->child[j] = child->child[i];
 	if (sibling->child[j]) {
 		sibling->child[j]->parent = sibling;
 		sibling->child[j]->pindex = j;
-		node->child[i] = NULL;
+		child->child[i] = NULL;
 	}
 
-	node->last = mid - 1;
+	child->last = key_index - 1;
 
 	return sibling;
 }
