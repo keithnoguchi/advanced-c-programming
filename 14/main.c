@@ -36,7 +36,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define CHILDNUM  9
+#define CHILDNUM  8
 #define KEYNUM    (CHILDNUM - 1)
 
 typedef char bnode_index_t;
@@ -70,7 +70,35 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-static struct bnode *new_node(void)
+static void print_node(FILE *os, const struct bnode *const node)
+{
+	int i;
+
+	if (node->parent != NULL)
+		fprintf(os, "node->parent: %p\n", node->parent);
+	fprintf(os, "node->pindex: %d\n", node->pindex);
+	for (i = 0; i <= node->last; i++)
+		fprintf(os, "node->keys[%d]: %d\n", i, node->keys[i]);
+}
+
+/* inorder traversal. */
+static void print_tree(FILE *os, const struct bnode *const tree)
+{
+	int i;
+
+	if (tree == NULL)
+		return;
+
+	xprintf(os, "[");
+	print_tree(os, tree->child[0]);
+	for (i = 0; i <= tree->last; i++) {
+		xprintf(os, "%d, ", tree->keys[i]);
+		print_tree(os, tree->child[i + 1]);
+	}
+	xprintf(os, "], ");
+}
+
+static struct bnode *new_node(struct bnode *parent, bnode_index_t pindex)
 {
 	struct bnode *node;
 	int i;
@@ -80,9 +108,11 @@ static struct bnode *new_node(void)
 	for (i = 0; i < KEYNUM; i++)
 		node->keys[i] = invalid_key;
 	node->pindex = node->last = invalid_index;
-	node->parent = NULL;
+	node->pindex = pindex;
+	node->parent = parent;
 	for (i = 0; i < CHILDNUM; i++)
 		node->child[i] = NULL;
+	print_node(stdout, node);
 
 	return node;
 }
@@ -127,23 +157,6 @@ static bool is_leaf_node(const struct bnode *const node)
 	return true;
 }
 
-/* inorder traversal. */
-static void print_tree(FILE *os, const struct bnode *const tree)
-{
-	int i;
-
-	if (tree == NULL)
-		return;
-
-	xprintf(os, "[");
-	print_tree(os, tree->child[0]);
-	for (i = 0; i <= tree->last; i++) {
-		xprintf(os, "%d, ", tree->keys[i]);
-		print_tree(os, tree->child[i + 1]);
-	}
-	xprintf(os, "], ");
-}
-
 static struct bnode *find_position(struct bnode **root, const int key,
 		bnode_index_t *position)
 {
@@ -174,7 +187,8 @@ static struct bnode *find_position(struct bnode **root, const int key,
 					*position = low;
 				else {
 					*position = 0;
-					node = node->child[low] = new_node();
+					node = node->child[low]
+						= new_node(node, low);
 				}
 				return node;
 			}
@@ -187,7 +201,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 				else {
 					*position = 0;
 					node = node->child[high + 1]
-						= new_node();
+						= new_node(node, high + 1);
 				}
 				return node;
 			}
@@ -201,7 +215,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 					else {
 						*position = 0;
 						node = node->child[mid + 1]
-							= new_node();
+							= new_node(node, mid + 1);
 					}
 					return node;
 				}
@@ -214,7 +228,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 					else {
 						*position = 0;
 						node = node->child[mid]
-							= new_node();
+							= new_node(node, mid);
 					}
 					return node;
 				}
@@ -237,10 +251,14 @@ static void insert_key(struct bnode *node, const int key,
 
 	for (i = node->last; i >= pos; i--) {
 		node->child[i + 2] = node->child[i + 1];
+		if (node->child[i + 2])
+			node->child[i + 2]->pindex++;
 		node->keys[i + 1] = node->keys[i];
 	}
 	if (pos != node->last + 1) {
 		node->child[pos + 1] = node->child[pos];
+		if (node->child[pos + 1])
+			node->child[pos + 1]->pindex++;
 		node->child[pos] = NULL;
 	}
 	node->keys[pos] = key;
@@ -254,14 +272,16 @@ static struct bnode *split_node(struct bnode *node)
 	int lindex, rindex;
 	int i, j;
 
+	print_node(stdout, node);
+
 	if ((parent = left->parent) == NULL) {
-		parent = new_node();
+		parent = new_node(NULL, 0);
 		lindex = 0;
 	} else
 		lindex = left->pindex;
 	rindex = lindex + 1;
 
-	right = new_node();
+	right = new_node(parent, rindex);
 	insert_key(parent, left->keys[mid], lindex);
 	parent->child[lindex] = left;
 	parent->child[rindex] = right;
@@ -286,7 +306,7 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 	assert(key != invalid_key);
 
 	if (*root == NULL) {
-		*root = new_node();
+		*root = new_node(NULL, 0);
 		insert_key(*root, key, 0);
 		return is_split;
 	}
