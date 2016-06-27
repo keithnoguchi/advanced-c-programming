@@ -191,34 +191,37 @@ static struct bnode *find_position(struct bnode **root, const int key,
 				}
 				return node;
 			}
-		} else if (key > node->keys[mid]) {
-			if (node->child[mid + 1] != NULL)
-				node = node->child[mid + 1];
-			else {
-				if (is_leaf_node(node))
-					*position = mid + 1;
-				else {
-					*position = 0;
-					node = node->child[mid + 1]
-						= new_node();
-				}
-				return node;
-			}
 		} else {
-			if (key == node->keys[mid])
-				/* Duplicate key is not supported. */
-				assert(node->keys[mid] != invalid_key);
-			if (node->child[low + 1] != NULL)
-				node = node->child[low + 1];
-			else {
-				if (is_leaf_node(node))
-					*position = low + 1;
+			if (key > node->keys[mid]) {
+				if (node->child[mid + 1] != NULL)
+					node = node->child[mid + 1];
 				else {
-					*position = 0;
-					node = node->child[low + 1]
-						= new_node();
+					if (is_leaf_node(node))
+						*position = mid + 1;
+					else {
+						*position = 0;
+						node = node->child[mid + 1]
+							= new_node();
+					}
+					return node;
 				}
-				return node;
+			} else if (key < node->keys[mid]) {
+				if (node->child[mid] != NULL)
+					node = node->child[mid];
+				else {
+					if (is_leaf_node(node))
+						*position = mid;
+					else {
+						*position = 0;
+						node = node->child[mid]
+							= new_node();
+					}
+					return node;
+				}
+			} else {
+				if (key == node->keys[mid])
+					/* Duplicate key is not supported. */
+					assert(node->keys[mid] != invalid_key);
 			}
 		}
 	}
