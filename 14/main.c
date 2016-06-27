@@ -124,13 +124,13 @@ static void print_tree(FILE *os, const struct bnode *const tree)
 	if (tree == NULL)
 		return;
 
-	xprintf(stdout, "[");
+	xprintf(os, "[");
 	print_tree(os, tree->child[0]);
 	for (i = 0; i <= tree->last; i++) {
 		xprintf(os, "%d, ", tree->keys[i]);
 		print_tree(os, tree->child[i + 1]);
 	}
-	xprintf(stdout, "], ");
+	xprintf(os, "], ");
 }
 
 static struct bnode *find_position(struct bnode *node, const int key,
@@ -258,11 +258,11 @@ static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 	while (1) {
 		node = find_position(root, key, &position);
 		if (is_node_full(node)) {
-			bool is_root = is_root_node(node);
+			bool was_root = is_root_node(node);
 
 			*is_split = true;
 			node = split_node(node);
-			if (is_root)
+			if (was_root)
 				root = node;
 		} else {
 			insert_key(node, key, position);
@@ -281,16 +281,20 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 
 	is_split = false;
 	while (fscanf(is, "%d%c", &value, &comma) != EOF) {
-		xprintf(os, "Add %d", value);
+		xprintf(os, "%d", value);
 		tree = add_key(os, tree, value, &is_split);
-		if (is_split)
-			xprintf(os, ", triggered split: ");
-		else
-			xprintf(os, ": ");
-		print_tree(os, tree);
-		xprintf(os, "\n");
+		if (is_split) {
+			xprintf(os, " triggers split, as shown in:\n\n");
+			print_tree(os, tree);
+			xprintf(os, "\n\n");
+		} else {
+			xprintf(os, ", ");
+			print_tree(stdout, tree);
+			xprintf(stdout, "\n");
+		}
 		is_split = false;
 	}
+	xprintf(os, "\n\n");
 
 	return tree;
 }
@@ -338,7 +342,7 @@ int main()
 	xprintf(os, "\nBuilding B-tree\n");
 	xprintf(os, "===============\n\n");
 
-	/* First build tree. */
+	/* Let's build tree. */
 	tree = build_tree(is, os);
 	if (tree == NULL) {
 		fprintf(stderr, "can't build tree\n");
@@ -347,7 +351,7 @@ int main()
 	}
 
 	/* Print the tree with inorder traversal. */
-	xprintf(os, "\nFinal tree: ");
+	xprintf(os, "Final tree:\n\n");
 	print_tree(os, tree);
 	xprintf(os, "\n");
 
