@@ -197,6 +197,7 @@ static void insert_key(struct bnode *node, const int key,
 
 	assert(node->last + 1 < KEYNUM);
 
+	node->child[node->last + 2] = node->child[node->last + 1];
 	for (i = node->last; i >= pos; i--) {
 		node->keys[i + 1] = node->keys[i];
 		node->child[i + 1] = node->child[i];
