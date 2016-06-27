@@ -233,11 +233,8 @@ static struct bnode *split_node(struct bnode *node)
 	right->pindex = rindex;
 	left->parent = right->parent = parent;
 
-	for (i = mid + 1, j = 0; i <= left->last; i++, j++) {
-		right->keys[j] = left->keys[i];
-		right->child[j] = left->child[j];
-		right->last++;
-	}
+	for (i = mid + 1, j = 0; i <= left->last; i++, j++)
+		insert_key(right, left->keys[i], j);
 
 	left->last = mid - 1;
 
