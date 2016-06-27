@@ -213,9 +213,8 @@ static void insert_key(struct bnode *node, const int key,
 static int find_node_position(struct bnode *node, const int key,
 		int *low, int *high)
 {
-	int mid;
+	int mid = *low;
 
-	*low = mid = 0, *high = node->last;
 	while (*low + 1 < *high) {
 		mid = (*low + *high) / 2;
 		if (key < node->keys[mid])
@@ -236,6 +235,7 @@ static struct bnode *find_node(struct bnode **root, const int key,
 	int low, mid, high;
 
 	while (1) {
+		low = 0, high = node->last;
 		mid = find_node_position(node, key, &low, &high);
 
 		if (is_node_empty(node)) {
@@ -380,13 +380,12 @@ static struct bnode *split_parent(struct bnode *node, const int key_index,
 	return key_index <= mid ? node : sibling;
 }
 
-static void split_node(struct bnode *node, struct bnode **root)
+static void split_node(struct bnode *node, const int key, struct bnode **root)
 {
 	struct bnode *parent;
 	int mid = node->last / 2;
+	bnode_index_t position;
 	int pindex;
-
-	debug_node(stdout, node);
 
 	if ((parent = node->parent) == NULL) {
 		parent = new_node(NULL, invalid_index);
@@ -398,10 +397,12 @@ static void split_node(struct bnode *node, struct bnode **root)
 		pindex = node->pindex;
 	}
 
-	debug_node(stdout, parent);
-
 	insert_key_to_parent(node, mid, parent, pindex);
 	move_keys_to_sibling(node, mid, parent, pindex);
+
+	node = find_node(root, key, &position);
+	if (!is_node_full(node))
+		insert_key(node, key, position);
 }
 
 static bool add_key(FILE *os, struct bnode **root, const int key)
@@ -418,15 +419,12 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 		return is_split;
 	}
 
-	while (1) {
-		node = find_node(root, key, &position);
-		if (is_node_full(node)) {
-			is_split = true;
-			split_node(node, root);
-		} else {
-			insert_key(node, key, position);
-			break;
-		}
+	node = find_node(root, key, &position);
+	if (is_node_full(node)) {
+		is_split = true;
+		split_node(node, key, root);
+	} else {
+		insert_key(node, key, position);
 	}
 	return is_split;
 }
