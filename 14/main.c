@@ -380,11 +380,11 @@ static struct bnode *split_parent(struct bnode *node, const int key_index,
 	return key_index <= mid ? node : sibling;
 }
 
-static void split_node(struct bnode *node, const int key, struct bnode **root)
+static struct bnode *split_leaf_node(struct bnode *node, const int key,
+		bnode_index_t *position, struct bnode **root)
 {
-	struct bnode *parent;
+	struct bnode *parent, *sibling;
 	int mid = node->last / 2;
-	bnode_index_t position;
 	int pindex;
 
 	if ((parent = node->parent) == NULL) {
@@ -398,11 +398,12 @@ static void split_node(struct bnode *node, const int key, struct bnode **root)
 	}
 
 	insert_key_to_parent(node, mid, parent, pindex);
-	move_keys_to_sibling(node, mid, parent, pindex);
+	sibling = move_keys_to_sibling(node, mid, parent, pindex);
 
-	node = find_leaf_node(*root, key, &position);
-	if (!is_node_full(node))
-		insert_key(node, key, position);
+	if (*position <= mid)
+		return find_leaf_node(node, key, position);
+	else
+		return find_leaf_node(sibling, key, position);
 }
 
 static bool add_key(FILE *os, struct bnode **root, const int key)
@@ -421,11 +422,11 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 
 	node = find_leaf_node(*root, key, &position);
 	if (is_node_full(node)) {
+		node = split_leaf_node(node, key, &position, root);
 		is_split = true;
-		split_node(node, key, root);
-	} else {
-		insert_key(node, key, position);
 	}
+	insert_key(node, key, position);
+
 	return is_split;
 }
 
