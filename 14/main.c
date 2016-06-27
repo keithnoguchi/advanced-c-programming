@@ -240,6 +240,18 @@ static struct bnode *find_position(struct bnode **root, const int key,
 	}
 }
 
+static void insert_key_to_leaf(struct bnode *node, const int key,
+		const bnode_index_t position)
+{
+	int pos = position;
+	int i;
+
+	for (i = node->last; i >= pos; i--)
+		node->keys[i + 1] = node->keys[i];
+	node->keys[pos] = key;
+	node->last++;
+}
+
 static void insert_key(struct bnode *node, const int key,
 		const bnode_index_t position)
 {
@@ -304,7 +316,7 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 
 	if (*root == NULL) {
 		*root = new_node(NULL, 0);
-		insert_key(*root, key, 0);
+		insert_key_to_leaf(*root, key, 0);
 		return is_split;
 	}
 
@@ -318,7 +330,7 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 			if (was_root)
 				*root = node;
 		} else {
-			insert_key(node, key, position);
+			insert_key_to_leaf(node, key, position);
 			break;
 		}
 	}
