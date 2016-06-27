@@ -101,6 +101,7 @@ static void print_tree(FILE *os, const struct bnode *const tree)
 static struct bnode *new_node(struct bnode *parent, bnode_index_t pindex)
 {
 	struct bnode *node;
+	int pos = pindex;
 	int i;
 
 	node = malloc(sizeof(struct bnode));
@@ -110,6 +111,8 @@ static struct bnode *new_node(struct bnode *parent, bnode_index_t pindex)
 	node->pindex = node->last = invalid_index;
 	node->pindex = pindex;
 	node->parent = parent;
+	if (parent)
+		parent->child[pos] = node;
 	for (i = 0; i < CHILDNUM; i++)
 		node->child[i] = NULL;
 	print_node(stdout, node);
@@ -187,8 +190,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 					*position = low;
 				else {
 					*position = 0;
-					node = node->child[low]
-						= new_node(node, low);
+					node = new_node(node, low);
 				}
 				return node;
 			}
@@ -200,8 +202,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 					*position = high + 1;
 				else {
 					*position = 0;
-					node = node->child[high + 1]
-						= new_node(node, high + 1);
+					node = new_node(node, high + 1);
 				}
 				return node;
 			}
@@ -214,8 +215,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 						*position = mid + 1;
 					else {
 						*position = 0;
-						node = node->child[mid + 1]
-							= new_node(node, mid + 1);
+						node = new_node(node, mid + 1);
 					}
 					return node;
 				}
@@ -227,8 +227,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 						*position = mid;
 					else {
 						*position = 0;
-						node = node->child[mid]
-							= new_node(node, mid);
+						node = new_node(node, mid);
 					}
 					return node;
 				}
@@ -281,13 +280,11 @@ static struct bnode *split_node(struct bnode *node)
 		lindex = left->pindex;
 	rindex = lindex + 1;
 
-	right = new_node(parent, rindex);
 	insert_key(parent, left->keys[mid], lindex);
+	right = new_node(parent, rindex);
 	parent->child[lindex] = left;
-	parent->child[rindex] = right;
 	left->pindex = lindex;
-	right->pindex = rindex;
-	left->parent = right->parent = parent;
+	left->parent = parent;
 
 	for (i = mid + 1, j = 0; i <= left->last; i++, j++)
 		insert_key(right, left->keys[i], j);
