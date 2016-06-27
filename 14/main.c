@@ -280,26 +280,27 @@ static struct bnode *split_node(struct bnode *node)
 {
 	struct bnode *parent, *right, *left = node;
 	int mid = left->last / 2;
-	int lindex, rindex;
+	int pindex;
 	int i, j;
 
 	print_node(stdout, node);
 
 	if ((parent = left->parent) == NULL) {
 		parent = new_node(NULL, 0);
-		lindex = 0;
+		pindex = 0;
 		left->parent = parent;
-		left->pindex = lindex;
+		left->pindex = pindex;
 	} else
-		lindex = left->pindex;
-	rindex = lindex + 1;
+		pindex = left->pindex;
 
-	insert_key_and_update_children(parent, left->keys[mid], lindex);
-	right = new_node(parent, rindex);
-	parent->child[lindex] = left;
+	insert_key_and_update_children(parent, left->keys[mid], pindex);
+	parent->child[pindex] = left;
 
-	for (i = mid + 1, j = 0; i <= left->last; i++, j++)
-		insert_key_and_update_children(right, left->keys[i], j);
+	right = new_node(parent, pindex + 1);
+	for (i = mid + 1, j = 0; i <= left->last; i++, j++) {
+		insert_key(right, left->keys[i], j);
+		right->child[j] = left->child[i];
+	}
 
 	left->last = mid - 1;
 
