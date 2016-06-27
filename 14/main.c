@@ -116,6 +116,17 @@ static bool is_root_node(const struct bnode *const node)
 	return node->parent == NULL;
 }
 
+static bool is_leaf_node(const struct bnode *const node)
+{
+	int i;
+
+	for (i = 0; i < CHILDNUM; i++)
+		if (node->child[i] != NULL)
+			return false;
+
+	return true;
+}
+
 /* inorder traversal. */
 static void print_tree(FILE *os, const struct bnode *const tree)
 {
@@ -159,21 +170,38 @@ static struct bnode *find_position(struct bnode **root, const int key,
 			if (node->child[low] != NULL)
 				node = node->child[low];
 			else {
-				*position = low;
+				if (is_leaf_node(node))
+					*position = low;
+				else {
+					*position = 0;
+					node = node->child[low] = new_node();
+				}
 				return node;
 			}
 		} else if (key > node->keys[high]) {
 			if (node->child[high + 1] != NULL)
 				node = node->child[high + 1];
 			else {
-				*position = high + 1;
+				if (is_leaf_node(node))
+					*position = high + 1;
+				else {
+					*position = 0;
+					node = node->child[high + 1]
+						= new_node();
+				}
 				return node;
 			}
 		} else if (key > node->keys[mid]) {
 			if (node->child[mid + 1] != NULL)
 				node = node->child[mid + 1];
 			else {
-				*position = mid + 1;
+				if (is_leaf_node(node))
+					*position = mid + 1;
+				else {
+					*position = 0;
+					node = node->child[mid + 1]
+						= new_node();
+				}
 				return node;
 			}
 		} else {
@@ -183,7 +211,13 @@ static struct bnode *find_position(struct bnode **root, const int key,
 			if (node->child[low + 1] != NULL)
 				node = node->child[low + 1];
 			else {
-				*position = low + 1;
+				if (is_leaf_node(node))
+					*position = low + 1;
+				else {
+					*position = 0;
+					node = node->child[low + 1]
+						= new_node();
+				}
 				return node;
 			}
 		}
