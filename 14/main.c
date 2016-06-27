@@ -215,6 +215,23 @@ static void insert_key(struct bnode *node, const int key,
 	node->end++;
 }
 
+static void move_key(struct bnode *n1, const int index1, struct bnode *n2,
+		const int index2)
+{
+	if (index1 < KEYNUM && index2 < KEYNUM) {
+		n1->keys[index1] = n2->keys[index2];
+		n1->end++;
+		n2->keys[index2] = invalid_key;
+		n2->end--;
+	}
+	n1->child[index1] = n2->child[index2];
+	if (n1->child[index1]) {
+		n1->child[index1]->parent = n1;
+		n1->child[index1]->pindex = index1;
+		n2->child[index2] = NULL;
+	}
+}
+
 static int find_node_position(struct bnode *node, const int key,
 		int *low, int *high)
 {
@@ -304,21 +321,6 @@ static struct bnode *find_leaf_node(struct bnode *root, const int key,
 	}
 }
 
-static void move_key(struct bnode *n1, const int index1, struct bnode *n2,
-		const int index2)
-{
-	if (index1 < KEYNUM && index2 < KEYNUM) {
-		insert_key(n1, n2->keys[index2], index1);
-		n2->keys[index2] = invalid_key;
-	}
-	n1->child[index1] = n2->child[index2];
-	if (n1->child[index1]) {
-		n1->child[index1]->parent = n1;
-		n1->child[index1]->pindex = index1;
-		n2->child[index2] = NULL;
-	}
-}
-
 static void insert_key_to_parent(struct bnode *node, const int key_index,
 		struct bnode *parent, const int pindex)
 {
@@ -348,9 +350,10 @@ static struct bnode *move_keys_to_sibling(struct bnode *node,
 		const int key_index, struct bnode *parent, const int pindex)
 {
 	struct bnode *sibling = new_node(parent, pindex + 1);
+	int end = node->end;
 	int i, j;
 
-	for (i = key_index + 1, j = 0; i <= node->end; i++, j++)
+	for (i = key_index + 1, j = 0; i <= end; i++, j++)
 		move_key(sibling, j, node, i);
 
 	node->end = key_index;
