@@ -47,7 +47,7 @@ static const bool debug = false;
 /* B-tree node. */
 struct bnode {
 	bnode_index_t pindex; /* parent index. */
-	bnode_index_t end;    /* end pointer */
+	bnode_index_t end;    /* end index. */
 	int keys[KEYNUM];
 	struct bnode *parent;
 	struct bnode *child[CHILDNUM];
@@ -340,16 +340,16 @@ static struct bnode *move_keys_to_sibling(struct bnode *node,
 		insert_key(sibling, node->keys[i], j);
 		node->keys[i] = invalid_key;
 		sibling->child[j] = node->child[i];
-		if (sibling->child[j]) {
-			sibling->child[j]->parent = sibling;
-			sibling->child[j]->pindex = j;
+		if (node->child[i]) {
+			node->child[i]->parent = sibling;
+			node->child[i]->pindex = j;
 			node->child[i] = NULL;
 		}
 	}
 	sibling->child[j] = node->child[i];
-	if (sibling->child[j]) {
-		sibling->child[j]->parent = sibling;
-		sibling->child[j]->pindex = j;
+	if (node->child[i]) {
+		node->child[i]->parent = sibling;
+		node->child[i]->pindex = j;
 		node->child[i] = NULL;
 	}
 
