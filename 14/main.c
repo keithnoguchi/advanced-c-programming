@@ -290,8 +290,8 @@ static struct bnode *find_position(struct bnode **root, const int key,
 	}
 }
 
-static void insert_key_to_parent(struct bnode *parent, const int pos,
-		struct bnode *child, const int key_index)
+static void insert_key_to_parent(struct bnode *child, const int key_index,
+		struct bnode *parent, const int pos)
 {
 	int i;
 
@@ -315,8 +315,8 @@ static void insert_key_to_parent(struct bnode *parent, const int pos,
 	parent->last++;
 }
 
-static struct bnode *move_keys_to_sibling(struct bnode *parent, const int pos,
-		struct bnode *child, const int key_index)
+static struct bnode *move_keys_to_sibling(struct bnode *child,
+		const int key_index, struct bnode *parent, const int pos)
 {
 	struct bnode *sibling;
 	int i, j;
@@ -365,8 +365,8 @@ static struct bnode *split_node(struct bnode *node, bnode_index_t child_index,
 
 	debug_node(stdout, parent);
 
-	insert_key_to_parent(parent, pindex, node, mid);
-	sibling = move_keys_to_sibling(parent, pindex, node, mid);
+	insert_key_to_parent(node, mid, parent, pindex);
+	sibling = move_keys_to_sibling(node, mid, parent, pindex);
 
 	return child_index <= mid ? node : sibling;
 }
