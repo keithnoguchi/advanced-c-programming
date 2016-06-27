@@ -187,7 +187,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 			else if (key > node->keys[mid])
 				low = mid;
 			else
-				/* Duplicate key is not supported. */
+				/* Duplicate key is not allowed. */
 				assert(node->keys[mid] != invalid_key);
 		}
 
@@ -245,7 +245,7 @@ static struct bnode *find_position(struct bnode **root, const int key,
 				}
 			} else {
 				if (key == node->keys[mid])
-					/* Duplicate key is not supported. */
+					/* Duplicate key is not allowed. */
 					assert(node->keys[mid] != invalid_key);
 			}
 		}
@@ -328,11 +328,9 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 	while (1) {
 		node = find_position(root, key, &position);
 		if (is_node_full(node)) {
-			bool was_root = is_root_node(node);
-
 			is_split = true;
 			node = split_node(node);
-			if (was_root)
+			if (is_root_node(node))
 				*root = node;
 		} else {
 			insert_key(node, key, position);
