@@ -42,7 +42,7 @@
 typedef char bnode_index_t;
 static const bnode_index_t invalid_index = -1;
 static const int invalid_key = -999;
-static const bool debug = false;
+static const bool debug = true;
 
 /* B-tree node. */
 struct bnode {
@@ -60,7 +60,7 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 
 	va_start(ap, fmt);
 	ret = vprintf(fmt, ap);
-	if (os != stdout) {
+	if (os != stdout && os != stderr) {
 		va_end(ap);
 		va_start(ap, fmt);
 		vfprintf(os, fmt, ap);
@@ -97,18 +97,23 @@ static bool is_leaf_node(const struct bnode *const node)
 	return true;
 }
 
-static void debug_node(FILE *os, const struct bnode *const node)
+void debug_node(FILE *os, const struct bnode *const node)
 {
 	int i;
 
 	if (debug == false)
 		return;
 
+	fprintf(os, "\nnode: %p\n", node);
 	fprintf(os, "node->pindex: %d\n", node->pindex);
 	fprintf(os, "node->parent: %p\n", node->parent);
 	fprintf(os, "node->end: %d\n", node->end);
-	for (i = 0; i < node->end; i++)
-		fprintf(os, "node->keys[%d]: %d\n", i, node->keys[i]);
+	for (i = 0; i <= node->end; i++) {
+		if (i < node->end)
+			fprintf(os, "node->keys[%d]: %d\n", i, node->keys[i]);
+		fprintf(os, "node->child[%d]: %p\n", i, node->child[i]);
+	}
+
 }
 
 static void print_subtree(FILE *os, const struct bnode *const tree)
@@ -184,7 +189,6 @@ static struct bnode *new_node(struct bnode *parent, bnode_index_t pindex)
 		parent->child[pos] = node;
 	for (i = 0; i < CHILDNUM; i++)
 		node->child[i] = NULL;
-	debug_node(stdout, node);
 
 	return node;
 }
@@ -352,10 +356,12 @@ static struct bnode *find_leaf_node(struct bnode *root, const int key,
 static void insert_key_to_parent(struct bnode *node, const int key_index,
 		struct bnode *parent, const int pindex)
 {
-	int end = parent->end;
 	int i;
 
-	assert(!is_node_full(parent));
+	if (is_node_full(parent)) {
+		debug_node(stderr, parent);
+		assert(false);
+	}
 
 	for (i = parent->end - 1; i >= pindex; i--)
 		right_shift(parent, i, node);
@@ -363,7 +369,7 @@ static void insert_key_to_parent(struct bnode *node, const int key_index,
 	parent->keys[pindex] = node->keys[key_index];
 	node->keys[key_index] = invalid_key;
 	parent->child[pindex] = node;
-	parent->end = end + 1;
+	parent->end += 1;
 }
 
 static struct bnode *move_keys_to_sibling(struct bnode *node,
@@ -384,7 +390,7 @@ static struct bnode *move_keys_to_sibling(struct bnode *node,
 static struct bnode *split_parent(struct bnode *node, const int key_index,
 		struct bnode **root)
 {
-	struct bnode *parent, *sibling;
+	struct bnode *parent, *sibling = NULL;
 	int mid = middle_key_index(node);
 	int pindex;
 
@@ -401,7 +407,7 @@ static struct bnode *split_parent(struct bnode *node, const int key_index,
 	insert_key_to_parent(node, mid, parent, pindex);
 	sibling = move_keys_to_sibling(node, mid, parent, pindex);
 
-	return key_index <= mid ? node : sibling;
+	return key_index > mid && sibling ? sibling : node;
 }
 
 static struct bnode *split_leaf_node(struct bnode *node, const int key,
@@ -473,8 +479,7 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 			xprintf(os, "\n%d) ", ++i);
 		} else {
 			xprintf(os, ", ");
-			if (debug)
-				print_tree(stdout, tree);
+			print_tree(stdout, tree);
 		}
 	}
 
