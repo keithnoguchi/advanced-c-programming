@@ -73,7 +73,7 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 
 static bnode_index_t middle_key_index(const struct bnode *const node)
 {
-	return (node->end - 1) / 2;
+	return node->end / 2;
 }
 
 static bool is_node_full(const struct bnode *const node)
@@ -336,7 +336,7 @@ static struct bnode *move_keys_to_sibling(struct bnode *node,
 	int i, j;
 
 	sibling = new_node(parent, pindex + 1);
-	for (i = key_index + 1, j = 0; i <= node->end - 1; i++, j++) {
+	for (i = key_index + 1, j = 0; i < node->end; i++, j++) {
 		insert_key(sibling, node->keys[i], j);
 		node->keys[i] = invalid_key;
 		sibling->child[j] = node->child[i];
