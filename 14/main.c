@@ -36,7 +36,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define CHILDNUM  8
+#define CHILDNUM  7
 #define KEYNUM    (CHILDNUM - 1)
 
 typedef char bnode_index_t;
@@ -278,7 +278,7 @@ static void insert_key_and_update_children(struct bnode *node, const int key,
 
 static struct bnode *split_node(struct bnode *node)
 {
-	struct bnode *parent, *right, *left = node;
+	struct bnode *root, *parent, *right, *left = node;
 	int mid = left->last / 2;
 	int pindex;
 	int i, j;
@@ -290,8 +290,12 @@ static struct bnode *split_node(struct bnode *node)
 		pindex = 0;
 		left->parent = parent;
 		left->pindex = pindex;
-	} else
+		root = parent;
+	} else {
 		pindex = left->pindex;
+		if (is_node_full(parent))
+			root = split_node(parent);
+	}
 
 	insert_key_and_update_children(parent, left->keys[mid], pindex);
 	parent->child[pindex] = left;
@@ -304,7 +308,7 @@ static struct bnode *split_node(struct bnode *node)
 
 	left->last = mid - 1;
 
-	return parent;
+	return root;
 }
 
 static bool add_key(FILE *os, struct bnode **root, const int key)
