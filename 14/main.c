@@ -203,18 +203,6 @@ static void free_node(struct bnode *node)
 	free(node);
 }
 
-static void insert_key(struct bnode *node, const int key,
-		const bnode_index_t position)
-{
-	int pos = position;
-	int i;
-
-	for (i = node->end - 1; i >= pos; i--)
-		node->keys[i + 1] = node->keys[i];
-	node->keys[pos] = key;
-	node->end++;
-}
-
 static void move_key(struct bnode *n1, const int index1, struct bnode *n2,
 		const int index2)
 {
@@ -230,6 +218,18 @@ static void move_key(struct bnode *n1, const int index1, struct bnode *n2,
 		n1->child[index1]->pindex = index1;
 		n2->child[index2] = NULL;
 	}
+}
+
+static void insert_key(struct bnode *node, const int key,
+		const bnode_index_t position)
+{
+	int pos = position;
+	int i;
+
+	for (i = node->end - 1; i >= pos; i--)
+		node->keys[i + 1] = node->keys[i];
+	node->keys[pos] = key;
+	node->end++;
 }
 
 static int find_node_position(struct bnode *node, const int key,
@@ -324,6 +324,7 @@ static struct bnode *find_leaf_node(struct bnode *root, const int key,
 static void insert_key_to_parent(struct bnode *node, const int key_index,
 		struct bnode *parent, const int pindex)
 {
+	int end = parent->end;
 	int i;
 
 	assert(!is_node_full(parent));
@@ -343,7 +344,7 @@ static void insert_key_to_parent(struct bnode *node, const int key_index,
 	parent->keys[pindex] = node->keys[key_index];
 	node->keys[key_index] = invalid_key;
 	parent->child[pindex] = node;
-	parent->end++;
+	parent->end = end + 1;
 }
 
 static struct bnode *move_keys_to_sibling(struct bnode *node,
