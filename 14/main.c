@@ -224,7 +224,7 @@ static void move_key(struct bnode *n1, const int index1, struct bnode *n2,
 	}
 }
 
-static void shift_key(struct bnode *node, const int i,
+static void right_shift(struct bnode *node, const int i,
 		const struct bnode *child)
 {
 	/* Right child. */
@@ -358,7 +358,7 @@ static void insert_key_to_parent(struct bnode *node, const int key_index,
 	assert(!is_node_full(parent));
 
 	for (i = parent->end - 1; i >= pindex; i--)
-		shift_key(parent, i, node);
+		right_shift(parent, i, node);
 
 	parent->keys[pindex] = node->keys[key_index];
 	node->keys[key_index] = invalid_key;
