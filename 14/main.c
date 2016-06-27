@@ -71,6 +71,11 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
+static bnode_index_t middle_key_index(const struct bnode *const node)
+{
+	return node->last / 2;
+}
+
 static bool is_node_full(const struct bnode *const node)
 {
 	return node->last == KEYNUM - 1;
@@ -357,7 +362,7 @@ static struct bnode *split_parent(struct bnode *node, const int key_index,
 		struct bnode **root)
 {
 	struct bnode *parent, *sibling;
-	int mid = node->last / 2;
+	int mid = middle_key_index(node);
 	int pindex;
 
 	if ((parent = node->parent) == NULL) {
@@ -380,7 +385,7 @@ static struct bnode *split_leaf_node(struct bnode *node, const int key,
 		bnode_index_t *position, struct bnode **root)
 {
 	struct bnode *parent, *sibling;
-	int mid = node->last / 2;
+	int mid = middle_key_index(node);
 	int pindex;
 
 	if ((parent = node->parent) == NULL) {
