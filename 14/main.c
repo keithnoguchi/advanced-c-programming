@@ -206,17 +206,45 @@ static void free_node(struct bnode *node)
 static void move_key(struct bnode *n1, const int index1, struct bnode *n2,
 		const int index2)
 {
+
+	/* Left child. */
+	n1->child[index1] = n2->child[index2];
+	if (n1->child[index1]) {
+		n1->child[index1]->parent = n1;
+		n1->child[index1]->pindex = index1;
+		n2->child[index2] = NULL;
+	}
+
+	/* Key value. */
 	if (index1 < KEYNUM && index2 < KEYNUM) {
 		n1->keys[index1] = n2->keys[index2];
 		n1->end++;
 		n2->keys[index2] = invalid_key;
 		n2->end--;
 	}
-	n1->child[index1] = n2->child[index2];
-	if (n1->child[index1]) {
-		n1->child[index1]->parent = n1;
-		n1->child[index1]->pindex = index1;
-		n2->child[index2] = NULL;
+}
+
+static void shift_key(struct bnode *node, const int i,
+		const struct bnode *child)
+{
+	/* Right child. */
+	if (i + 2 < CHILDNUM) {
+		node->child[i + 2] = node->child[i + 1];
+		node->child[i + 1] = NULL;
+		if (node->child[i + 2] && node->child[i + 2] != child)
+			node->child[i + 2]->pindex++;
+	}
+
+	/* Left child. */
+	node->child[i + 1] = node->child[i];
+	node->child[i + 1] = NULL;
+	if (node->child[i + 1] && node->child[i + 1] != child)
+		node->child[i + 1]->pindex++;
+
+	/* Key value. */
+	if (i + 1 < KEYNUM) {
+		node->keys[i + 1] = node->keys[i];
+		node->keys[i] = invalid_key;
 	}
 }
 
@@ -329,18 +357,9 @@ static void insert_key_to_parent(struct bnode *node, const int key_index,
 
 	assert(!is_node_full(parent));
 
-	for (i = parent->end - 1; i >= pindex; i--) {
-		parent->child[i + 2] = parent->child[i + 1];
-		if (parent->child[i + 2])
-			parent->child[i + 2]->pindex++;
-		parent->keys[i + 1] = parent->keys[i];
-	}
-	if (pindex != parent->end) {
-		parent->child[pindex + 1] = parent->child[pindex];
-		if (parent->child[pindex + 1])
-			parent->child[pindex + 1]->pindex++;
-		parent->child[pindex] = NULL;
-	}
+	for (i = parent->end - 1; i >= pindex; i--)
+		shift_key(parent, i, node);
+
 	parent->keys[pindex] = node->keys[key_index];
 	node->keys[key_index] = invalid_key;
 	parent->child[pindex] = node;
@@ -449,7 +468,7 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 		is_split = add_key(os, &tree, value);
 		if (is_split) {
 			xprintf(os, " triggers split ");
-			xprintf(os, "and makes a tree as below:\n\n");
+			xprintf(os, "and made a tree as below:\n\n");
 			print_tree(os, tree);
 			xprintf(os, "\n%d) ", ++i);
 		} else {
