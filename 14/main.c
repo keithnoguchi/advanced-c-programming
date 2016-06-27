@@ -286,7 +286,7 @@ static struct bnode *split_node(struct bnode *node)
 	print_node(stdout, node);
 
 	if ((parent = left->parent) == NULL) {
-		parent = new_node(NULL, 0);
+		parent = new_node(NULL, invalid_index);
 		pindex = 0;
 		left->parent = parent;
 		left->pindex = pindex;
