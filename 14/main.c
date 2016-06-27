@@ -133,9 +133,10 @@ static void print_tree(FILE *os, const struct bnode *const tree)
 	xprintf(os, "], ");
 }
 
-static struct bnode *find_position(struct bnode *node, const int key,
+static struct bnode *find_position(struct bnode **root, const int key,
 		bnode_index_t *position)
 {
+	struct bnode *node = *root;
 	int low, mid, high;
 
 	while (1) {
@@ -220,9 +221,8 @@ static struct bnode *split_node(struct bnode *node)
 	if ((parent = left->parent) == NULL) {
 		parent = new_node();
 		lindex = 0;
-	} else {
+	} else
 		lindex = left->pindex;
-	}
 	rindex = lindex + 1;
 
 	right = new_node();
@@ -241,18 +241,18 @@ static struct bnode *split_node(struct bnode *node)
 	return parent;
 }
 
-static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
-		bool *is_split)
+static bool add_key(FILE *os, struct bnode **root, const int key)
 {
 	bnode_index_t position;
 	struct bnode *node;
+	bool is_split = false;
 
 	assert(key != invalid_key);
 
-	if (root == NULL) {
-		root = new_node();
-		insert_key(root, key, 0);
-		return root;
+	if (*root == NULL) {
+		*root = new_node();
+		insert_key(*root, key, 0);
+		return is_split;
 	}
 
 	while (1) {
@@ -260,16 +260,16 @@ static struct bnode *add_key(FILE *os, struct bnode *root, const int key,
 		if (is_node_full(node)) {
 			bool was_root = is_root_node(node);
 
-			*is_split = true;
+			is_split = true;
 			node = split_node(node);
 			if (was_root)
-				root = node;
+				*root = node;
 		} else {
 			insert_key(node, key, position);
 			break;
 		}
 	}
-	return root;
+	return is_split;
 }
 
 static struct bnode *build_tree(FILE *is, FILE *os)
@@ -279,10 +279,9 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 	char comma;
 	int value;
 
-	is_split = false;
 	while (fscanf(is, "%d%c", &value, &comma) != EOF) {
 		xprintf(os, "%d", value);
-		tree = add_key(os, tree, value, &is_split);
+		is_split = add_key(os, &tree, value);
 		if (is_split) {
 			xprintf(os, " triggers split, as shown in:\n\n");
 			print_tree(os, tree);
@@ -292,7 +291,6 @@ static struct bnode *build_tree(FILE *is, FILE *os)
 			print_tree(stdout, tree);
 			xprintf(stdout, "\n");
 		}
-		is_split = false;
 	}
 	xprintf(os, "\n\n");
 
