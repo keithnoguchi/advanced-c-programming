@@ -210,24 +210,33 @@ static void insert_key(struct bnode *node, const int key,
 	node->last++;
 }
 
-static struct bnode *find_position(struct bnode **root, const int key,
+static int find_node_position(struct bnode *node, const int key,
+		int *low, int *high)
+{
+	int mid;
+
+	*low = mid = 0, *high = node->last;
+	while (*low + 1 < *high) {
+		mid = (*low + *high) / 2;
+		if (key < node->keys[mid])
+			*high = mid;
+		else if (key > node->keys[mid])
+			*low = mid;
+		else
+			/* Duplicate key is not allowed. */
+			assert(node->keys[mid] != invalid_key);
+	}
+	return mid;
+}
+
+static struct bnode *find_node(struct bnode **root, const int key,
 		bnode_index_t *position)
 {
 	struct bnode *node = *root;
 	int low, mid, high;
 
 	while (1) {
-		low = mid = 0, high = node->last;
-		while (low + 1 < high) {
-			mid = (low + high) / 2;
-			if (key < node->keys[mid])
-				high = mid;
-			else if (key > node->keys[mid])
-				low = mid;
-			else
-				/* Duplicate key is not allowed. */
-				assert(node->keys[mid] != invalid_key);
-		}
+		mid = find_node_position(node, key, &low, &high);
 
 		if (is_node_empty(node)) {
 			*position = 0;
@@ -386,7 +395,7 @@ static bool add_key(FILE *os, struct bnode **root, const int key)
 	}
 
 	while (1) {
-		node = find_position(root, key, &position);
+		node = find_node(root, key, &position);
 		if (is_node_full(node)) {
 			is_split = true;
 			node = split_node(node, position, root);
