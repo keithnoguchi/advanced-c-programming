@@ -45,6 +45,44 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+
+/* Supported number of disks, and the corresponding output filename. */
+typedef enum difficulty_level {
+	LOW = 0,
+	MEDIUM,
+	HIGH,
+	LEVEL_MAX
+} difficulty_level_t;
+
+typedef struct supported_level {
+	difficulty_level_t level;
+	const int disks;
+	const char *const level_str;
+	const char *const filename;
+} supported_level_t;
+
+/* Preconfigured level specific information. */
+static const supported_level_t supported_levels[] = {
+	{
+		.level = LOW,
+		.level_str = "low",
+		.disks = 1,
+		.filename = "output1.txt"
+	},
+	{
+		.level = MEDIUM,
+		.level_str = "medium",
+		.disks = 2,
+		.filename = "output2.txt"
+	},
+	{
+		.level = HIGH,
+		.level_str = "high",
+		.disks = 3,
+		.filename = "output3.txt"
+	}
+};
 
 static int xprintf(FILE *os, const char *fmt, ...)
 {
@@ -53,7 +91,7 @@ static int xprintf(FILE *os, const char *fmt, ...)
 
 	va_start(ap, fmt);
 	ret = vprintf(fmt, ap);
-	if (os != stdout) {
+	if (os != stdout && os != stderr) {
 		va_end(ap);
 		va_start(ap, fmt);
 		vfprintf(os, fmt, ap);
@@ -63,23 +101,47 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
+static void prompt(FILE *os)
+{
+	int i;
+
+	fprintf(os, "How many disks do you want, ");
+	for (i = LOW; i < LEVEL_MAX; i++) {
+		fprintf(os, "%d, ", supported_levels[i].disks);
+	}
+	fprintf(os, "or -1 to quit? ");
+}
+
+static supported_level_t *input(FILE *is, FILE *os)
+{
+	int number;
+	char c;
+	int ret;
+
+	ret = fscanf(is, "%d%c", &number, &c);
+	xprintf(os, "%d\n", number);
+
+	return NULL;
+}
+
 int main()
 {
-	const char *output_file = "output.txt";
-	FILE *os;
+	FILE *is = stdin, *os = stdout;
+	supported_level_t *level;
 
-	os = fopen(output_file, "w");
-	if (os == NULL) {
-		fprintf(stderr, "Can't open %s file.", output_file);
-		goto err;
+	xprintf(os, "\nGame: Tower of Hanoi\n");
+	xprintf(os, "==============\n\n");
+
+	for (prompt(os); (level = input(is, os)) != NULL; prompt(os)) {
+		;
 	}
 
-	xprintf(os, "Tower of Hanoi\n");
-	xprintf(os, "==============\n");
-
 	xprintf(os, "\nThank you!\n");
-
-err:
-	if (os)
+out:
+	if (os != stdout)
 		fclose(os);
+	if (is != stdin)
+		fclose(is);
+
+	exit(EXIT_SUCCESS);
 }
