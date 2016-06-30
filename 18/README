@@ -1,0 +1,11 @@
+Follow the instructions in the assignment.
+
+This assignment deals with Long Integers with numbers more than the computer
+can handle..
+
+Read the input from an input file. The output should show how the links in the
+list structure are constructed for list 1 and list 2. Where result list is
+constructed, show how the links in the result list are constructed. Finally
+show the result output with leading zeros taken care.
+
+

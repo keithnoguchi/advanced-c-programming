@@ -1,0 +1,10 @@
+This assignment deals with Graphs and their applications.
+
+Read the input from the standard input prompting the user.  
+
+• In the output, show how you prompt and read the input and print the distance
+matrix only for the nodes given in the map. • Show at each step what is the
+next node considered in the path to destination. • Print the total distance
+from starting node to terminating node giving distance between intermediate
+nodes.
+

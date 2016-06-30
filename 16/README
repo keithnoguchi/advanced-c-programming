@@ -1,0 +1,17 @@
+This assignment involves in implementing queues and gives you more than
+average full credit. It deals with sequencing the playing cards after
+shuffling and distributing the cards. One suit (one color) of cards is dealt
+to shuffle in any way you like and districute the cards as specified in the
+instructions. You are expected to write the code for reading the cards from
+input file in to an array, shuffle the cards in a specific way and display the
+cards in the desired sequence. You may use the concepts from the Reading
+section about sequencing the playing cards. Display the shuffled queue. After
+solving the problem for simpler (normal card sequence) queue, the same
+concepts can be applied for a different sequence of cards as given in the
+problem.
+
+Provide the output after the cards from the input file, the sequence of cards
+after shuffling (or placing) the cards and how you distribute (open) the cards
+from the shuffled queue
+
+

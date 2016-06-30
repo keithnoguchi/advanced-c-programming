@@ -1,0 +1,9 @@
+This assignment deals with Graphs and their applications.
+
+Read the input from the standard input prompting the user.  
+
+• In the output: 
+• Consider node 0 as the root to find the minimum spanning tree.
+• In the output, compute the minimum distance of each node in the graph to
+root. Also show the closest node from each node except the root.
+
