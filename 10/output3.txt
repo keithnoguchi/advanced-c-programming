@@ -1,0 +1,3 @@
+
+Maximum height of the towers is 3
+
