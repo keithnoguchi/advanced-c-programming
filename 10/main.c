@@ -68,13 +68,11 @@ struct poles {
 	struct pole *to;
 };
 
-typedef struct supported_height {
+/* Supported parameters. */
+static struct parameter {
 	const int height;
 	const char *const output;
-} supported_level_t;
-
-/* Preconfigured level specific information. */
-static struct supported_height supported_levels[] = {
+} supported_params[] = {
 	{
 		.height = 1,
 		.output = "output1.txt"
@@ -137,15 +135,15 @@ static void prompt(FILE *os)
 	int i;
 
 	fprintf(os, "Tell me the height of the 'from' tower, e.g. ");
-	for (i = 0; supported_levels[i].output != NULL; i++) {
-		xprintf(os, "%d, ", supported_levels[i].height);
+	for (i = 0; supported_params[i].output != NULL; i++) {
+		xprintf(os, "%d, ", supported_params[i].height);
 	}
 	fprintf(os, "or -1 to quit? ");
 }
 
-static supported_level_t *const input(FILE *is, FILE *os)
+static struct parameter *const input(FILE *is, FILE *os)
 {
-	supported_level_t *level;
+	struct parameter *level;
 	int number;
 	char c;
 	int i;
@@ -157,26 +155,26 @@ static supported_level_t *const input(FILE *is, FILE *os)
 	if (ret != 2 || number == -1)
 		return NULL;
 
-	for (i = 0; supported_levels[i].output != NULL; i++)
-		if (number == supported_levels[i].height)
-			return &supported_levels[i];
+	for (i = 0; supported_params[i].output != NULL; i++)
+		if (number == supported_params[i].height)
+			return &supported_params[i];
 
-	return &supported_levels[i];
+	return &supported_params[i];
 }
 
 static void process(FILE *is, FILE *os)
 {
-	supported_level_t *config;
+	struct parameter *param;
 	struct poles poles;
 
-	for (prompt(os); (config = input(is, os)) != NULL; prompt(os)) {
-		if (config->output == NULL) {
+	for (prompt(os); (param = input(is, os)) != NULL; prompt(os)) {
+		if (param->output == NULL) {
 			xprintf(os, "\nPlease select the supported "
 					"height of the tower.\n\n");
 			continue;
 		}
-		xprintf(os, "Your tower is this(%d) tall!\n", config->height);
-		init_poles(&poles, config->height);
+		xprintf(os, "Your tower is this(%d) tall!\n", param->height);
+		init_poles(&poles, param->height);
 	}
 }
 
