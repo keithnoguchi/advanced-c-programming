@@ -129,12 +129,6 @@ static void free_disk(struct disk *disk)
 	free(disk);
 }
 
-static struct disk *push(struct disk *top, struct disk *new_disk)
-{
-	new_disk->next = top;
-	return new_disk;
-}
-
 static struct disk *pop(struct disk **top)
 {
 	if (*top != NULL) {
@@ -146,9 +140,15 @@ static struct disk *pop(struct disk **top)
 		return NULL;
 }
 
+static struct disk *push(struct disk *top, struct disk *const new_disk)
+{
+	new_disk->next = top;
+	return new_disk;
+}
+
 static int print_disk(FILE *os, const struct disk *const disk)
 {
-	xprintf(os, "%u", disk->number);
+	return xprintf(os, "%u", disk->number);
 }
 
 static struct tower *new_tower(const int height)
@@ -175,6 +175,21 @@ static void delete_tower(struct tower *t)
 		free_disk(disk);
 	t->height = 0;
 	free(t);
+}
+
+static struct disk *pop_disk(struct tower *t)
+{
+	if (t->height == 0)
+		return NULL;
+
+	t->height--;
+	return pop(&t->top);
+}
+
+static void push_disk(struct tower *t, struct disk *const disk)
+{
+	t->top = push(t->top, disk);
+	t->height++;
 }
 
 static int print_tower(const struct towers *const top,
@@ -269,11 +284,6 @@ static void print_towers(const struct towers *const top)
 	print_footer(top);
 }
 
-static bool move_disk(struct towers *top)
-{
-	return false;
-}
-
 static void prompt(FILE *os)
 {
 	int i;
@@ -287,7 +297,6 @@ static void prompt(FILE *os)
 
 static struct parameter *const input(FILE *is, FILE *os)
 {
-	struct parameter *level;
 	int number;
 	char c;
 	int i;
@@ -306,6 +315,14 @@ static struct parameter *const input(FILE *is, FILE *os)
 	return &supported_params[i];
 }
 
+static void move_disks(struct tower *from, struct tower *to, struct tower *aux,
+		int from_height)
+{
+	/* Base case. */
+	if (from_height == 1)
+		push_disk(to, pop_disk(from));
+}
+
 static void run(struct towers *top, const struct parameter *const param)
 {
 	/* Initialize towers. */
@@ -314,11 +331,12 @@ static void run(struct towers *top, const struct parameter *const param)
 	/* Print the initial state of the towers. */
 	print_towers(top);
 
-	/* Move disks until move_disk() returns false,
-	 * which means there is no more disks to move. */
-	while (move_disk(top))
-		/* Print the Final state of the towers. */
-		print_towers(top);
+	move_disks(top->from, top->aux, top->to, top->max_height - 1);
+	move_disks(top->from, top->to, top->aux, 1);
+	move_disks(top->aux, top->to, top->from, top->max_height - 1);
+
+	/* Print the result. */
+	print_towers(top);
 
 	/* Terminate towers. */
 	term_towers(top);
@@ -337,16 +355,25 @@ static void process(FILE *is, FILE *os)
 			run(&app, param);
 }
 
+static void print_title(FILE *os)
+{
+	xprintf(os, "\nHow to move disks in Tower of Hanoi\n");
+	xprintf(os, "===================================\n\n");
+}
+
+static void print_greeting(FILE *os)
+{
+	xprintf(os, "\nThank you!\n");
+}
+
 int main()
 {
 	FILE *is = stdin, *os = stdout;
 
-	xprintf(os, "\nHow to move disks in Tower of Hanoi\n");
-	xprintf(os, "===================================\n\n");
-
+	print_title(os);
 	process(is, os);
-	xprintf(os, "\nThank you!\n");
-out:
+	print_greeting(os);
+
 	if (os != stdout)
 		fclose(os);
 	if (is != stdin)
