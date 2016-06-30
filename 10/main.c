@@ -139,20 +139,25 @@ static supported_level_t *const input(FILE *is, FILE *os)
 	return &supported_levels[i];
 }
 
+static void process(FILE *is, FILE *os)
+{
+	supported_level_t *config;
+
+	for (prompt(os); (config = input(is, os)) != NULL; prompt(os)) {
+		if (config->level == LEVEL_MAX)
+			xprintf(os, "\nPlease select the supported "
+					"number of disks.\n\n");
+	}
+}
+
 int main()
 {
 	FILE *is = stdin, *os = stdout;
-	supported_level_t *config;
 
 	xprintf(os, "\nGame: Tower of Hanoi\n");
 	xprintf(os, "==============\n\n");
 
-	for (prompt(os); (config = input(is, os)) != NULL; prompt(os)) {
-		if (config->level == LEVEL_MAX)
-			xprintf(os, "Please select the supported value\n");
-		;
-	}
-
+	process(is, os);
 	xprintf(os, "\nThank you!\n");
 out:
 	if (os != stdout)
