@@ -373,14 +373,8 @@ static void run(struct towers *top, const struct parameter *const param)
 	/* Print the initial state of the towers. */
 	print_towers(top);
 
-	/* First move height - 1 disks from 'from' to 'aux'. */
-	move_disks(top, top->from, top->aux, top->to, top->max_height - 1);
-
-	/* Move the bottom disk from 'from' to 'to'. */
-	move_disk(top, top->from, top->to);
-
-	/* Move the rest of the disks from 'aux' to 'to'. */
-	move_disks(top, top->aux, top->to, top->from, top->max_height - 1);
+	/* Let's move disks recursively. */
+	move_disks(top, top->from, top->to, top->aux, top->max_height);
 
 	/* Terminate towers. */
 	term_towers(top);
