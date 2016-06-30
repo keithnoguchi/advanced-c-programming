@@ -55,17 +55,18 @@ struct disk {
 	struct disk *next;
 };
 
-/* Pole with the height and the pointer to the top of the disk. */
-struct pole {
+/* Tower, which has the current height of the disks
+ * with the pointer to the top of the disk. */
+struct tower {
 	int height;
 	struct disk *top;
 };
 
 /* Tower of Hanoi top level instance. */
 struct towers {
-	struct pole *from;
-	struct pole *aux;
-	struct pole *to;
+	struct tower *from;
+	struct tower *aux;
+	struct tower *to;
 };
 
 /* Supported parameters. */
@@ -108,25 +109,25 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
-static struct pole *new_pole()
+static struct tower *new_tower()
 {
-	struct pole *pole;
+	struct tower *tower;
 
-	pole = malloc(sizeof(struct pole));
-	assert(pole != NULL);
-	pole->height = 0;
-	pole->top = NULL;
+	tower = malloc(sizeof(struct tower));
+	assert(tower != NULL);
+	tower->height = 0;
+	tower->top = NULL;
 
-	return pole;
+	return tower;
 }
 
 static void init_towers(struct towers *top, const size_t height)
 {
-	top->from = new_pole();
+	top->from = new_tower();
 	assert(top->from != NULL);
-	top->aux = new_pole();
+	top->aux = new_tower();
 	assert(top->aux != NULL);
-	top->to = new_pole();
+	top->to = new_tower();
 	assert(top->to != NULL);
 }
 
