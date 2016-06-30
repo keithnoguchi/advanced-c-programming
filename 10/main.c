@@ -147,7 +147,7 @@ static struct disk *pop(struct disk **top)
 
 static int print_disk(FILE *os, const struct disk *const disk)
 {
-	xprintf(os, "%u ", disk->number);
+	xprintf(os, "%u", disk->number);
 }
 
 static struct tower *new_tower(const int height)
