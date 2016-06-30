@@ -54,7 +54,7 @@ static struct parameter {
 	const int height;
 	const char *const output;
 } supported_params[] = {
-#undef DEBUG
+#define DEBUG
 #ifdef DEBUG
 	{
 		.height = 1,
