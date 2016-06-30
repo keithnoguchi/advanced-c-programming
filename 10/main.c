@@ -63,7 +63,7 @@ typedef struct supported_level {
 } supported_level_t;
 
 /* Preconfigured level specific information. */
-static const supported_level_t supported_levels[] = {
+static supported_level_t supported_levels[] = {
 	{
 		.level = LOW,
 		.level_str = "low",
@@ -81,6 +81,12 @@ static const supported_level_t supported_levels[] = {
 		.level_str = "high",
 		.disks = 3,
 		.filename = "output3.txt"
+	},
+	{
+		.level = LEVEL_MAX,
+		.level_str = "invalid",
+		.disks = -1,
+		.filename = NULL
 	}
 };
 
@@ -112,8 +118,10 @@ static void prompt(FILE *os)
 	fprintf(os, "or -1 to quit? ");
 }
 
-static supported_level_t *input(FILE *is, FILE *os)
+static supported_level_t *const input(FILE *is, FILE *os)
 {
+	supported_level_t *level;
+	difficulty_level_t i;
 	int number;
 	char c;
 	int ret;
@@ -121,18 +129,27 @@ static supported_level_t *input(FILE *is, FILE *os)
 	ret = fscanf(is, "%d%c", &number, &c);
 	xprintf(os, "%d\n", number);
 
-	return NULL;
+	if (ret != 2 || number == -1)
+		return NULL;
+
+	for (i = LOW; i < LEVEL_MAX; i++)
+		if (number == supported_levels[i].disks)
+			return &supported_levels[i];
+
+	return &supported_levels[i];
 }
 
 int main()
 {
 	FILE *is = stdin, *os = stdout;
-	supported_level_t *level;
+	supported_level_t *config;
 
 	xprintf(os, "\nGame: Tower of Hanoi\n");
 	xprintf(os, "==============\n\n");
 
-	for (prompt(os); (level = input(is, os)) != NULL; prompt(os)) {
+	for (prompt(os); (config = input(is, os)) != NULL; prompt(os)) {
+		if (config->level == LEVEL_MAX)
+			xprintf(os, "Please select the supported value\n");
 		;
 	}
 
