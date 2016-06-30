@@ -315,12 +315,23 @@ static struct parameter *const input(FILE *is, FILE *os)
 	return &supported_params[i];
 }
 
-static void move_disks(struct tower *from, struct tower *to, struct tower *aux,
-		int from_height)
+static void move_disks(struct towers *top, struct tower *from,
+		struct tower *to, struct tower *aux, int from_height)
 {
 	/* Base case. */
-	if (from_height == 1)
+	if (from_height == 0)
+		return;
+
+	/* second case. */
+	else if (from_height == 1) {
 		push_disk(to, pop_disk(from));
+		print_towers(top);
+		return;
+	}
+
+	move_disks(top, from, aux, to, from_height - 1);
+	move_disks(top, from, to, aux, 1);
+	move_disks(top, aux, to, from, from_height - 1);
 }
 
 static void run(struct towers *top, const struct parameter *const param)
@@ -331,9 +342,9 @@ static void run(struct towers *top, const struct parameter *const param)
 	/* Print the initial state of the towers. */
 	print_towers(top);
 
-	move_disks(top->from, top->aux, top->to, top->max_height - 1);
-	move_disks(top->from, top->to, top->aux, 1);
-	move_disks(top->aux, top->to, top->from, top->max_height - 1);
+	move_disks(top, top->from, top->aux, top->to, top->max_height - 1);
+	move_disks(top, top->from, top->to, top->aux, 1);
+	move_disks(top, top->aux, top->to, top->from, top->max_height - 1);
 
 	/* Print the result. */
 	print_towers(top);
