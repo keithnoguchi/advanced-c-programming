@@ -54,6 +54,8 @@ static struct parameter {
 	const int height;
 	const char *const output;
 } supported_params[] = {
+#undef DEBUG
+#ifdef DEBUG
 	{
 		.height = 1,
 		.output = "output1.txt"
@@ -66,6 +68,7 @@ static struct parameter {
 		.height = 3,
 		.output = "output3.txt"
 	},
+#endif /* DEBUG */
 	{
 		.height = 4,
 		.output = "output4.txt"
