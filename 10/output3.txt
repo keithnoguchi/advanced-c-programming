@@ -7,3 +7,12 @@ Current towers
 --------------
 A     B     C
 
+
+Current towers
+--------------
+             
+2            
+3           1
+--------------
+A     B     C
+
