@@ -48,17 +48,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
-/* Peg, which points the next peg below. */
-struct peg {
+/* Disk, which points the next disk below. */
+struct disk {
 	const int size;
 	const char *const name;
-	struct peg *next;
+	struct disk *next;
 };
 
-/* Pole with the height and the pointer to the top of the peg. */
+/* Pole with the height and the pointer to the top of the disk. */
 struct pole {
 	int height;
-	struct peg *top;
+	struct disk *top;
 };
 
 /* Three towers of Hanoi. */
