@@ -51,7 +51,6 @@
 /* Disk, which points the next disk below. */
 struct disk {
 	unsigned char number;
-	char *name;
 	struct disk *next;
 };
 
@@ -113,25 +112,25 @@ static int xprintf(FILE *os, const char *fmt, ...)
 
 static struct disk *new_disk(const unsigned char number)
 {
-	struct disk *d;
+	struct disk *disk;
 
-	d = malloc(sizeof(struct disk));
-	assert(d != NULL);
-	d->number = number;
-	d->name = NULL;
-	d->next = NULL;
+	disk = malloc(sizeof(struct disk));
+	assert(disk != NULL);
+	disk->number = number;
+	disk->next = NULL;
 
-	return d;
+	return disk;
 }
 
-static void free_disk(struct disk *d)
+static void free_disk(struct disk *disk)
 {
-	assert(d->next == NULL);
-	if (d->name) {
-		free(d->name);
-		d->name = NULL;
-	}
-	free(d);
+	assert(disk->next == NULL);
+	free(disk);
+}
+
+static int print_disk(FILE *os, const struct disk *const disk)
+{
+	xprintf(os, "%u ", disk->number);
 }
 
 static struct disk *push(struct disk *top, struct disk *new_disk)
@@ -158,10 +157,10 @@ static struct tower *new_tower(const int height)
 
 	t = malloc(sizeof(struct tower));
 	assert(t != NULL);
-	t->height = 0;
 	t->top = NULL;
+	t->height = height;
 
-	for (i = t->height; i > 0; i++)
+	for (i = t->height; i > 0; i--)
 		t->top = push(t->top, new_disk(i));
 
 	return t;
@@ -169,12 +168,24 @@ static struct tower *new_tower(const int height)
 
 static void delete_tower(struct tower *t)
 {
-	struct disk *d;
+	struct disk *disk;
 	/* Let's drain the disks. */
-	while ((d = pop(&t->top)))
-		free_disk(d);
+	while ((disk = pop(&t->top)))
+		free_disk(disk);
 	t->height = 0;
 	free(t);
+}
+
+static int print_tower(FILE *os, const struct tower *const t)
+{
+	struct disk *disk;
+	int ret = 0;
+
+	for (disk = t->top; disk != NULL; disk = disk->next)
+		ret += print_disk(os, disk);
+	xprintf(os, "\n");
+
+	return ret;
 }
 
 static void init_towers(struct towers *top, const struct parameter *const param)
@@ -217,6 +228,13 @@ static void print_towers(const struct towers *top)
 	FILE *os = top->os;
 
 	xprintf(os, "\nMaximum height of the towers is %d\n", top->max_height);
+
+	if (top->from)
+		print_tower(top->os, top->from);
+	if (top->aux)
+		print_tower(top->os, top->aux);
+	if (top->to)
+		print_tower(top->os, top->to);
 
 	xprintf(os, "\n");
 }
