@@ -111,28 +111,49 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
-static struct tower *new_tower()
+static struct tower *new_tower(const int height)
 {
-	struct tower *tower;
+	struct tower *t;
 
-	tower = malloc(sizeof(struct tower));
-	assert(tower != NULL);
-	tower->height = 0;
-	tower->top = NULL;
+	t = malloc(sizeof(struct tower));
+	assert(t != NULL);
+	t->height = 0;
+	t->top = NULL;
 
-	return tower;
+	return t;
+}
+
+static void delete_tower(struct tower *t)
+{
+	;
 }
 
 static void init_towers(struct towers *top, const size_t height, FILE *os)
 {
 	top->os = os;
 	top->max_height = height;
-	top->from = new_tower();
+	top->from = new_tower(height);
 	assert(top->from != NULL);
-	top->aux = new_tower();
+	top->aux = new_tower(0);
 	assert(top->aux != NULL);
-	top->to = new_tower();
+	top->to = new_tower(0);
 	assert(top->to != NULL);
+}
+
+static void term_towers(struct towers *top)
+{
+	if (top->from) {
+		delete_tower(top->from);
+		top->from = NULL;
+	}
+	if (top->aux) {
+		delete_tower(top->aux);
+		top->aux = NULL;
+	}
+	if (top->to) {
+		delete_tower(top->to);
+		top->to = NULL;
+	}
 }
 
 static void print_towers(const struct towers *top)
@@ -185,6 +206,7 @@ static void process(FILE *is, FILE *os)
 		}
 		init_towers(&app, param->height, os);
 		print_towers(&app);
+		term_towers(&app);
 	}
 }
 
