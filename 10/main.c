@@ -68,46 +68,28 @@ struct poles {
 	struct pole *to;
 };
 
-/* Supported number of disks, and the corresponding output filename. */
-typedef enum difficulty_level {
-	LOW = 0,
-	MEDIUM,
-	HIGH,
-	LEVEL_MAX
-} difficulty_level_t;
-
 typedef struct supported_level {
-	difficulty_level_t level;
-	const char *const level_str;
-	const char *const filename;
+	const char *const output;
 	const int height;
 } supported_level_t;
 
 /* Preconfigured level specific information. */
 static supported_level_t supported_levels[] = {
 	{
-		.level = LOW,
-		.level_str = "low",
 		.height = 1,
-		.filename = "output1.txt"
+		.output = "output1.txt"
 	},
 	{
-		.level = MEDIUM,
-		.level_str = "medium",
 		.height = 2,
-		.filename = "output2.txt"
+		.output = "output2.txt"
 	},
 	{
-		.level = HIGH,
-		.level_str = "high",
 		.height = 3,
-		.filename = "output3.txt"
+		.output = "output3.txt"
 	},
 	{
-		.level = LEVEL_MAX,
-		.level_str = "invalid",
 		.height = -1,
-		.filename = NULL
+		.output = NULL
 	}
 };
 
@@ -155,7 +137,7 @@ static void prompt(FILE *os)
 	int i;
 
 	fprintf(os, "Tell me the height of the 'from' tower, e.g. ");
-	for (i = LOW; i < LEVEL_MAX; i++) {
+	for (i = 0; supported_levels[i].output != NULL; i++) {
 		xprintf(os, "%d, ", supported_levels[i].height);
 	}
 	fprintf(os, "or -1 to quit? ");
@@ -164,9 +146,9 @@ static void prompt(FILE *os)
 static supported_level_t *const input(FILE *is, FILE *os)
 {
 	supported_level_t *level;
-	difficulty_level_t i;
 	int number;
 	char c;
+	int i;
 	int ret;
 
 	ret = fscanf(is, "%d%c", &number, &c);
@@ -175,7 +157,7 @@ static supported_level_t *const input(FILE *is, FILE *os)
 	if (ret != 2 || number == -1)
 		return NULL;
 
-	for (i = LOW; i < LEVEL_MAX; i++)
+	for (i = 0; supported_levels[i].output != NULL; i++)
 		if (number == supported_levels[i].height)
 			return &supported_levels[i];
 
@@ -188,9 +170,9 @@ static void process(FILE *is, FILE *os)
 	struct poles poles;
 
 	for (prompt(os); (config = input(is, os)) != NULL; prompt(os)) {
-		if (config->level == LEVEL_MAX) {
+		if (config->output == NULL) {
 			xprintf(os, "\nPlease select the supported "
-					"number of disks.\n\n");
+					"height of the tower.\n\n");
 			continue;
 		}
 		xprintf(os, "Your tower is this(%d) tall!\n", config->height);
