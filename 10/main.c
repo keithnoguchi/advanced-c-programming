@@ -49,6 +49,41 @@
 #include <stdbool.h>
 #include <assert.h>
 
+/* Supported parameters. */
+static struct parameter {
+	const int height;
+	const char *const output;
+} supported_params[] = {
+	{
+		.height = 1,
+		.output = "output1.txt"
+	},
+	{
+		.height = 2,
+		.output = "output2.txt"
+	},
+	{
+		.height = 3,
+		.output = "output3.txt"
+	},
+	{
+		.height = 4,
+		.output = "output4.txt"
+	},
+	{
+		.height = 5,
+		.output = "output5.txt"
+	},
+	{
+		.height = 6,
+		.output = "output6.txt"
+	},
+	{
+		.height = -1,
+		.output = NULL
+	}
+};
+
 /* Disk, which points the next disk below. */
 struct disk {
 	unsigned char number;
@@ -69,29 +104,6 @@ struct towers {
 	struct tower *aux;
 	struct tower *to;
 	FILE *os; /* Output stream pointer. */
-};
-
-/* Supported parameters. */
-static struct parameter {
-	const int height;
-	const char *const output;
-} supported_params[] = {
-	{
-		.height = 1,
-		.output = "output1.txt"
-	},
-	{
-		.height = 2,
-		.output = "output2.txt"
-	},
-	{
-		.height = 3,
-		.output = "output3.txt"
-	},
-	{
-		.height = -1,
-		.output = NULL
-	}
 };
 
 static int xprintf(FILE *os, const char *fmt, ...)
