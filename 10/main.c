@@ -154,9 +154,9 @@ static void prompt(FILE *os)
 {
 	int i;
 
-	fprintf(os, "How many disks do you want, ");
+	fprintf(os, "Tell me the height of the 'from' tower, e.g. ");
 	for (i = LOW; i < LEVEL_MAX; i++) {
-		fprintf(os, "%d, ", supported_levels[i].height);
+		xprintf(os, "%d, ", supported_levels[i].height);
 	}
 	fprintf(os, "or -1 to quit? ");
 }
@@ -193,6 +193,7 @@ static void process(FILE *is, FILE *os)
 					"number of disks.\n\n");
 			continue;
 		}
+		xprintf(os, "Your tower is this(%d) tall!\n", config->height);
 		init_poles(&poles, config->height);
 	}
 }
@@ -201,8 +202,8 @@ int main()
 {
 	FILE *is = stdin, *os = stdout;
 
-	xprintf(os, "\nGame: Tower of Hanoi\n");
-	xprintf(os, "==============\n\n");
+	xprintf(os, "\nHow to move disks in Tower of Hanoi\n");
+	xprintf(os, "===================================\n\n");
 
 	process(is, os);
 	xprintf(os, "\nThank you!\n");
