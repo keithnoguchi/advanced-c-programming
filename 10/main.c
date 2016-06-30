@@ -335,24 +335,33 @@ static struct parameter *const input(FILE *is, FILE *os)
 static void move_disk(struct towers *top, struct tower *from,
 		struct tower *to)
 {
-	push_disk(to, pop_disk(from));
-	top->steps += 1; /* One step at a time. :) */
+	struct disk *disk = pop_disk(from);
+
+	/* We're done. */
+	if (disk == NULL)
+		return;
+
+	push_disk(to, disk);
+	top->steps += 1;
+	print_towers(top);
 }
 
 static void move_disks(struct towers *top, struct tower *from,
-		struct tower *to, struct tower *aux, int from_height)
+		struct tower *to, struct tower *aux, const int from_height)
 {
 	/* Base case. */
 	if (from_height <= 1) {
-		if (from_height) {
-			move_disk(top, from, to);
-			print_towers(top);
-		}
+		move_disk(top, from, to);
 		return;
 	}
 
+	/* First move height - 1 disks from 'from' to 'aux'. */
 	move_disks(top, from, aux, to, from_height - 1);
-	move_disks(top, from, to, aux, 1);
+
+	/* Move the bottom disk from 'from' to 'to'. */
+	move_disk(top, from, to);
+
+	/* Move the bottom disk from 'from' to 'to'. */
 	move_disks(top, aux, to, from, from_height - 1);
 }
 
@@ -364,8 +373,13 @@ static void run(struct towers *top, const struct parameter *const param)
 	/* Print the initial state of the towers. */
 	print_towers(top);
 
+	/* First move height - 1 disks from 'from' to 'aux'. */
 	move_disks(top, top->from, top->aux, top->to, top->max_height - 1);
-	move_disks(top, top->from, top->to, top->aux, 1);
+
+	/* Move the bottom disk from 'from' to 'to'. */
+	move_disk(top, top->from, top->to);
+
+	/* Move the rest of the disks from 'aux' to 'to'. */
 	move_disks(top, top->aux, top->to, top->from, top->max_height - 1);
 
 	/* Terminate towers. */
