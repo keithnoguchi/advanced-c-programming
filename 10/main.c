@@ -50,8 +50,8 @@
 
 /* Disk, which points the next disk below. */
 struct disk {
-	const int size;
-	const char *const name;
+	unsigned char number;
+	char *name;
 	struct disk *next;
 };
 
@@ -111,21 +111,70 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
+static struct disk *new_disk(const unsigned char number)
+{
+	struct disk *d;
+
+	d = malloc(sizeof(struct disk));
+	assert(d != NULL);
+	d->number = number;
+	d->name = NULL;
+	d->next = NULL;
+
+	return d;
+}
+
+static void free_disk(struct disk *d)
+{
+	assert(d->next == NULL);
+	if (d->name) {
+		free(d->name);
+		d->name = NULL;
+	}
+	free(d);
+}
+
+static struct disk *push(struct disk *top, struct disk *new_disk)
+{
+	new_disk->next = top;
+	return new_disk;
+}
+
+static struct disk *pop(struct disk **top)
+{
+	if (*top != NULL) {
+		struct disk *disk = *top;
+		*top = disk->next;
+		disk->next = NULL;
+		return disk;
+	} else
+		return NULL;
+}
+
 static struct tower *new_tower(const int height)
 {
 	struct tower *t;
+	int i;
 
 	t = malloc(sizeof(struct tower));
 	assert(t != NULL);
 	t->height = 0;
 	t->top = NULL;
 
+	for (i = t->height; i > 0; i++)
+		t->top = push(t->top, new_disk(i));
+
 	return t;
 }
 
 static void delete_tower(struct tower *t)
 {
-	;
+	struct disk *d;
+	/* Let's drain the disks. */
+	while ((d = pop(&t->top)))
+		free_disk(d);
+	t->height = 0;
+	free(t);
 }
 
 static void init_towers(struct towers *top, const struct parameter *const param)
