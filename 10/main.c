@@ -54,7 +54,7 @@ static struct parameter {
 	const int height;
 	const char *const output;
 } supported_params[] = {
-#define DEBUG
+#undef DEBUG
 #ifdef DEBUG
 	{
 		.height = 1,
@@ -110,7 +110,7 @@ struct towers {
 	FILE *os; /* Output stream pointer. */
 };
 
-static int xprintf(FILE *os, const char *fmt, ...)
+static int xprintf(FILE *os, const char *const fmt, ...)
 {
 	va_list ap;
 	int ret;
