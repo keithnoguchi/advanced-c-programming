@@ -128,11 +128,17 @@ static void delete_tower(struct tower *t)
 	;
 }
 
-static void init_towers(struct towers *top, const size_t height, FILE *os)
+static void init_towers(struct towers *top, const struct parameter *const param)
 {
+	FILE *os;
+
+	assert(param->output != NULL);
+	top->os = fopen(param->output, "w");
+	assert(os);
+
 	top->os = os;
-	top->max_height = height;
-	top->from = new_tower(height);
+	top->max_height = param->height;
+	top->from = new_tower(param->height);
 	assert(top->from != NULL);
 	top->aux = new_tower(0);
 	assert(top->aux != NULL);
@@ -158,7 +164,11 @@ static void term_towers(struct towers *top)
 
 static void print_towers(const struct towers *top)
 {
-	xprintf(top->os, "Your tower is this(%d) tall!\n", top->max_height);
+	FILE *os = top->os;
+
+	xprintf(os, "\nMaximum height of the towers is %d\n", top->max_height);
+
+	xprintf(os, "\n");
 }
 
 static void prompt(FILE *os)
@@ -193,11 +203,10 @@ static struct parameter *const input(FILE *is, FILE *os)
 	return &supported_params[i];
 }
 
-static void run(struct towers *top,
-		const struct parameter *const param, FILE *os)
+static void run(struct towers *top, const struct parameter *const param)
 {
 	/* Initialize towers. */
-	init_towers(top, param->height, os);
+	init_towers(top, param);
 
 	/* Print the initial state of the towers. */
 	print_towers(top);
@@ -216,7 +225,7 @@ static void process(FILE *is, FILE *os)
 			xprintf(os, "\nPlease select the supported "
 					"height of the tower.\n\n");
 		else
-			run(&app, param, os);
+			run(&app, param);
 }
 
 int main()
