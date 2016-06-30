@@ -64,9 +64,11 @@ struct tower {
 
 /* Tower of Hanoi top level instance. */
 struct towers {
+	int max_height;
 	struct tower *from;
 	struct tower *aux;
 	struct tower *to;
+	FILE *os; /* Output stream pointer. */
 };
 
 /* Supported parameters. */
@@ -121,14 +123,21 @@ static struct tower *new_tower()
 	return tower;
 }
 
-static void init_towers(struct towers *top, const size_t height)
+static void init_towers(struct towers *top, const size_t height, FILE *os)
 {
+	top->os = os;
+	top->max_height = height;
 	top->from = new_tower();
 	assert(top->from != NULL);
 	top->aux = new_tower();
 	assert(top->aux != NULL);
 	top->to = new_tower();
 	assert(top->to != NULL);
+}
+
+static void print_towers(const struct towers *top)
+{
+	xprintf(top->os, "Your tower is this(%d) tall!\n", top->max_height);
 }
 
 static void prompt(FILE *os)
@@ -174,8 +183,8 @@ static void process(FILE *is, FILE *os)
 					"height of the tower.\n\n");
 			continue;
 		}
-		xprintf(os, "Your tower is this(%d) tall!\n", param->height);
-		init_towers(&app, param->height);
+		init_towers(&app, param->height, os);
+		print_towers(&app);
 	}
 }
 
