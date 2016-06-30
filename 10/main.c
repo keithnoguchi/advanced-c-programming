@@ -269,7 +269,7 @@ static void print_towers(const struct towers *const top)
 	print_footer(top);
 }
 
-static bool move_disks(struct towers *top)
+static bool move_disk(struct towers *top)
 {
 	return false;
 }
@@ -314,9 +314,9 @@ static void run(struct towers *top, const struct parameter *const param)
 	/* Print the initial state of the towers. */
 	print_towers(top);
 
-	/* Move disks until move_disks() returns false,
+	/* Move disks until move_disk() returns false,
 	 * which means there is no more disks to move. */
-	while (move_disks(top))
+	while (move_disk(top))
 		/* Print the Final state of the towers. */
 		print_towers(top);
 
