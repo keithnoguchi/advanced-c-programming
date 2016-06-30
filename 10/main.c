@@ -132,13 +132,10 @@ static void init_towers(struct towers *top, const struct parameter *const param)
 {
 	FILE *os;
 
-	assert(param->output != NULL);
-	top->os = fopen(param->output, "w");
-	assert(os);
-
-	top->os = os;
 	top->max_height = param->height;
-	top->from = new_tower(param->height);
+	top->os = fopen(param->output, "w");
+	assert(os != NULL);
+	top->from = new_tower(top->max_height);
 	assert(top->from != NULL);
 	top->aux = new_tower(0);
 	assert(top->aux != NULL);
@@ -159,6 +156,10 @@ static void term_towers(struct towers *top)
 	if (top->to) {
 		delete_tower(top->to);
 		top->to = NULL;
+	}
+	if (top->os != NULL) {
+		fclose(top->os);
+		top->os = NULL;
 	}
 }
 
