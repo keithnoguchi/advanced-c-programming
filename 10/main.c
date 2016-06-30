@@ -78,9 +78,9 @@ typedef enum difficulty_level {
 
 typedef struct supported_level {
 	difficulty_level_t level;
-	const int disks;
 	const char *const level_str;
 	const char *const filename;
+	const int height;
 } supported_level_t;
 
 /* Preconfigured level specific information. */
@@ -88,25 +88,25 @@ static supported_level_t supported_levels[] = {
 	{
 		.level = LOW,
 		.level_str = "low",
-		.disks = 1,
+		.height = 1,
 		.filename = "output1.txt"
 	},
 	{
 		.level = MEDIUM,
 		.level_str = "medium",
-		.disks = 2,
+		.height = 2,
 		.filename = "output2.txt"
 	},
 	{
 		.level = HIGH,
 		.level_str = "high",
-		.disks = 3,
+		.height = 3,
 		.filename = "output3.txt"
 	},
 	{
 		.level = LEVEL_MAX,
 		.level_str = "invalid",
-		.disks = -1,
+		.height = -1,
 		.filename = NULL
 	}
 };
@@ -156,7 +156,7 @@ static void prompt(FILE *os)
 
 	fprintf(os, "How many disks do you want, ");
 	for (i = LOW; i < LEVEL_MAX; i++) {
-		fprintf(os, "%d, ", supported_levels[i].disks);
+		fprintf(os, "%d, ", supported_levels[i].height);
 	}
 	fprintf(os, "or -1 to quit? ");
 }
@@ -176,7 +176,7 @@ static supported_level_t *const input(FILE *is, FILE *os)
 		return NULL;
 
 	for (i = LOW; i < LEVEL_MAX; i++)
-		if (number == supported_levels[i].disks)
+		if (number == supported_levels[i].height)
 			return &supported_levels[i];
 
 	return &supported_levels[i];
@@ -193,7 +193,7 @@ static void process(FILE *is, FILE *os)
 					"number of disks.\n\n");
 			continue;
 		}
-		init_poles(&poles, config->disks);
+		init_poles(&poles, config->height);
 	}
 }
 
