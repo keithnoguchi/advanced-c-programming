@@ -68,13 +68,13 @@ struct poles {
 	struct pole *to;
 };
 
-typedef struct supported_level {
-	const char *const output;
+typedef struct supported_height {
 	const int height;
+	const char *const output;
 } supported_level_t;
 
 /* Preconfigured level specific information. */
-static supported_level_t supported_levels[] = {
+static struct supported_height supported_levels[] = {
 	{
 		.height = 1,
 		.output = "output1.txt"
