@@ -11,7 +11,7 @@
 
    file name: main.c
 
-   Date: June 28th, 2016
+   Date: June 30th, 2016
 
    Background: The problem of towers of Hanoi has five, it's
                arbitrary though, disks of differing graded diameters
@@ -46,6 +46,27 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <assert.h>
+
+/* Peg, which points the next peg below. */
+struct peg {
+	const int size;
+	const char *const name;
+	struct peg *next;
+};
+
+/* Pole with the height and the pointer to the top of the peg. */
+struct pole {
+	int height;
+	struct peg *top;
+};
+
+/* Three towers of Hanoi. */
+struct poles {
+	struct pole *from;
+	struct pole *aux;
+	struct pole *to;
+};
 
 /* Supported number of disks, and the corresponding output filename. */
 typedef enum difficulty_level {
@@ -107,6 +128,28 @@ static int xprintf(FILE *os, const char *fmt, ...)
 	return ret;
 }
 
+static struct pole *new_pole()
+{
+	struct pole *pole;
+
+	pole = malloc(sizeof(struct pole));
+	assert(pole != NULL);
+	pole->height = 0;
+	pole->top = NULL;
+
+	return pole;
+}
+
+static void init_poles(struct poles *poles, const size_t height)
+{
+	poles->from = new_pole();
+	assert(poles->from != NULL);
+	poles->aux = new_pole();
+	assert(poles->aux != NULL);
+	poles->to = new_pole();
+	assert(poles->to != NULL);
+}
+
 static void prompt(FILE *os)
 {
 	int i;
@@ -142,11 +185,15 @@ static supported_level_t *const input(FILE *is, FILE *os)
 static void process(FILE *is, FILE *os)
 {
 	supported_level_t *config;
+	struct poles poles;
 
 	for (prompt(os); (config = input(is, os)) != NULL; prompt(os)) {
-		if (config->level == LEVEL_MAX)
+		if (config->level == LEVEL_MAX) {
 			xprintf(os, "\nPlease select the supported "
 					"number of disks.\n\n");
+			continue;
+		}
+		init_poles(&poles, config->disks);
 	}
 }
 
