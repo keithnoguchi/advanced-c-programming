@@ -61,8 +61,8 @@ struct pole {
 	struct disk *top;
 };
 
-/* Three towers of Hanoi. */
-struct poles {
+/* Tower of Hanoi top level instance. */
+struct towers {
 	struct pole *from;
 	struct pole *aux;
 	struct pole *to;
@@ -120,14 +120,14 @@ static struct pole *new_pole()
 	return pole;
 }
 
-static void init_poles(struct poles *poles, const size_t height)
+static void init_towers(struct towers *top, const size_t height)
 {
-	poles->from = new_pole();
-	assert(poles->from != NULL);
-	poles->aux = new_pole();
-	assert(poles->aux != NULL);
-	poles->to = new_pole();
-	assert(poles->to != NULL);
+	top->from = new_pole();
+	assert(top->from != NULL);
+	top->aux = new_pole();
+	assert(top->aux != NULL);
+	top->to = new_pole();
+	assert(top->to != NULL);
 }
 
 static void prompt(FILE *os)
@@ -165,7 +165,7 @@ static struct parameter *const input(FILE *is, FILE *os)
 static void process(FILE *is, FILE *os)
 {
 	struct parameter *param;
-	struct poles poles;
+	struct towers app;
 
 	for (prompt(os); (param = input(is, os)) != NULL; prompt(os)) {
 		if (param->output == NULL) {
@@ -174,7 +174,7 @@ static void process(FILE *is, FILE *os)
 			continue;
 		}
 		xprintf(os, "Your tower is this(%d) tall!\n", param->height);
-		init_poles(&poles, param->height);
+		init_towers(&app, param->height);
 	}
 }
 
