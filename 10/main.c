@@ -246,7 +246,8 @@ static void print_header(const struct towers *const top)
 
 static void print_footer(const struct towers *const top)
 {
-	xprintf(top->os, "%s     %s     %s\n\n", "A", "B", "C");
+	xprintf(top->os, "--------------\n");
+	xprintf(top->os, "A     B     C\n\n");
 }
 
 static void print_towers(const struct towers *const top)
@@ -271,7 +272,7 @@ static void prompt(FILE *os)
 {
 	int i;
 
-	fprintf(os, "Tell me the height of the 'from' tower, e.g. ");
+	fprintf(os, "Tell me the height of the initial tower, e.g. ");
 	for (i = 0; supported_params[i].output != NULL; i++) {
 		xprintf(os, "%d, ", supported_params[i].height);
 	}
