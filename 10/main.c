@@ -128,11 +128,6 @@ static void free_disk(struct disk *disk)
 	free(disk);
 }
 
-static int print_disk(FILE *os, const struct disk *const disk)
-{
-	xprintf(os, "%u ", disk->number);
-}
-
 static struct disk *push(struct disk *top, struct disk *new_disk)
 {
 	new_disk->next = top;
@@ -148,6 +143,11 @@ static struct disk *pop(struct disk **top)
 		return disk;
 	} else
 		return NULL;
+}
+
+static int print_disk(FILE *os, const struct disk *const disk)
+{
+	xprintf(os, "%u ", disk->number);
 }
 
 static struct tower *new_tower(const int height)
@@ -176,14 +176,29 @@ static void delete_tower(struct tower *t)
 	free(t);
 }
 
-static int print_tower(FILE *os, const struct tower *const t)
+static int print_tower(const struct towers *const top,
+		const struct tower *const t, const int height)
 {
-	struct disk *disk;
+	FILE *os = top->os;
 	int ret = 0;
 
-	for (disk = t->top; disk != NULL; disk = disk->next)
-		ret += print_disk(os, disk);
-	xprintf(os, "\n");
+	if (t == NULL || t->height < height)
+		ret += xprintf(os, " ");
+	else {
+		int diff = t->height - height;
+		struct disk *disk;
+		int i;
+
+		/* Find the target disk. */
+		disk = t->top;
+		for (i = 0; i < t->height; i++) {
+			if (i == diff) {
+				ret += print_disk(os, disk);
+				break;
+			}
+			disk = disk->next;
+		}
+	}
 
 	return ret;
 }
@@ -223,20 +238,33 @@ static void term_towers(struct towers *top)
 	}
 }
 
-static void print_towers(const struct towers *top)
+static void print_header(const struct towers *const top)
+{
+	xprintf(top->os, "\nCurrent towers\n");
+	xprintf(top->os, "--------------\n");
+}
+
+static void print_footer(const struct towers *const top)
+{
+	xprintf(top->os, "%s     %s     %s\n\n", "A", "B", "C");
+}
+
+static void print_towers(const struct towers *const top)
 {
 	FILE *os = top->os;
+	int i;
 
-	xprintf(os, "\nMaximum height of the towers is %d\n", top->max_height);
+	print_header(top);
 
-	if (top->from)
-		print_tower(top->os, top->from);
-	if (top->aux)
-		print_tower(top->os, top->aux);
-	if (top->to)
-		print_tower(top->os, top->to);
-
-	xprintf(os, "\n");
+	for (i = top->max_height; i > 0; i--) {
+		print_tower(top, top->from, i);
+		xprintf(os, "     ");
+		print_tower(top, top->aux, i);
+		xprintf(os, "     ");
+		print_tower(top, top->to, i);
+		xprintf(top->os, "\n");
+	}
+	print_footer(top);
 }
 
 static void prompt(FILE *os)

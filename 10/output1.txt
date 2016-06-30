@@ -1,6 +1,6 @@
 
-Maximum height of the towers is 1
-1 
-
-
+Current towers
+--------------
+1             
+A     B     C
 
