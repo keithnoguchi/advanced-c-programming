@@ -193,21 +193,30 @@ static struct parameter *const input(FILE *is, FILE *os)
 	return &supported_params[i];
 }
 
+static void run(struct towers *top,
+		const struct parameter *const param, FILE *os)
+{
+	/* Initialize towers. */
+	init_towers(top, param->height, os);
+
+	/* Print the initial state of the towers. */
+	print_towers(top);
+
+	/* Terminate towers. */
+	term_towers(top);
+}
+
 static void process(FILE *is, FILE *os)
 {
 	struct parameter *param;
 	struct towers app;
 
-	for (prompt(os); (param = input(is, os)) != NULL; prompt(os)) {
-		if (param->output == NULL) {
+	for (prompt(os); (param = input(is, os)) != NULL; prompt(os))
+		if (param->output == NULL)
 			xprintf(os, "\nPlease select the supported "
 					"height of the tower.\n\n");
-			continue;
-		}
-		init_towers(&app, param->height, os);
-		print_towers(&app);
-		term_towers(&app);
-	}
+		else
+			run(&app, param, os);
 }
 
 int main()
