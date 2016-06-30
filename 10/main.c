@@ -106,6 +106,7 @@ struct towers {
 	struct tower *from;
 	struct tower *aux;
 	struct tower *to;
+	int steps; /* Current steps, used for the output. */
 	FILE *os; /* Output stream pointer. */
 };
 
@@ -238,6 +239,7 @@ static void init_towers(struct towers *top, const struct parameter *const param)
 {
 	FILE *os;
 
+	top->steps = 0;
 	top->max_height = param->height;
 	top->os = fopen(param->output, "w");
 	assert(os != NULL);
@@ -271,14 +273,14 @@ static void term_towers(struct towers *top)
 
 static void print_header(const struct towers *const top)
 {
-	xprintf(top->os, "\nCurrent towers\n");
-	xprintf(top->os, "--------------\n");
+	xprintf(top->os, "\nCurrent towers in step %2d\n", top->steps + 1);
+	xprintf(top->os, "-------------------------\n");
 }
 
 static void print_footer(const struct towers *const top)
 {
-	xprintf(top->os, "--------------\n");
-	xprintf(top->os, "A     B     C\n\n");
+	xprintf(top->os, "-------------------------\n");
+	xprintf(top->os, "A           B           C\n\n");
 }
 
 static void print_towers(const struct towers *const top)
@@ -290,9 +292,9 @@ static void print_towers(const struct towers *const top)
 
 	for (i = top->max_height; i > 0; i--) {
 		print_tower(top, top->from, i);
-		xprintf(os, "     ");
+		xprintf(os, "           ");
 		print_tower(top, top->aux, i);
-		xprintf(os, "     ");
+		xprintf(os, "           ");
 		print_tower(top, top->to, i);
 		xprintf(top->os, "\n");
 	}
@@ -307,7 +309,7 @@ static void prompt(FILE *os)
 	for (i = 0; supported_params[i].output != NULL; i++) {
 		xprintf(os, "%d, ", supported_params[i].height);
 	}
-	fprintf(os, "or -1 to quit? ");
+	fprintf(os, "or 'q' for quit? ");
 }
 
 static struct parameter *const input(FILE *is, FILE *os)
@@ -318,11 +320,11 @@ static struct parameter *const input(FILE *is, FILE *os)
 	int ret;
 
 	ret = fscanf(is, "%d%c", &number, &c);
-	xprintf(os, "%d\n", number);
 
-	if (ret != 2 || number == -1)
+	if (ret != 2)
 		return NULL;
 
+	xprintf(os, "%d\n", number);
 	for (i = 0; supported_params[i].output != NULL; i++)
 		if (number == supported_params[i].height)
 			return &supported_params[i];
@@ -330,17 +332,22 @@ static struct parameter *const input(FILE *is, FILE *os)
 	return &supported_params[i];
 }
 
+static void move_disk(struct towers *top, struct tower *from,
+		struct tower *to)
+{
+	push_disk(to, pop_disk(from));
+	top->steps += 1; /* One step at a time. :) */
+}
+
 static void move_disks(struct towers *top, struct tower *from,
 		struct tower *to, struct tower *aux, int from_height)
 {
 	/* Base case. */
-	if (from_height == 0)
-		return;
-
-	/* second case. */
-	else if (from_height == 1) {
-		push_disk(to, pop_disk(from));
-		print_towers(top);
+	if (from_height <= 1) {
+		if (from_height) {
+			move_disk(top, from, to);
+			print_towers(top);
+		}
 		return;
 	}
 
@@ -360,9 +367,6 @@ static void run(struct towers *top, const struct parameter *const param)
 	move_disks(top, top->from, top->aux, top->to, top->max_height - 1);
 	move_disks(top, top->from, top->to, top->aux, 1);
 	move_disks(top, top->aux, top->to, top->from, top->max_height - 1);
-
-	/* Print the result. */
-	print_towers(top);
 
 	/* Terminate towers. */
 	term_towers(top);
