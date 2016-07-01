@@ -136,18 +136,21 @@ static int hash(const int key)
 	return key % hash_table_size;
 }
 
-static void read_entries(FILE *is, struct entry *entry[],
+static struct entry *push(struct entry *top, struct entry *new_entry)
+{
+	new_entry->next = top;
+	return new_entry;
+}
+
+static void read_entries(FILE *is, struct entry *table[],
 		const size_t table_size)
 {
-	struct entry *e;
+	struct entry **ep;
 	int key;
-	int h;
 
 	while ((fscanf(is, "%d ", &key)) != EOF) {
-		h = hash(key);
-		e = new_entry(key);
-		e->next = entry[h];
-		entry[h] = e;
+		ep = &table[hash(key)];
+		*ep = push(*ep, new_entry(key));
 	}
 }
 
