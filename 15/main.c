@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <assert.h>
 
 #define HASH_TABLE_SIZE 15
 static const int invalid_key = -1;
@@ -39,7 +40,7 @@ static struct entry {
 	int key;
 	int record;
 	struct entry *next;
-} table[HASH_TABLE_SIZE];
+} *table[HASH_TABLE_SIZE];
 
 static void generate_random_file(const char *const output)
 {
@@ -78,11 +79,17 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-static void init_entry(struct entry *e)
+static struct entry *new_entry(const int key)
 {
-	e->key = invalid_key;
+	struct entry *e;
+
+	e = malloc(sizeof(struct entry));
+	assert(e != NULL);
+	e->key = key;
 	e->record = invalid_record;
 	e->next = NULL;
+
+	return e;
 }
 
 static int print_entry(FILE *os, const struct entry *const e)
@@ -98,15 +105,15 @@ static int print_entry(FILE *os, const struct entry *const e)
 	return ret;
 }
 
-static void init_table(struct entry *table, const size_t table_size)
+static void init_table(struct entry *table[], const size_t table_size)
 {
 	int i;
 
 	for (i = 0; i < table_size; i++)
-		init_entry(&table[i]);
+		table[i] = NULL;
 }
 
-static void print_table(FILE *os, const struct entry *const table,
+static void print_table(FILE *os, struct entry *table[],
 		const size_t table_size)
 {
 	const struct entry *e;
@@ -117,17 +124,37 @@ static void print_table(FILE *os, const struct entry *const table,
 
 	for (i = 0; i < table_size; i++) {
 		xprintf(os, "%2d: ", i);
-		for (e = &table[i]; e != NULL; e = e->next)
+		for (e = table[i]; e != NULL; e = e->next)
 			print_entry(os, e);
 		xprintf(os, "\n");
 	}
 	xprintf(os, "\n");
 }
 
+static int hash(const int key)
+{
+	return key % hash_table_size;
+}
+
+static void read_entries(FILE *is, struct entry *entry[],
+		const size_t table_size)
+{
+	struct entry *e;
+	int key;
+	int h;
+
+	while ((fscanf(is, "%d ", &key)) != EOF) {
+		h = hash(key);
+		e = new_entry(key);
+		e->next = entry[h];
+		entry[h] = e;
+	}
+}
 
 static void process(FILE *is, FILE *os)
 {
 	init_table(table, hash_table_size);
+	read_entries(is, table, hash_table_size);
 	print_table(os, table, hash_table_size);
 }
 
