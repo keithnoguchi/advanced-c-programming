@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <assert.h>
 
 #define HASH_TABLE_SIZE 15
@@ -37,7 +38,7 @@ static const int random_key_max = 1000;
 static const int input_file_generation_retry = 3;
 
 static struct entry {
-	int key;
+	const char *key;
 	int record;
 	struct entry *next;
 } *table[HASH_TABLE_SIZE];
@@ -79,24 +80,30 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-static struct entry *new_entry(const int key)
+static struct entry *new_entry(const char *const key)
 {
 	struct entry *e;
 
 	e = malloc(sizeof(struct entry));
 	assert(e != NULL);
-	e->key = key;
+	e->key = strndup(key, BUFSIZ);
 	e->record = invalid_record;
 	e->next = NULL;
 
 	return e;
 }
 
+static void free_entry(struct entry *e)
+{
+	free((void *)e->key);
+	free(e);
+}
+
 static int print_entry(FILE *os, const struct entry *const e)
 {
 	int ret;
 
-	ret = xprintf(os, "{%d}", e->key);
+	ret = xprintf(os, "{%s}", e->key);
 	if (e->next)
 		ret += xprintf(os, " -> ");
 	else
@@ -131,9 +138,28 @@ static void print_table(FILE *os, struct entry *table[],
 	xprintf(os, "\n");
 }
 
-static int hash(const int key)
+static int hash(const char *const key)
 {
-	return key % hash_table_size;
+	const char *ptr = key;
+	int total = 0;
+
+	/* Sum up the ASCII character, as a digit
+	 * and then make modulo. */
+	for (ptr = key; *ptr != '\0'; ptr++)
+		total += *ptr;
+
+	return total % hash_table_size;
+}
+
+static struct entry *pop(struct entry **top)
+{
+	struct entry *e = *top;
+
+	if (e != NULL) {
+		*top = e->next;
+		e->next = NULL;
+	}
+	return e;
 }
 
 static struct entry *push(struct entry *top, struct entry *new_entry)
@@ -146,12 +172,22 @@ static void read_entries(FILE *is, struct entry *table[],
 		const size_t table_size)
 {
 	struct entry **ep;
-	int key;
+	char key[BUFSIZ];
 
-	while ((fscanf(is, "%d ", &key)) != EOF) {
+	while ((fscanf(is, "%s ", key)) != EOF) {
 		ep = &table[hash(key)];
 		*ep = push(*ep, new_entry(key));
 	}
+}
+
+static void term_table(struct entry *table[], const size_t table_size)
+{
+	struct entry *e;
+	int i;
+
+	for (i = 0; i < table_size; i++)
+		while ((e = pop(&table[i])))
+			free_entry(e);
 }
 
 static void process(FILE *is, FILE *os)
@@ -159,6 +195,7 @@ static void process(FILE *is, FILE *os)
 	init_table(table, hash_table_size);
 	read_entries(is, table, hash_table_size);
 	print_table(os, table, hash_table_size);
+	term_table(table, hash_table_size);
 }
 
 int main()
