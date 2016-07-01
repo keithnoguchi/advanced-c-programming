@@ -162,10 +162,10 @@ static struct entry *pop(struct entry **top)
 	return e;
 }
 
-static struct entry *push(struct entry *top, struct entry *new_entry)
+static struct entry *push(struct entry *top, struct entry *e)
 {
-	new_entry->next = top;
-	return new_entry;
+	e->next = top;
+	return e;
 }
 
 static void read_entries(FILE *is, struct entry *table[],
