@@ -167,8 +167,10 @@ static struct number *copy_number(const struct number *const from_head)
 	struct number *head, *prev;
 
 	head = prev = __new_number(from->value);
+	prev->position = from->position;
 	while ((from = from->next)) {
 		prev->next = __new_number(from->value);
+		prev->next->position = from->position;
 		prev = prev->next;
 	}
 	return head;
