@@ -66,19 +66,28 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-static struct number *new_number(const char *const num)
+static struct number *__new_number(const int value)
 {
 	struct number *number;
-	int ret;
 
 	number = malloc(sizeof(struct number));
 	assert(number != NULL);
 	number->next = NULL;
-
-	ret = sscanf(num, "%d", &number->value);
-	assert(ret == 1);
+	number->value = value;
+	number->position = 0;
 
 	return number;
+}
+
+static struct number *new_number(const char *const num)
+{
+	int value;
+	int ret;
+
+	ret = sscanf(num, "%d", &value);
+	assert(ret == 1);
+
+	return __new_number(value);
 }
 
 static void free_number(struct number *number)
@@ -152,6 +161,28 @@ static void delete_number(struct number *head)
 		free_number(number);
 }
 
+static struct number *copy_number(const struct number *const from_head)
+{
+	const struct number *from = from_head;
+	struct number *head, *prev;
+
+	head = prev = __new_number(from->value);
+	while ((from = from->next)) {
+		prev->next = __new_number(from->value);
+		prev = prev->next;
+	}
+	return head;
+}
+
+static struct number *add_number(struct number *to,
+				const struct number *const from)
+{
+	if (to == NULL)
+		return copy_number(from);
+	else
+		return to;
+}
+
 static int print_number(FILE *os, const struct number *const head)
 {
 	const struct number *number;
@@ -193,6 +224,7 @@ static int print_title(FILE *os)
 static void process(FILE *is, FILE *os)
 {
 	struct number *numbers[max_number_of_numbers];
+	struct number *result = NULL;
 	int i, num;
 
 	print_title(os);
@@ -201,13 +233,17 @@ static void process(FILE *is, FILE *os)
 
 	for (i = 0; i < num; i++) {
 		print_number(os, numbers[i]);
+		result = add_number(result, numbers[i]);
 		if (i + 1 < num)
 			xprintf(os, " + ");
 	}
-	xprintf(os, " = \n");
+	xprintf(os, " = ");
+	print_number(os, result);
+	xprintf(os, "\n");
 
 	for (i = 0; i < num; i++)
 		delete_number(numbers[i]);
+	delete_number(result);
 }
 
 int main()
