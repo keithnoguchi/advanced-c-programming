@@ -35,7 +35,7 @@
 #include <string.h>
 #include <assert.h>
 
-static const int max_numbers = 2;
+static const int max_numbers = 4;
 
 struct node {
 	int value;
@@ -185,10 +185,22 @@ static int get_numbers(FILE *is, struct number *nums[], const size_t size)
 	return i;
 }
 
+static int print_title(FILE *os)
+{
+	int ret;
+
+	ret = xprintf(os, "\nBig number arithmatic\n");
+	ret += xprintf(os, "=====================\n\n");
+
+	return ret;
+}
+
 static void process(FILE *is, FILE *os)
 {
 	struct number *numbers[max_numbers];
 	int i, num;
+
+	print_title(os);
 
 	num = get_numbers(is, numbers, max_numbers);
 	for (i = 0; i < num; i++) {
