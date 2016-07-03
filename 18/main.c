@@ -36,6 +36,12 @@
 #include <assert.h>
 
 static const int max_numbers = 4;
+#define DEBUG
+#ifdef DEBUG
+static const char separator = ',';
+#else
+static const char separator = ' ';
+#endif /* DEBUG */
 
 struct node {
 	int value;
@@ -105,10 +111,17 @@ static struct node *pop_node(struct node **head)
 static int print_node(FILE *os, const struct node *const node,
 		const bool is_head)
 {
+	int ret;
+
 	if (is_head)
-		return xprintf(os, "%4d ", node->value);
+		ret = xprintf(os, "%d", node->value);
 	else
-		return xprintf(os, "%04d ", node->value);
+		ret = xprintf(os, "%04d", node->value);
+
+	if (node->next != NULL)
+		ret += xprintf(os, "%c", separator);
+
+	return ret;
 }
 
 static struct number *new_number(char *buf)
@@ -166,7 +179,6 @@ static int print_number(FILE *os, const struct number *const num)
 		ret += print_node(os, node, is_head);
 		is_head = false;
 	}
-	xprintf(os, "\n");
 
 	return ret;
 }
@@ -203,10 +215,16 @@ static void process(FILE *is, FILE *os)
 	print_title(os);
 
 	num = get_numbers(is, numbers, max_numbers);
+
 	for (i = 0; i < num; i++) {
 		print_number(os, numbers[i]);
-		delete_number(numbers[i]);
+		if (i + 1 < num)
+			xprintf(os, " + ");
 	}
+	xprintf(os, " = \n");
+
+	for (i = 0; i < num; i++)
+		delete_number(numbers[i]);
 }
 
 int main()
