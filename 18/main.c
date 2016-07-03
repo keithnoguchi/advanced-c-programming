@@ -35,7 +35,7 @@
 #include <string.h>
 #include <assert.h>
 
-static const int max_numbers = 4;
+static const int max_number_of_numbers = 2;
 #define DEBUG
 #ifdef DEBUG
 static const char separator = ',';
@@ -45,11 +45,11 @@ static const char separator = ' ';
 
 struct node {
 	int value;
+	int position;
 	struct node *next;
 };
 
 struct number {
-	int size;
 	struct node *head;
 };
 
@@ -93,6 +93,10 @@ static void free_node(struct node *node)
 
 static struct node *push_node(struct node *head, struct node *const node)
 {
+	if (head != NULL)
+		node->position = head->position + 1;
+	else
+		node->position = 0;
 	node->next = head;
 	return node;
 }
@@ -132,20 +136,16 @@ static struct number *new_number(char *buf)
 
 	num = malloc(sizeof(struct number));
 	assert(num != NULL);
-	num->size = 0;
 
 	/* Get every four digit, from the botton.  */
 	for (ptr = buf + size - 4; ptr >= buf; ptr -= 4) {
 		num->head = push_node(num->head, new_node(ptr));
-		num->size++;
 		*ptr = '\0';
 	}
 
 	/* Mist significant part. */
-	if (ptr + 4 > buf) {
+	if (ptr + 4 > buf)
 		num->head = push_node(num->head, new_node(buf));
-		num->size++;
-	}
 
 	return num;
 }
@@ -153,7 +153,6 @@ static struct number *new_number(char *buf)
 static void free_number(struct number *num)
 {
 	assert(num->head == NULL);
-	assert(num->size == 0);
 	free(num);
 }
 
@@ -161,11 +160,8 @@ static void delete_number(struct number *num)
 {
 	struct node *node;
 
-	while ((node = pop_node(&num->head))) {
+	while ((node = pop_node(&num->head)))
 		free_node(node);
-		num->size--;
-	}
-
 	free_number(num);
 }
 
@@ -209,12 +205,12 @@ static int print_title(FILE *os)
 
 static void process(FILE *is, FILE *os)
 {
-	struct number *numbers[max_numbers];
+	struct number *numbers[max_number_of_numbers];
 	int i, num;
 
 	print_title(os);
 
-	num = get_numbers(is, numbers, max_numbers);
+	num = get_numbers(is, numbers, max_number_of_numbers);
 
 	for (i = 0; i < num; i++) {
 		print_number(os, numbers[i]);
