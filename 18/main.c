@@ -43,14 +43,10 @@ static const char separator = ',';
 static const char separator = ' ';
 #endif /* DEBUG */
 
-struct node {
+struct number {
 	int value;
 	int position;
-	struct node *next;
-};
-
-struct number {
-	struct node *head;
+	struct number *next;
 };
 
 static int xprintf(FILE *os, const char *const fmt, ...)
@@ -70,109 +66,100 @@ static int xprintf(FILE *os, const char *const fmt, ...)
 	return ret;
 }
 
-static struct node *new_node(const char *const num)
+static struct number *new_number(const char *const num)
 {
-	struct node *node;
+	struct number *number;
 	int ret;
 
-	node = malloc(sizeof(struct node));
-	assert(node != NULL);
-	node->next = NULL;
+	number = malloc(sizeof(struct number));
+	assert(number != NULL);
+	number->next = NULL;
 
-	ret = sscanf(num, "%d", &node->value);
+	ret = sscanf(num, "%d", &number->value);
 	assert(ret == 1);
 
-	return node;
+	return number;
 }
 
-static void free_node(struct node *node)
+static void free_number(struct number *number)
 {
-	assert(node->next == NULL);
-	free(node);
+	assert(number->next == NULL);
+	free(number);
 }
 
-static struct node *push_node(struct node *head, struct node *const node)
+static struct number *push_number(struct number *head,
+		struct number *const number)
 {
 	if (head != NULL)
-		node->position = head->position + 1;
+		number->position = head->position + 1;
 	else
-		node->position = 0;
-	node->next = head;
-	return node;
+		number->position = 0;
+	number->next = head;
+	return number;
 }
 
-static struct node *pop_node(struct node **head)
+static struct number *pop_number(struct number **head)
 {
-	struct node *node = *head;
+	struct number *number = *head;
 
-	if (node != NULL) {
-		*head = node->next;
-		node->next = NULL;
+	if (number != NULL) {
+		*head = number->next;
+		number->next = NULL;
 	}
-	return node;
+	return number;
 }
 
-static int print_node(FILE *os, const struct node *const node,
+static int __print_number(FILE *os, const struct number *const number,
 		const bool is_head)
 {
 	int ret;
 
 	if (is_head)
-		ret = xprintf(os, "%d", node->value);
+		ret = xprintf(os, "%d", number->value);
 	else
-		ret = xprintf(os, "%04d", node->value);
+		ret = xprintf(os, "%04d", number->value);
 
-	if (node->next != NULL)
+	if (number->next != NULL)
 		ret += xprintf(os, "%c", separator);
 
 	return ret;
 }
 
-static struct number *new_number(char *buf)
+static struct number *alloc_number(char *buf)
 {
 	size_t size = strlen(buf);
-	struct number *num;
+	struct number *head = NULL;
 	char *ptr;
-
-	num = malloc(sizeof(struct number));
-	assert(num != NULL);
 
 	/* Get every four digit, from the botton.  */
 	for (ptr = buf + size - 4; ptr >= buf; ptr -= 4) {
-		num->head = push_node(num->head, new_node(ptr));
+		head = push_number(head, new_number(ptr));
 		*ptr = '\0';
 	}
 
-	/* Mist significant part. */
+	/* Most significant part. */
 	if (ptr + 4 > buf)
-		num->head = push_node(num->head, new_node(buf));
+		head = push_number(head, new_number(buf));
 
-	return num;
+	return head;
 }
 
-static void free_number(struct number *num)
+static void delete_number(struct number *head)
 {
-	assert(num->head == NULL);
-	free(num);
+	struct number *number;
+
+	while ((number = pop_number(&head)))
+		free_number(number);
 }
 
-static void delete_number(struct number *num)
+static int print_number(FILE *os, const struct number *const head)
 {
-	struct node *node;
-
-	while ((node = pop_node(&num->head)))
-		free_node(node);
-	free_number(num);
-}
-
-static int print_number(FILE *os, const struct number *const num)
-{
-	struct node *node;
+	const struct number *number;
 	bool is_head = true;
 	int ret = 0;
 
-	for (node = num->head; node != NULL; node = node->next) {
-		ret += print_node(os, node, is_head);
+	for (number = head; number != NULL; number = number->next) {
+		ret += __print_number(os, number, is_head);
 		is_head = false;
 	}
 
@@ -185,7 +172,7 @@ static int get_numbers(FILE *is, struct number *nums[], const size_t size)
 	int i = 0;
 
 	while (fscanf(is, "%s\n", buf) != EOF) {
-		nums[i++] = new_number(buf);
+		nums[i++] = alloc_number(buf);
 		if (i == size)
 			break;
 	}
