@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <assert.h>
 
@@ -42,6 +43,23 @@ struct number {
 	int size;
 	struct node *head;
 };
+
+static int xprintf(FILE *os, const char *const fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vfprintf(os, fmt, ap);
+	if (os != stdout && os != stderr) {
+		va_end(ap);
+		va_start(ap, fmt);
+		ret = vprintf(fmt, ap);
+	}
+	va_end(ap);
+
+	return ret;
+}
 
 static struct node *new_node(const char *const num)
 {
@@ -81,6 +99,11 @@ static struct node *pop(struct node **head)
 	return node;
 }
 
+static int print_node(FILE *os, const struct node *const node)
+{
+	return xprintf(os, "%d ", node->value);
+}
+
 static struct number *new_number(char *buf)
 {
 	size_t size = strlen(buf);
@@ -95,7 +118,6 @@ static struct number *new_number(char *buf)
 	for (ptr = buf + size - 4; ptr >= buf; ptr -= 4) {
 		num->head = push(num->head, new_node(ptr));
 		num->size++;
-		printf("%s\n", ptr);
 		*ptr = '\0';
 	}
 
@@ -103,7 +125,6 @@ static struct number *new_number(char *buf)
 	if (ptr + 4 > buf) {
 		num->head = push(num->head, new_node(buf));
 		num->size++;
-		printf("%s\n", buf);
 	}
 
 	return num;
@@ -128,14 +149,14 @@ static void delete_number(struct number *num)
 	free_number(num);
 }
 
-static int print_number(const struct number *const num)
+static int print_number(FILE *os, const struct number *const num)
 {
 	struct node *node;
 	int ret = 0;
 
 	for (node = num->head; node != NULL; node = node->next)
-		ret += printf("%d ", node->value);
-	printf("\n");
+		ret += print_node(os, node);
+	xprintf(os, "\n");
 
 	return ret;
 }
@@ -147,7 +168,7 @@ static void process(FILE *is, FILE *os)
 
 	while (fscanf(is, "%s\n", buf) != EOF) {
 		num = new_number(buf);
-		print_number(num);
+		print_number(os, num);
 		delete_number(num);
 	}
 }
