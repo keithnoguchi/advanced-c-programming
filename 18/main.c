@@ -35,6 +35,8 @@
 #include <string.h>
 #include <assert.h>
 
+static const int max_numbers = 2;
+
 struct node {
 	int value;
 	struct node *next;
@@ -164,21 +166,34 @@ static int print_number(FILE *os, const struct number *const num)
 		ret += print_node(os, node, is_head);
 		is_head = false;
 	}
-
 	xprintf(os, "\n");
 
 	return ret;
 }
 
-static void process(FILE *is, FILE *os)
+static int get_numbers(FILE *is, struct number *nums[], const size_t size)
 {
-	struct number *num;
 	char buf[BUFSIZ];
+	int i = 0;
 
 	while (fscanf(is, "%s\n", buf) != EOF) {
-		num = new_number(buf);
-		print_number(os, num);
-		delete_number(num);
+		nums[i++] = new_number(buf);
+		if (i == size)
+			break;
+	}
+
+	return i;
+}
+
+static void process(FILE *is, FILE *os)
+{
+	struct number *numbers[max_numbers];
+	int i, num;
+
+	num = get_numbers(is, numbers, max_numbers);
+	for (i = 0; i < num; i++) {
+		print_number(os, numbers[i]);
+		delete_number(numbers[i]);
 	}
 }
 
