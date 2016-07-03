@@ -101,7 +101,7 @@ static struct node *pop(struct node **head)
 
 static int print_node(FILE *os, const struct node *const node)
 {
-	return xprintf(os, "%d ", node->value);
+	return xprintf(os, "%4d ", node->value);
 }
 
 static struct number *new_number(char *buf)
