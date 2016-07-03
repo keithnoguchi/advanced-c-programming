@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 
@@ -82,13 +83,13 @@ static void free_node(struct node *node)
 	free(node);
 }
 
-static struct node *push(struct node *head, struct node *const node)
+static struct node *push_node(struct node *head, struct node *const node)
 {
 	node->next = head;
 	return node;
 }
 
-static struct node *pop(struct node **head)
+static struct node *pop_node(struct node **head)
 {
 	struct node *node = *head;
 
@@ -99,9 +100,13 @@ static struct node *pop(struct node **head)
 	return node;
 }
 
-static int print_node(FILE *os, const struct node *const node)
+static int print_node(FILE *os, const struct node *const node,
+		const bool is_head)
 {
-	return xprintf(os, "%4d ", node->value);
+	if (is_head)
+		return xprintf(os, "%4d ", node->value);
+	else
+		return xprintf(os, "%04d ", node->value);
 }
 
 static struct number *new_number(char *buf)
@@ -116,14 +121,14 @@ static struct number *new_number(char *buf)
 
 	/* Get every four digit, from the botton.  */
 	for (ptr = buf + size - 4; ptr >= buf; ptr -= 4) {
-		num->head = push(num->head, new_node(ptr));
+		num->head = push_node(num->head, new_node(ptr));
 		num->size++;
 		*ptr = '\0';
 	}
 
 	/* Mist significant part. */
 	if (ptr + 4 > buf) {
-		num->head = push(num->head, new_node(buf));
+		num->head = push_node(num->head, new_node(buf));
 		num->size++;
 	}
 
@@ -141,7 +146,7 @@ static void delete_number(struct number *num)
 {
 	struct node *node;
 
-	while ((node = pop(&num->head))) {
+	while ((node = pop_node(&num->head))) {
 		free_node(node);
 		num->size--;
 	}
@@ -152,10 +157,14 @@ static void delete_number(struct number *num)
 static int print_number(FILE *os, const struct number *const num)
 {
 	struct node *node;
+	bool is_head = true;
 	int ret = 0;
 
-	for (node = num->head; node != NULL; node = node->next)
-		ret += print_node(os, node);
+	for (node = num->head; node != NULL; node = node->next) {
+		ret += print_node(os, node, is_head);
+		is_head = false;
+	}
+
 	xprintf(os, "\n");
 
 	return ret;
