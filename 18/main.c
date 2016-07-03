@@ -64,11 +64,27 @@ static void free_node(struct node *node)
 	free(node);
 }
 
+static struct node *push(struct node *head, struct node *const node)
+{
+	node->next = head;
+	return node;
+}
+
+static struct node *pop(struct node **head)
+{
+	struct node *node = *head;
+
+	if (node != NULL) {
+		*head = node->next;
+		node->next = NULL;
+	}
+	return node;
+}
+
 static struct number *new_number(char *buf)
 {
 	size_t size = strlen(buf);
 	struct number *num;
-	struct node *node;
 	char *ptr;
 
 	num = malloc(sizeof(struct number));
@@ -77,15 +93,18 @@ static struct number *new_number(char *buf)
 
 	/* Get every four digit, from the botton.  */
 	for (ptr = buf + size - 4; ptr >= buf; ptr -= 4) {
-		node = new_node(ptr);
-		free_node(node);
+		num->head = push(num->head, new_node(ptr));
+		num->size++;
 		printf("%s\n", ptr);
 		*ptr = '\0';
 	}
 
 	/* Mist significant part. */
-	if (ptr + 4 > buf)
+	if (ptr + 4 > buf) {
+		num->head = push(num->head, new_node(buf));
+		num->size++;
 		printf("%s\n", buf);
+	}
 
 	return num;
 }
@@ -95,6 +114,18 @@ static void free_number(struct number *num)
 	assert(num->head == NULL);
 	assert(num->size == 0);
 	free(num);
+}
+
+static void delete_number(struct number *num)
+{
+	struct node *node;
+
+	while ((node = pop(&num->head))) {
+		free_node(node);
+		num->size--;
+	}
+
+	free_number(num);
 }
 
 static int print_number(const struct number *const num)
@@ -114,7 +145,7 @@ static void process(FILE *is, FILE *os)
 	while (fscanf(is, "%s\n", buf) != EOF) {
 		num = new_number(buf);
 		print_number(num);
-		free_number(num);
+		delete_number(num);
 	}
 }
 
