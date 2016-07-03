@@ -34,7 +34,7 @@
 #include <assert.h>
 
 struct node {
-	int num;
+	int value;
 	struct node *next;
 };
 
@@ -52,7 +52,7 @@ static struct node *new_node(const char *const num)
 	assert(node != NULL);
 	node->next = NULL;
 
-	ret = sscanf(num, "%d", &node->num);
+	ret = sscanf(num, "%d", &node->value);
 	assert(ret == 1);
 
 	return node;
@@ -130,9 +130,12 @@ static void delete_number(struct number *num)
 
 static int print_number(const struct number *const num)
 {
-	int ret;
+	struct node *node;
+	int ret = 0;
 
-	ret = printf("Here you go with number(size = %d)\n", num->size);
+	for (node = num->head; node != NULL; node = node->next)
+		ret += printf("%d ", node->value);
+	printf("\n");
 
 	return ret;
 }
