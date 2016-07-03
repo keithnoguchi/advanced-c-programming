@@ -1,3 +1,5 @@
+CFLAGS += -g -Wall -Werror
+LDFLAGS += -g
 TARGET := a.out
 SRC := main.c
 OBJ := $(SRC:.c=.o)

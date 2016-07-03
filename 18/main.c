@@ -30,6 +30,93 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
+struct node {
+	int num;
+	struct node *next;
+};
+
+struct number {
+	int size;
+	struct node *head;
+};
+
+static struct node *new_node(const char *const num)
+{
+	struct node *node;
+	int ret;
+
+	node = malloc(sizeof(struct node));
+	assert(node != NULL);
+	node->next = NULL;
+
+	ret = sscanf(num, "%d", &node->num);
+	assert(ret == 1);
+
+	return node;
+}
+
+static void free_node(struct node *node)
+{
+	assert(node->next == NULL);
+	free(node);
+}
+
+static struct number *new_number(char *buf)
+{
+	size_t size = strlen(buf);
+	struct number *num;
+	struct node *node;
+	char *ptr;
+
+	num = malloc(sizeof(struct number));
+	assert(num != NULL);
+	num->size = 0;
+
+	/* Get every four digit, from the botton.  */
+	for (ptr = buf + size - 4; ptr >= buf; ptr -= 4) {
+		node = new_node(ptr);
+		free_node(node);
+		printf("%s\n", ptr);
+		*ptr = '\0';
+	}
+
+	/* Mist significant part. */
+	if (ptr + 4 > buf)
+		printf("%s\n", buf);
+
+	return num;
+}
+
+static void free_number(struct number *num)
+{
+	assert(num->head == NULL);
+	assert(num->size == 0);
+	free(num);
+}
+
+static int print_number(const struct number *const num)
+{
+	int ret;
+
+	ret = printf("Here you go with number(size = %d)\n", num->size);
+
+	return ret;
+}
+
+static void process(FILE *is, FILE *os)
+{
+	struct number *num;
+	char buf[BUFSIZ];
+
+	while (fscanf(is, "%s\n", buf) != EOF) {
+		num = new_number(buf);
+		print_number(num);
+		free_number(num);
+	}
+}
 
 int main()
 {
@@ -49,7 +136,7 @@ int main()
 		goto err;
 	}
 
-	printf("Hello world!\n");
+	process(is, os);
 
 err:
 	if (is != NULL)
